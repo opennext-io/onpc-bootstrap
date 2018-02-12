@@ -60,3 +60,5 @@ keepalived_package_state: latest
 cinder_default_availability_zone: cinderAZ_1
 # Not clear we really need this (Note: PP)
 # cinder_default_volume_type:
+
+onpc_model: onpc_basic_model  

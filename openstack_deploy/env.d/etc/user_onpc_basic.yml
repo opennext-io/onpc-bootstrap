@@ -61,4 +61,9 @@ cinder_default_availability_zone: cinderAZ_1
 # Not clear we really need this (Note: PP)
 # cinder_default_volume_type:
 
-onpc_model: onpc_basic_model  
+onpc_model: onpc_basic_model
+
+# Nova settings
+nova_nova_conf_overrides:
+  DEFAULT:
+    nova_cpu_allocation_ratio: 2.0

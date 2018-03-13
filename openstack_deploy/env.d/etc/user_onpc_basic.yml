@@ -64,6 +64,7 @@ cinder_default_availability_zone: cinderAZ_1
 onpc_model: onpc_basic_model
 
 # Nova settings
+nova_cpu_allocation_ratio: 8.0
 nova_nova_conf_overrides:
   DEFAULT:
-    nova_cpu_allocation_ratio: 2.0
+    cpu_allocation_ratio: "{{ nova_cpu_allocation_ration }}"

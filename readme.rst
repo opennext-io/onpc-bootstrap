@@ -29,73 +29,85 @@ Copy the env.d files and global configuration variables into place
     cd /opt/onpc-basic-model
     cp ./etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d/
     cp ./etc/openstack_deploy/conf.d/monitoring.aio.yml /etc/openstack_deploy/conf.d/monitoring.yml
-    cp ./etc/openstack_deploy/user_monitoring.yml /etc/openstack_deploy
+    cp ./etc/openstack_deploy/user_onpc_variables.yml /etc/openstack_deploy
+    cp ./etc/openstack_deploy/user_onpc_secrets.yml /etc/openstack_deploy
 
-Copy the secrets file into place and generate the password values
+Generate the password values
 
 .. code-block:: bash
 
-    cd /opt/onpc-monitoring
-    cp user_monitoring_secrets.yml /etc/openstack_deploy/
-    sudo /opt/openstack-ansible/scripts/pw-token-gen.py --file /etc/openstack_deploy/user_monitoring_secrets.yml
+    /opt/openstack-ansible/scripts/pw-token-gen.py --file /etc/openstack_deploy/user_onpc_secrets.yml
 
-Import the ansible roles
+Import the ansible role dependencies
 
 .. code-block:: bash
     
-    cd /opt/openstack-ansible/tests
-    openstack-ansible get-ansible-role-requirements.yml -i ./test-inventory.ini \
-        -e role_file=/opt/onpc-monitoring/ansible-role-requirements.yml -vvv
+    cd /opt/openstack-ansible
+    openstack-ansible ./tests/get-ansible-role-requirements.yml -i ./tests/test-inventory.ini \
+        -e role_file=/opt/onpc-basic-model/ansible_role_requirements.yml
 
+Clone the ONPC Monitoring repo
 
-Add the export to update the inventory file location
+.. code-block:: bash
+
+    cd /opt
+    git clone https://github.com/opennext-io/onpc-monitoring.git
+
+Update the inventory
 
 .. code-block:: bash
 
     export ANSIBLE_INVENTORY=/opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py
+    /opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py --config /etc/openstack_deploy
 
-Create the monitoring user and install various the dependencies
+Create the containers
+
+.. code-block:: bash
+
+    openstack-ansible lxc-containers-create.yml -e container_group=monitoring_containers
+
+Create the monitoring user and install various python dependencies
 
 .. code-block:: bash
 
     openstack-ansible /opt/onpc-monitoring/playbook_setup.yml
 
 If you are running HAProxy for load balacing you need run the following playbook as well to enable
-the monitoring services backend and frontend
+the monitoring services backend and frontend. If HAproxy is already installed for the OpenStack services
+you also need to rerun the HAProxy playbook to enable the HAProxy stats.
 
 .. code-block:: bash
 
-    openstack-ansible /opt/onpc-monitoring/playbook_haproxy.yml
+    openstack-ansible playbook_haproxy.yml
+    cd /opt/openstack-ansible/playbooks
+    openstack-ansible haproxy-install.yml
 
-Create the containers
 
-.. code-block:: bash
-
-    openstack-ansible /opt/openstack-ansible/playbooks/lxc-containers-create.yml -e container_group=monitoring_container
-
-Install InfluxDB
+Install InfluxDB and InfluxDB Relay
 
 .. code-block:: bash
 
-    openstack-ansible /opt/onpc-monitoring/playbook_influxdb.yml
+    cd /opt/onpc-monitoring
+    openstack-ansible playbook_influxdb.yml
+    openstack-ansible playbook_influxdb_relay.yml
 
-Install Influx Telegraf
+Install Telegraf
 
-If you wish to install telegraf and point it at a specific target, or list of targets, set the ``influx_telegraf_targets``
-variable in the ``user_variables.yml`` file as a list containing all targets that telegraf should ship metrics to.
+If you wish to install telegraf and point it at a specific target, or list of targets, set the ``telegraf_influxdb_targets``
+variable in the ``user_onpc_variables.yml`` file as a list containing all targets that telegraf should ship metrics to.
 
 .. code-block:: bash
 
-    openstack-ansible /opt/onpc-monitoring/playbook_telegraf.yml --forks 50
+    openstack-ansible playbook_telegraf.yml --forks 50
 
 Install grafana
 
 If you're proxy'ing grafana you will need to provide the full ``root_path`` when you run the playbook add the following
-``-e grafana_root_url='https://cloud.something:8443/grafana/'``
+``-e grafana_instance='https://cloud.something:8443/grafana/'``
 
 .. code-block:: bash
 
-    openstack-ansible /opt/onpc-monitoring/playbook-grafana.yml -e galera_root_user=root -e galera_address='127.0.0.1'
+    openstack-ansible playbook-grafana.yml
 
 Once that last playbook is completed you will have a functioning InfluxDB, Telegraf, and Grafana metric collection system
 active and collecting metrics. Grafana will need some setup, however functional dashboards have been provided in the

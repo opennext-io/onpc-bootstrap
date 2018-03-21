@@ -1,11 +1,9 @@
 - name: grafana
   scm: git
-  src: git@github.com:cloudalchemy/ansible-grafana.git 
+  src: https://github.com/cloudalchemy/ansible-grafana.git 
 - name: collectd
   scm: git
-  src: git@github.com:opennext-io/onpc-collectd.git 
-  version: 2.2.3 
+  src: https://github.com/opennext-io/onpc-collectd.git 
 - name: telegraf
   scm: git
-  src: git@github.com:opennext-io/onpc-telegraf.git 
-  version: 0.8.0 
+  src: https://github.com/opennext-io/onpc-telegraf.git

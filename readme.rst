@@ -1,34 +1,35 @@
-OpenNext Private Cloud Monitoring Stack
-#######################################
+OpenNext Private Cloud Basic Model
+##################################
 :date: 2018-01-13
-:tags: openstack, ansible, monitoring
+:tags: openstack, ansible, opennext
 :category: \*openstack, \*nix
 
 
 About this repository
 ---------------------
+This repositry defines the an OpenNext deployment model for a basic configuration
+in all-in-one or multi-node.
 
-This set of playbooks will deploy InfluxDB, Telegraf, Grafana and Kapacitor for
-the purpose of monitoring an OpenStack environment.
+Deployment Process for all-in-one deployment
+--------------------------------------------
 
-Process
--------
+You have to become root to execute the following steps.
 
-Clone the ONPC Monitoring repo
+Clone the ONPC Basic Model repo
 
 .. code-block:: bash
 
     cd /opt
-    git clone git@github.com:opennext-io/onpc-monitoring.git
+    git clone git@github.com:opennext-io/onpc-basic-model.git
 
 Copy the env.d files and global configuration variables into place
 
 .. code-block:: bash
 
-    cd /opt/onpc-monitoring
-    cp ./etc/env.d/* /etc/openstack_deploy/env.d/
-    cp ./etc/conf.d/* /etc/openstack_deploy/conf.d/
-    cp ./etc/user_monitoring.yml /etc/openstack_deploy
+    cd /opt/onpc-basic-model
+    cp ./etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d/
+    cp ./etc/openstack_deploy/conf.d/monitoring.aio.yml /etc/openstack_deploy/conf.d/monitoring.yml
+    cp ./etc/openstack_deploy/user_monitoring.yml /etc/openstack_deploy
 
 Copy the secrets file into place and generate the password values
 

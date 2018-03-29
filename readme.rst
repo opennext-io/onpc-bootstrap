@@ -100,14 +100,14 @@ variable in the ``user_onpc_variables.yml`` file as a list containing all target
 
     openstack-ansible playbook_telegraf.yml --forks 50
 
-Install grafana
+Install Grafana
 
-If you're proxy'ing grafana you will need to provide the full ``root_path`` when you run the playbook add the following
-``-e grafana_instance='https://cloud.something:8443/grafana/'``
+If you're proxy'ing grafana you will need to provide the full ``root_path``
+when you run the playbook add the following ``-e grafana_url='https://cloud.something/grafana/'``
 
 .. code-block:: bash
 
-    openstack-ansible playbook-grafana.yml
+    openstack-ansible playbook_grafana.yml
 
 Once that last playbook is completed you will have a functioning InfluxDB, Telegraf, and Grafana metric collection system
 active and collecting metrics. Grafana will need some setup, however functional dashboards have been provided in the

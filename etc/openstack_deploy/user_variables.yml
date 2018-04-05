@@ -64,6 +64,14 @@ debug: false
 # glance_swift_store_container: "NAME_OF_SWIFT_CONTAINER"
 # glance_swift_store_region: "NAME_OF_REGION"
 
+## Common Swift Overrides
+swift_proxy_server_conf_overrides:
+  DEFAULT:
+    log_statsd_default_sample_rate: 10
+    log_statsd_metric_prefix: "{{ inventory_hostname }}.swift"
+    log_statsd_host: localhost
+    log_statsd_port: 8125
+
 ## Common Ceph Overrides
 # ceph_mons:
 #   - 10.16.5.40

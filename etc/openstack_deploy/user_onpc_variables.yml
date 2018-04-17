@@ -1,5 +1,4 @@
 ---
-# Copyright 2014, Rackspace US, Inc.
 # Copyright (c) 2018, OpenNext SAS
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,60 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-###
-### This file contains commonly used overrides for convenience. Please inspect
-### the defaults for each role to find additional override options.
-###
-
-## Debug and Verbose options.
-#debug: false
-
-## Environment variable settings
-# This allows users to specify the additional environment variables to be set
-# which is useful in setting where you working behind a proxy. If working behind
-# a proxy It's important to always specify the scheme as "http://". This is what
-# the underlying python libraries will handle best. This proxy information will be
-# placed both on the hosts and inside the containers.
-
-## HAProxy settings
-haproxy_stats_enabled: True
-haproxy_stats_bind_address: 127.0.0.1
-haproxy_stats_port: 1936
-haproxy_username: admin
-
-## Keepalived settings
-# To be configured accordingly to Ironic provisioning
-#haproxy_keepalived_external_vip_cidr: 192.168.1.0/32
-#haproxy_keepalived_internal_vip_cidr: 172.29.236.0/22
-# To be configured accordingly to Ironic provisioning
-#haproxy_keepalived_external_interface: eth0
-#haproxy_keepalived_internal_interface: br-mgmt
-
-## Keepalived settings
-# To always deploy (or upgrade to) the latest stable version of keepalived.
-#keepalived_package_state: latest
-
-# Keepalived default IP address used to check its alive status (IPv4 only)
-# keepalived_ping_address: "193.0.14.129"
-
-# Defines the default VRRP id used for keepalived with haproxy.
-# Overwrite it to your value to make sure you don't overlap
-# with existing VRRPs id on your network. Default is 10 for the external and 11 for the
-# internal VRRPs
-# haproxy_keepalived_external_virtual_router_id:
-# haproxy_keepalived_internal_virtual_router_id:
-
-# Defines the VRRP master/backup priority. Defaults respectively to 100 and 20
-# haproxy_keepalived_priority_master:
-# haproxy_keepalived_priority_backup:
-
-## Cinder settings
-# cinder_default_availability_zone: cinderAZ_1
-# Not clear we really need this (Note: PP)
-# cinder_default_volume_type:
-
-## Nova settings
-nova_cpu_allocation_ratio: 8.0
-nova_nova_conf_overrides:
-  DEFAULT:
-    cpu_allocation_ratio: "{{ nova_cpu_allocation_ration }}"
+## Use slack for alerts
+slack_alerts_enabled: True
+slack_alerts_channel: "#labalerts"
+slack_webhooks_url: "https://hooks.slack.com/services/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" 

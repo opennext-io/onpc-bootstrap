@@ -41,6 +41,11 @@ debug: false
 # hosts.
 # nova_libvirt_images_rbd_pool: vms
 
+nova_cpu_allocation_ratio: 1.0
+nova_nova_conf_overrides:
+  DEFAULT:
+    cpu_allocation_ratio: "{{ nova_cpu_allocation_ration }}"
+
 # If you wish to change the dhcp_domain configured for both nova and neutron
 # dhcp_domain: openstacklocal
 
@@ -177,6 +182,11 @@ rabbitmq_monitoring_userid: monitoring
 # Defines the VRRP master/backup priority. Defaults respectively to 100 and 20
 # haproxy_keepalived_priority_master:
 # haproxy_keepalived_priority_backup:
+
+haproxy_stats_enabled: True
+haproxy_stats_bind_address: 127.0.0.1
+haproxy_stats_port: 1936
+haproxy_username: admin
 
 # Keepalived default IP address used to check its alive status (IPv4 only)
 # keepalived_ping_address: "193.0.14.129"

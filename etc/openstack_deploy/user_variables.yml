@@ -44,7 +44,7 @@ debug: false
 nova_cpu_allocation_ratio: 1.0
 nova_nova_conf_overrides:
   DEFAULT:
-    cpu_allocation_ratio: "{{ nova_cpu_allocation_ration }}"
+    cpu_allocation_ratio: "{{ nova_cpu_allocation_ratio }}"
 
 # If you wish to change the dhcp_domain configured for both nova and neutron
 # dhcp_domain: openstacklocal

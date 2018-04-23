@@ -280,14 +280,14 @@ global_overrides:
         net_name: "vxlan"
     - network:
         group_binds:
-          - neutron_linuxbridge_agent  
+          - neutron_linuxbridge_agent
         container_bridge: "br-vlan"
         container_type: "veth"
         container_interface: "eth11"
         type: "vlan"
         range: "1:1"
         net_name: "vlan"
-        
+
     - network:
         group_binds:
           - neutron_linuxbridge_agent
@@ -297,7 +297,7 @@ global_overrides:
         host_bind_override: "eth12"
         type: "flat"
         net_name: "flat"
-        
+
 #
 # --------
 #
@@ -623,7 +623,7 @@ storage_hosts:
           volume_driver: cinder.volume.drivers.lvm.LVMVolumeDriver
           volume_group: cinder-volumes
           iscsi_ip_address: 172.29.244.20
-#          lvm_type: "thin"       
+#          lvm_type: "thin"
         limit_container_types: cinder_volume
 
   storage2:
@@ -640,7 +640,7 @@ storage_hosts:
           volume_group: cinder-volumes
           iscsi_ip_address: 172.29.244.21
 #          lvm_type: "thin"
-        limit_container_types: cinder_volume      
+        limit_container_types: cinder_volume
 
 # --------
 #

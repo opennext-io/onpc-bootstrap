@@ -43,7 +43,7 @@ Import the ansible role dependencies
 .. code-block:: bash
     
     cd /opt/openstack-ansible
-    openstack-ansible ./tests/get-ansible-role-requirements.yml -i ./tests/test-inventory.ini \
+    openstack-ansible ./tests/get-ansible-role-requirements.yml \
         -e role_file=/opt/onpc-basic-model/ansible_role_requirements.yml
 
 Clone the ONPC Monitoring repo
@@ -104,6 +104,8 @@ Install Grafana
 
 If you're proxy'ing grafana you will need to provide the full ``root_path``
 when you run the playbook add the following ``-e grafana_url='https://cloud.something/grafana/'``
+
+Note: Specifying the Grafana external URL won't work with http_proxy settings in the playbook.
 
 .. code-block:: bash
 

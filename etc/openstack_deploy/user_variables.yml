@@ -142,6 +142,7 @@ rabbitmq_monitoring_userid: monitoring
 #   http_proxy: "{{ proxy_env_url }}"
 #   https_proxy: "{{ proxy_env_url }}"
 #   no_proxy: "{{ no_proxy_env }}"
+
 #
 ## (2) This is applied only during deployment, nothing is left after deployment is complete:
 # deployment_environment_variables:

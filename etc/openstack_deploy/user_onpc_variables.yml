@@ -19,11 +19,11 @@ slack_alerts_channel: "#labalerts"
 slack_webhooks_url: "https://hooks.slack.com/services/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"
 
 ## HTTP Proxy settings for intalling onpc-monitoring with restricted access
-proxy_env_url: "http://192.168.100.1:3128"
-no_proxy_env: "localhost,127.0.0.1,{{ internal_lb_vip_address }},{{ external_lb_vip_address }},{% for host in groups['monitoring_all'] %}{{ hostvars[host]['container_address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
-
+# proxy_env_url: "http://192.168.100.1:3128"
+# no_proxy_env: "localhost,127.0.0.1,{{ internal_lb_vip_address }},{{ external_lb_vip_address }},{% for host in groups['monitoring_all'] %}{{ hostvars[host]['container_address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
+# onpc_environment_variables:
+#   http_proxy: "{{ proxy_env_url }}"
+#   https_proxy: "{{ proxy_env_url }}"
+#   no_proxy: "{{ no_proxy_env }}"
+onpc_environment_variables: {}
 onpc_environment_name: "ONPC_ONE"
-onpc_environment_variables:
-  http_proxy: "{{ proxy_env_url }}"
-  https_proxy: "{{ proxy_env_url }}"
-  no_proxy: "{{ no_proxy_env }}" 

@@ -27,16 +27,13 @@ Copy the env.d files and global configuration variables into place
 .. code-block:: bash
 
     cd /opt/onpc-basic-model
-    cp ./etc/openstack_deploy/env.d/* /etc/openstack_deploy/env.d/
-    cp ./etc/openstack_deploy/conf.d/monitoring.aio.yml /etc/openstack_deploy/conf.d/monitoring.yml
-    cp ./etc/openstack_deploy/user_onpc_variables.yml /etc/openstack_deploy
-    cp ./etc/openstack_deploy/user_onpc_secrets.yml /etc/openstack_deploy
-
+    sudo cp -R ./etc/openstack_deploy/* /etc/openstack_deploy/
+    
 Generate the password values
 
 .. code-block:: bash
 
-    /opt/openstack-ansible/scripts/pw-token-gen.py --file /etc/openstack_deploy/user_onpc_secrets.yml
+    sudo /opt/openstack-ansible/scripts/pw-token-gen.py --file /etc/openstack_deploy/user_onpc_secrets.yml
 
 Import the ansible role dependencies
 

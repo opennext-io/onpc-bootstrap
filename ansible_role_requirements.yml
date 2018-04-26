@@ -7,3 +7,6 @@
 - name: telegraf
   scm: git
   src: https://github.com/opennext-io/onpc-telegraf.git
+- name: elasticsearch
+  scm: git
+  src: https://github.com/elastic/ansible-elasticsearch.git

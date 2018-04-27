@@ -1,12 +1,15 @@
 - name: grafana
   scm: git
-  src: https://github.com/opennext-io/onpc-grafana.git
+  src: https://github.com/opennext-io/ansible-grafana.git
 - name: collectd
   scm: git
-  src: https://github.com/opennext-io/onpc-collectd.git 
+  src: https://github.com/opennext-io/ansible-collectd.git 
 - name: telegraf
   scm: git
-  src: https://github.com/opennext-io/onpc-telegraf.git
+  src: https://github.com/opennext-io/ansible-telegraf.git
 - name: elasticsearch
   scm: git
-  src: https://github.com/elastic/ansible-elasticsearch.git
+  src: https://github.com/opennext-io/ansible-elsticsearch.git
+- name: fluentd
+  scm: git
+  src: https://github.com/opennext-io/ansible-fluentd.git

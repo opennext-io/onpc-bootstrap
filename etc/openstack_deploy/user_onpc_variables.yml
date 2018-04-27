@@ -16,6 +16,7 @@
 ## Use slack for alerts
 slack_alerts_enabled: True
 slack_alerts_channel: "#labalerts"
+# Should go in vault to avoid being spammed
 slack_webhooks_url: "https://hooks.slack.com/services/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"
 
 ## HTTP Proxy settings for intalling onpc-monitoring with restricted access
@@ -27,3 +28,12 @@ slack_webhooks_url: "https://hooks.slack.com/services/T86HY2F6D/BA3DR7CBW/aV7JsZ
 #   no_proxy: "{{ no_proxy_env }}"
 onpc_environment_variables: {}
 onpc_environment_name: "ONPC_ONE"
+
+
+fluentd_syslog_port: 5140
+# Variable used by 'rsyslog_client' role to define additional rsyslog targets
+rsyslog_client_user_defined_targets:
+  - name: "fluentd"
+    proto: "tcp"
+    port: "{{ fluentd_syslog_port }}"
+    hostname: "{{ fluentd_host|default(internal_lb_vip_address) }}"

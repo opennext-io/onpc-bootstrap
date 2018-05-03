@@ -160,3 +160,9 @@ image_hosts:
   {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
     ip: {{ h }}
 {% endfor %}
+
+log_hosts:
+{% for h in controller_hosts_ips %}
+  {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
+    ip: {{ h }}
+{% endfor %}

@@ -36,4 +36,6 @@ rsyslog_client_user_defined_targets:
   - name: "fluentd"
     proto: "tcp"
     port: "{{ fluentd_syslog_port }}"
+    action_options: "RFC3164fmt"
+    template: '$template RFC3164fmt,"<%PRI%>%TIMESTAMP% %HOSTNAME% %syslogtag%%msg%"'
     hostname: "{{ fluentd_host|default(internal_lb_vip_address) }}"

@@ -18,7 +18,7 @@
 ### the defaults for each role to find additional override options.
 ###
 
-## Debug and Verbose options.
+## Debug and Verbose options (pay attention to high log verbosity when debug set to true).
 debug: false
 
 ## Common Glance Overrides

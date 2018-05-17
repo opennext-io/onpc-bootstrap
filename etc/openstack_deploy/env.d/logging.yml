@@ -31,8 +31,6 @@ container_skel:
       - elasticsearch
       - kibana
       - fluentd
-    properties:
-      container_fs_size: 125G
 physical_skel:
   logging_containers:
     belongs_to:

@@ -38,8 +38,6 @@ container_skel:
       - kapacitor
       - grafana
       - collectd
-    properties:
-      container_fs_size: 125G
 physical_skel:
   monitoring_containers:
     belongs_to:

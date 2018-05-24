@@ -18,8 +18,14 @@ haproxy_username: admin
 
 {% if is_aio is defined and not is_aio %}
 ## Load Balancer Configuration (haproxy/keepalived)
-haproxy_keepalived_external_vip_cidr: "{{ hapk_ext_vip_cidr | default('1.2.3.4') }}/32"
+haproxy_keepalived_external_vip_cidr: "{{ hapk_ext_vip_cidr | default('1.2.3.4/32') }}"
 haproxy_keepalived_internal_vip_cidr: "{{ hapk_int_vip_cidr | default('172.29.236.0/22') }}"
 haproxy_keepalived_external_interface: {{ hapk_ext_itf | default('ens2') }}
 haproxy_keepalived_internal_interface: {{ hapk_int_itf | default('br-mgmt') }}
 {% endif %}
+
+## Tempest settings
+tempest_public_subnet_cidr: {{ tempest_subnet | default('172.29.248.0/22') }}
+tempest_public_subnet_allocation_pools: "{{ tempest_pool | default('172.29.249.110-172.29.249.200') }}"
+tempest_install: {{ run_tempest_tests | default('no') }}
+tempest_run: {{ run_tempest_tests | default('no') }}

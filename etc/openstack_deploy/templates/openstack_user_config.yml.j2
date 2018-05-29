@@ -85,12 +85,6 @@ repo-infra_hosts:
     ip: {{ h }}
 {% endfor %}
 
-os-infra_hosts:
-{% for h in controller_hosts_ips %}
-  {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
-    ip: {{ h }}
-{% endfor %}
-
 identity_hosts:
 {% for h in controller_hosts_ips %}
   {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
@@ -126,15 +120,13 @@ storage_hosts:
   {{ storage_hosts_name | default('storage') }}{{ loop.index }}:
     ip: {{ h }}
     container_vars:
-      cinder_storage_availability_zone: cinderAZ_1
-      cinder_default_availability_zone: cinderAZ_1
       cinder_backends:
         limit_container_types: cinder_volume
         lvm:
           volume_backend_name: LVM_iSCSI
           volume_driver: cinder.volume.drivers.lvm.LVMVolumeDriver
           volume_group: cinder-volumes
-          iscsi_ip_address: {{ h }}
+          iscsi_ip_address: "{{ h }}"
           lvm_type: "thin"
 {% endfor %}
 

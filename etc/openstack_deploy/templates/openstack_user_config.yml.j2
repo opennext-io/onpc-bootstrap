@@ -154,7 +154,7 @@ image_hosts:
     ip: {{ h }}
 {% endfor %}
 
-log_hosts:
+rsyslog_hosts:
 {% for h in controller_hosts_ips %}
   {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
     ip: {{ h }}

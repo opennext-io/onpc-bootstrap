@@ -29,19 +29,44 @@ component_skel:
     belongs_to:
       - monitoring_all
 container_skel:
-  monitoring_container:
+  influx_container:
     belongs_to:
-      - monitoring_containers
+      - influx_containers
     contains:
       - influxdb
       - influxdb_relay
       - kapacitor
-      - grafana
+    properties:
+      container_fs_size: 24G
+  collectd_container:
+    belongs_to:
+      - collectd_containers
+    contains:
       - collectd
+  grafana_container:
+    belongs_to:
+      - grafana_containers
+    contains:
+      - grafana
+    properties:
+      container_fs_size: 8G
 physical_skel:
-  monitoring_containers:
+  influx_containers:
     belongs_to:
       - all_containers
-  monitoring_hosts:
+  collectd_containers:
+    belongs_to:
+      - all_containers
+  grafana_containers:
+    belongs_to:
+      - all_containers
+  influx_hosts:
     belongs_to:
       - hosts
+  collectd_hosts:
+    belongs_to:
+      - hosts
+  grafana_hosts:
+    belongs_to:
+      - hosts
+      

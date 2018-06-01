@@ -12,10 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-logging_hosts:
-  log1:
-    ip: 172.29.236.101
-  log2:
-    ip: 172.29.236.102
-  log3:
-    ip: 172.29.236.103
+elastic_fluentd_hosts:
+  logging1:
+    ip: 0.0.0.0
+  logging2:
+    ip: 0.0.0.0
+  logging3:
+    ip: 0.0.0.0
+kibana_hosts:
+  logging2:
+    ip: 0.0.0.0

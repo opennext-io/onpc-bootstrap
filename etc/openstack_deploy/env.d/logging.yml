@@ -14,16 +14,19 @@
 # limitations under the License.
 
 component_skel:
-  elastic-fluentd:
+  elasticsearch:
+    belongs_to:
+      - logging_all
+  fluentd:
     belongs_to:
       - logging_all
   kibana:
     belongs_to:
       - logging_all
 container_skel:
-  elastic_fluentd_container:
+  elastic-fluentd_container:
     belongs_to:
-      - elastic_fluentd_containers
+      - elastic-fluentd_containers
     contains:
       - elasticsearch
       - fluentd
@@ -37,15 +40,16 @@ container_skel:
     properties:
       container_fs_size: 12G
 physical_skel:
-  elastic_fluentd_containers:
+  elastic-fluentd_containers:
     belongs_to:
       - all_containers
   kibana_containers:
     belongs_to:
       - all_containers
-  elastic_fluentd_hosts:
+  elastic-fluentd_hosts:
     belongs_to:
       - hosts
   kibana_hosts:
     belongs_to:
       - hosts
+

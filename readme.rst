@@ -51,6 +51,9 @@ Regenerate the inventory
     export ANSIBLE_INVENTORY=/opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py
     /opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py --config /etc/openstack_deploy
 
-Then proceed to the installation of the Logging and Monitoring stacks using the instructions
-provided in these two respective projects.
+Then proceed with:
+
+   * The installation of openstack-ansible
+   * The install of the monitoring stack (onpc-monitoring)
+   * The install of the logging stack (onpc-logging)
 

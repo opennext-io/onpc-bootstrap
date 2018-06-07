@@ -13,6 +13,6 @@
 - name: fluentd
   scm: git
   src: https://github.com/opennext-io/ansible-fluentd.git
-- name: kibana
+- name: kapacitor
   scm: git
-  src: https://github.com/opennext-io/ansible-kibana.git
+  src: https://github.com/opennext-io/ansible-kapacior.git

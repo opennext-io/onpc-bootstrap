@@ -15,9 +15,9 @@
 
 ## Use slack for alerts
 slack_alerts_enabled: True
-slack_alerts_channel: "#labalerts"
+slack_alerts_channel: "#alert-channel-name"
 # Should go in vault to avoid being spammed
-slack_webhooks_url: "https://hooks.slack.com/services/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"
+slack_webhooks_url: "https://hooks.slack.com/services/<UUID>"
 
 ## HTTP Proxy settings for intalling onpc-monitoring with restricted access
 # proxy_env_url: "http://192.168.100.1:3128"

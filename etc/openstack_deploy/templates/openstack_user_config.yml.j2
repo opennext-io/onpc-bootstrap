@@ -149,13 +149,13 @@ orchestration_hosts:
 {% endfor %}
 
 image_hosts:
-{% for h in controller_hosts_ips %}
-  {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
+{% for h in image_hosts_ips %}
+  {{ image_hosts_name | default('infra') }}{{ loop.index }}:
     ip: {{ h }}
 {% endfor %}
 
 rsyslog_hosts:
-{% for h in controller_hosts_ips %}
-  {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
+{% for h in log_hosts_ips %}
+  {{ log_hosts_name | default('infra') }}{{ loop.index }}:
     ip: {{ h }}
 {% endfor %}

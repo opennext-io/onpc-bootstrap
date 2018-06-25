@@ -9,10 +9,10 @@
   src: https://github.com/opennext-io/ansible-telegraf.git
 - name: elasticsearch
   scm: git
-  src: https://github.com/opennext-io/ansible-elsticsearch.git
+  src: https://github.com/opennext-io/ansible-elasticsearch.git
 - name: fluentd
   scm: git
   src: https://github.com/opennext-io/ansible-fluentd.git
 - name: kapacitor
   scm: git
-  src: https://github.com/opennext-io/ansible-kapacior.git
+  src: https://github.com/opennext-io/ansible-kapacitor.git

@@ -1,3 +1,4 @@
+# {{ ansible_managed }}
 ---
 # Copyright 2018, OpenNext SAS
 #
@@ -12,13 +13,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 elastic_fluentd_hosts:
-  infra1:
-    ip: 0.0.0.0
-  infra2:
-    ip: 0.0.0.0
-  infra3:
-    ip: 0.0.0.0
+{% for h in monitoring_hosts_ips %}
+  {{ monitoring_hosts_name | default('monitoring') }}{{ loop.index }}:
+    ip: {{ h }}
+{% endfor %}
 kibana_hosts:
-  infra1:
-    ip: 0.0.0.0
+{% for h in monitoring_hosts_ips %}
+{% if loop.index < 2 %}
+  {{ monitoring_hosts_name | default('monitoring') }}{{ loop.index }}:
+    ip: {{ h }}
+{% endif %}
+{% endfor %}

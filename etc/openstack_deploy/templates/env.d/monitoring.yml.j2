@@ -1,3 +1,4 @@
+# {{ ansible_managed }}
 ---
 # Copyright 2018, OpenNext SAS
 #
@@ -14,42 +15,59 @@
 # limitations under the License.
 
 component_skel:
-  elasticsearch:
+  influxdb:
     belongs_to:
-      - logging_all
-  fluentd:
+      - monitoring_all
+  influxdb_relay:
     belongs_to:
-      - logging_all
-  kibana:
+      - monitoring_all
+  grafana:
     belongs_to:
-      - logging_all
+      - monitoring_all
+  kapacitor:
+    belongs_to:
+      - monitoring_all
+  collectd:
+    belongs_to:
+      - monitoring_all
 container_skel:
-  elastic-fluentd_container:
+  influx_container:
     belongs_to:
-      - elastic-fluentd_containers
+      - influx_containers
     contains:
-      - elasticsearch
-      - fluentd
+      - influxdb
+      - influxdb_relay
+      - kapacitor
     properties:
-      container_fs_size: 8G
-  kibana_container:
+      container_fs_size: {{ influx_container_fs_size | default('24G') }}
+  collectd_container:
     belongs_to:
-      - kibana_containers
+      - collectd_containers
     contains:
-      - kibana
+      - collectd
+  grafana_container:
+    belongs_to:
+      - grafana_containers
+    contains:
+      - grafana
     properties:
-      container_fs_size: 4G
+      container_fs_size: {{ grafana_container_fs_size | default('8G') }}
 physical_skel:
-  elastic-fluentd_containers:
+  influx_containers:
     belongs_to:
       - all_containers
-  kibana_containers:
+  collectd_containers:
     belongs_to:
       - all_containers
-  elastic-fluentd_hosts:
+  grafana_containers:
+    belongs_to:
+      - all_containers
+  influx_hosts:
     belongs_to:
       - hosts
-  kibana_hosts:
+  collectd_hosts:
     belongs_to:
       - hosts
-
+  grafana_hosts:
+    belongs_to:
+      - hosts

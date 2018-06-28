@@ -14,6 +14,19 @@ physical machines.
 Process
 -------
 
+Prior to its integration within onpc-provisioning project, most of the files
+contained in this repository were usable using the Former Process section hereafter.
+
+However, due to the very automated nature of onpc-provisioning, most of these files
+have now become Jinja templates which needs to be instanciated for the various
+{{ var }} pattern that they now contain.
+
+The Former Process section hereafter has been kept as a reference to what was to
+be done manually before and which is now done in an automated way.
+
+Former Process
+--------------
+
 You have to become root to execute the following steps.
 
 Clone the onpc-basic-model repo

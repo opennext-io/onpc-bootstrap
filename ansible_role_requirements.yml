@@ -3,7 +3,7 @@
   src: https://github.com/opennext-io/ansible-grafana.git
 - name: collectd
   scm: git
-  src: https://github.com/opennext-io/ansible-collectd.git 
+  src: https://github.com/opennext-io/ansible-collectd.git
 - name: telegraf
   scm: git
   src: https://github.com/opennext-io/ansible-telegraf.git

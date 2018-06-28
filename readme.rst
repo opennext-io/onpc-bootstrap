@@ -29,7 +29,7 @@ Copy everything under ./etc/openstack_deploy into /etc/openstack_deploy
 
     cd /opt/onpc-basic-model
     sudo cp -R ./etc/openstack_deploy/* /etc/openstack_deploy/
-    
+
 Generate the password values
 
 .. code-block:: bash
@@ -39,7 +39,7 @@ Generate the password values
 Import the ansible role dependencies
 
 .. code-block:: bash
-    
+
     cd /opt/openstack-ansible
     openstack-ansible ./tests/get-ansible-role-requirements.yml \
         -e role_file=/opt/onpc-basic-model/ansible_role_requirements.yml

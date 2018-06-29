@@ -1,3 +1,4 @@
+# {{ ansible_managed }}
 ---
 # Copyright (c) 2018, OpenNext SAS
 #
@@ -13,28 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+{% if slack is defined and slack.get('alert-channel', '') | length > 0 and slack.get('uuid', '') | length > 0 %}
 ## Use slack for alerts
 slack_alerts_enabled: True
-slack_alerts_channel: "#alert-channel-name"
+slack_alerts_channel: "#{{ slack.get('alert-channel') }}"
 # Should go in vault to avoid being spammed
-slack_webhooks_url: "https://hooks.slack.com/services/<UUID>"
+slack_webhooks_url: "https://hooks.slack.com/services/{{ slack.get('uuid') }}}"
+{% endif %}
 
-## HTTP Proxy settings for intalling onpc-monitoring with restricted access
-# proxy_env_url: "http://192.168.100.1:3128"
-# no_proxy_env: "localhost,127.0.0.1,{{ internal_lb_vip_address }},{{ external_lb_vip_address }},{% for host in groups['monitoring_all'] %}{{ hostvars[host]['container_address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
-# onpc_environment_variables:
-#   http_proxy: "{{ proxy_env_url }}"
-#   https_proxy: "{{ proxy_env_url }}"
-#   no_proxy: "{{ no_proxy_env }}"
-onpc_environment_variables: {}
 onpc_environment_name: "ONPC_STARTER_KIT"
-
 
 fluentd_syslog_port: 5140
 # Variable used by 'rsyslog_client' role to define additional rsyslog targets
 rsyslog_client_user_defined_targets:
   - name: "fluentd"
     proto: "tcp"
-    port: "{{ fluentd_syslog_port }}"
     template: "$ActionFileDefaultTemplate RSYSLOG_ForwardFormat"
-    hostname: "{{ fluentd_host|default(internal_lb_vip_address) }}"
+{% raw %}
+    port: "{{ fluentd_syslog_port }}"
+    hostname: "{{ fluentd_host | default(internal_lb_vip_address) }}"
+{% endraw %}

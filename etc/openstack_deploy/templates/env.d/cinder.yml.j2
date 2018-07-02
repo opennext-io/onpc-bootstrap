@@ -14,15 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Logging (Elasticsearch, Rsyslog, ...) hosts
-{% if logging_hosts_ips is defined and logging_hosts_ips | length > 0 %}
+# When using LVM or any iSCSI-based cinder backends, such as NetApp with
+# iSCSI protocol, the cinder-volume service *must* run on metal (default).
+# Reference: https://bugs.launchpad.net/ubuntu/+source/lxc/+bug/1226855
 
-elastic_fluentd_hosts: &elastic_fluentd_hosts
-{% for h in logging_hosts_ips %}
-  log{{ loop.index }}:
-    ip: {{ h.ip_v4 }}
-{% endfor %}
-
-kibana_hosts: *elastic_fluentd_hosts
-
+{% if groups['ceph_all'] is defined | length > 0 %}
+container_skel:
+  cinder_volumes_container:
+    properties:
+      is_metal: false
 {% endif %}

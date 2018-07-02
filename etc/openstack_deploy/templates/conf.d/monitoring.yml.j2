@@ -13,22 +13,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-influx_hosts:
+
+{% if monitoring_hosts_ips is defined and monitoring_hosts_ips | length > 0 %}
+
+influx_hosts: &influx_hosts
 {% for h in monitoring_hosts_ips %}
-  {{ monitoring_hosts_name | default('monitoring') }}{{ loop.index }}:
-    ip: {{ h }}
+  mon{{ loop.index }}:
+    ip: {{ h.ip_v4 }}
 {% endfor %}
+
 collectd_hosts:
 {% for h in monitoring_hosts_ips %}
+# Temporay workaround until collectd is deployed in HA cluster
 {% if loop.index < 2 %}
-  {{ monitoring_hosts_name | default('monitoring') }}{{ loop.index }}:
-    ip: {{ h }}
+  mon{{ loop.index }}:
+    ip: {{ h.ip_v4 }}
 {% endif %}
 {% endfor %}
-grafana_hosts:
-{% for h in monitoring_hosts_ips %}
-{% if loop.index < 2 %}
-  {{ monitoring_hosts_name | default('monitoring') }}{{ loop.index }}:
-    ip: {{ h }}
-{% endif %}
-{% endfor %}
+
+grafana_hosts: *influx_hosts

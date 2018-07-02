@@ -106,6 +106,38 @@ swift_proxy_server_conf_overrides:
 #  auth_cluster_required = cephx
 #  auth_service_required = cephx
 
+## Ceph cluster fsid (must be generated before first run)
+## Generate a uuid using: python -c 'import uuid; print(str(uuid.uuid4()))'
+generate_fsid: false
+fsid: ab8caf91-6860-4a87-801c-44bfb1568340 # Replace with your generated UUID
+
+## ceph-ansible settings
+## See https://github.com/ceph/ceph-ansible/tree/master/group_vars for
+## additional configuration options availble.
+monitor_address_block: "{{ cidr_networks.container }}"
+public_network: "{{ cidr_networks.container }}"
+cluster_network: "{{ cidr_networks.storage }}"
+osd_scenario: collocated
+journal_size: 10240 # size in MB
+# ceph-ansible automatically creates pools & keys for OpenStack services
+openstack_config: true
+cinder_ceph_client: cinder
+glance_ceph_client: glance
+glance_default_store: rbd
+glance_rbd_store_pool: images
+nova_libvirt_images_rbd_pool: vms
+
+cinder_backends:
+  RBD:
+    volume_driver: cinder.volume.drivers.rbd.RBDDriver
+    rbd_pool: volumes
+    rbd_ceph_conf: /etc/ceph/ceph.conf
+    rbd_store_chunk_size: 8
+    volume_backend_name: rbddriver
+    rbd_user: "{{ cinder_ceph_client }}"
+    rbd_secret_uuid: "{{ cinder_ceph_client_uuid }}"
+    report_discard_supported: true
+
 # By default, openstack-ansible configures all OpenStack services to talk to
 # RabbitMQ over encrypted connections on port 5671. To opt-out of this default,
 # set the rabbitmq_use_ssl variable to 'false'. The default setting of 'true'
@@ -129,11 +161,12 @@ rabbitmq_monitoring_userid: monitoring
 # HAProxy Keepalived configuration (cf. documentation)
 # Make sure that this is set correctly according to the CIDR used for your
 # internal and external addresses.
-{% if is_aio is defined and not is_aio %}
+
 ## Load Balancer Configuration (haproxy/keepalived)
-haproxy_keepalived_external_vip_cidr: "{{ hapk_ext_vip_cidr | default('1.2.3.4/32') }}"
-haproxy_keepalived_internal_vip_cidr: "{{ hapk_int_vip_cidr | default('172.29.236.0/22') }}"
-haproxy_keepalived_external_interface: {{ hapk_ext_itf | default('ens2') }}
+{% if is_aio is defined and not is_aio %}
+haproxy_keepalived_external_vip_cidr: "{{ hapk_ext_vip_cidr | default('172.31.0.100/32') }}"
+haproxy_keepalived_internal_vip_cidr: "{{ hapk_int_vip_cidr | default('172.29.236.100/22') }}"
+haproxy_keepalived_external_interface: {{ hapk_ext_itf | default('eno1') }}
 haproxy_keepalived_internal_interface: {{ hapk_int_itf | default('br-mgmt') }}
 {% endif %}
 

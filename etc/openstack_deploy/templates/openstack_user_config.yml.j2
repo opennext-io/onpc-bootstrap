@@ -74,52 +74,68 @@ global_overrides:
         container_mtu: "9000"
         ip_from_q: "storage"
 
-shared-infra_hosts:
-{% for h in controller_hosts_ips %}
-  {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
-    ip: {{ h }}
+# Infrastructure (memcached, galera, rabbitmq, ...) hosts
+{% if infrastructure_hosts_ips is defined and infrastructure_hosts_ips | length > 0 %}
+_infrastructure_hosts: &infrastructure_hosts
+{% for h in infrastructure_hosts_ips %}
+  infra{{ loop.index }}:
+    ip: {{ h.ip_v4 }}
 {% endfor %}
+{% endif %}
 
-repo-infra_hosts:
-{% for h in controller_hosts_ips %}
-  {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
-    ip: {{ h }}
-{% endfor %}
-
-identity_hosts:
-{% for h in controller_hosts_ips %}
-  {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
-    ip: {{ h }}
-{% endfor %}
-
-network_hosts:
-{% for h in neutron_hosts_ips %}
-  {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
-    ip: {{ h }}
-{% endfor %}
-
-compute-infra_hosts:
+# Compute hypervisor hosts
+{% if compute_hosts_ips is defined and compute_hosts_ips | length > 0 %}
+compute_hosts: &compute_hosts:
 {% for h in compute_hosts_ips %}
-  {{ compute_hosts_name | default('compute') }}{{ loop.index }}:
-    ip: {{ h }}
+  compute{{ loop.index }}:
+    ip: {{ h.ip_v4 }}
 {% endfor %}
+{% endif %}
 
-compute_hosts:
-{% for h in compute_hosts_ips %}
-  {{ compute_hosts_name | default('compute') }}{{ loop.index }}:
-    ip: {{ h }}
+##
+## Infrastructure middleware
+##
+
+shared-infra_hosts: *infrastructure_hosts
+
+# repository (apt cache, python packages, etc)
+repo-infra_hosts: *infrastructure_hosts
+
+# Ideally the load balancer should not use the infrastructure hosts.
+# Dedicated hardware is best for improved performance and security.
+haproxy_hosts: *infrastructure_hosts
+
+# Rsyslog
+{% if logging_hosts_ips is defined and logging_hosts_ips | length > 0 %}
+log_hosts:
+  log1:
+    ip: "{{ logging_hosts_ips[0].ip_v4 }}"
+{% else if infrastructure_hosts_ips is defined and infrastructure_hosts_ips | length > 0 %}
+  log1:
+    ip: "{{ infrastructure_hosts_ips[0].ip_v4 }}"
+{% endif %}
+
+##
+## Ceph storage
+##
+
+# Cinder volune backend (LVM/iSCSI or Ceph RBD) hosts
+{% if ceph_osd_hosts_ips is defined and ceph_osd_hosts_ips | length > 0 %}
+storage_hosts: *infrastructure_hosts
+# Ceph OSD hosts
+ceph-osd_hosts:
+{% for h in ceph_osd_hosts_ips %}
+  osd{{ loop.index }}:
+    ip: {{ h.ip_v4 }}
 {% endfor %}
+# Ceph monitor hosts
+ceph-mon_hosts: *infrastructure_hosts
 
-storage-infra_hosts:
-{% for h in controller_hosts_ips %}
-  {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
-    ip: {{ h }}
-{% endfor %}
-
-storage_hosts:
-{% for h in cinder_hosts_ips %}
-  {{ storage_hosts_name | default('storage') }}{{ loop.index }}:
-    ip: {{ h }}
+{% else if lvm_iscsi_hosts_ips is defined and lvm_iscsi_hosts_ips | length > 0 %}
+storage_hosts:  
+{% for h in lvm_iscsi_hosts_ips %}
+  lvm-iscsi{{ loop.index }}:
+    ip: {{ h.ip_v4 }}
     container_vars:
       cinder_backends:
         limit_container_types: cinder_volume
@@ -127,36 +143,47 @@ storage_hosts:
           volume_backend_name: LVM_iSCSI
           volume_driver: cinder.volume.drivers.lvm.LVMVolumeDriver
           volume_group: cinder-volumes
-          iscsi_ip_address: "{{ h }}"
+          iscsi_ip_address: "{{ h.ip_v4 }}"
           lvm_type: "thin"
 {% endfor %}
+{% endif %}
 
-haproxy_hosts:
-{% for h in controller_hosts_ips %}
-  {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
-    ip: {{ h }}
-{% endfor %}
+###
+### OpenStack
+###
 
-dashboard_hosts:
-{% for h in controller_hosts_ips %}
-  {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
-    ip: {{ h }}
-{% endfor %}
+# Keystone services
+identity_hosts: \*infrastructure_hosts
 
-orchestration_hosts:
-{% for h in controller_hosts_ips %}
-  {{ shared_infra_hosts_name | default('infra') }}{{ loop.index }}:
-    ip: {{ h }}
-{% endfor %}
+# Neutron L2/L3 agents and metadata services
+network_hosts: *infrastructure_hosts
 
-image_hosts:
-{% for h in image_hosts_ips %}
-  {{ image_hosts_name | default('infra') }}{{ loop.index }}:
-    ip: {{ h }}
-{% endfor %}
+# cinder api services
+storage-infra_hosts: *infrastructure_hosts
 
-rsyslog_hosts:
-{% for h in log_hosts_ips %}
-  {{ log_hosts_name | default('infra') }}{{ loop.index }}:
-    ip: {{ h }}
-{% endfor %}
+# nova api services
+compute-infra_hosts: *infrastructure_hosts
+
+# horizon services
+dashboard_hosts: *infrastructure_hosts
+
+# heat services
+orchestration_hosts: *infrastructure_hosts
+
+# glance services: 
+image_hosts: *infrastructure_hosts
+
+# neutron server, agents (L3, etc)
+network_hosts: *infrastructure_hosts
+
+# ceilometer (telemetry data collection)
+metering-infra_hosts: *infrastructure_hosts
+
+# aodh (telemetry alarm service)
+metering-alarm_hosts: *infrastructure_hosts
+
+# gnocchi (telemetry metrics storage)
+metrics_hosts: *infrastructure_hosts
+
+# ceilometer compute agent (telemetry data collection)
+metering-compute_hosts: *compute_hosts

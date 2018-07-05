@@ -14,21 +14,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{% if monitoring_hosts_ips is defined and monitoring_hosts_ips | length > 0 %}
-
+{% if monitoring_hosts is defined and monitoring_hosts | length > 0 %}
 influx_hosts: &influx_hosts
-{% for h in monitoring_hosts_ips %}
-  mon{{ loop.index }}:
+{% for h in monitoring_hosts %}
+ {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
 
 collectd_hosts:
-{% for h in monitoring_hosts_ips %}
+{% for h in monitoring_hosts %}
 # Temporay workaround until collectd is deployed in HA cluster
 {% if loop.index < 2 %}
-  mon{{ loop.index }}:
+  {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endif %}
 {% endfor %}
 
 grafana_hosts: *influx_hosts
+{% endif %}

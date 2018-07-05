@@ -15,14 +15,12 @@
 # limitations under the License.
 
 # Logging (Elasticsearch, Rsyslog, ...) hosts
-{% if logging_hosts_ips is defined and logging_hosts_ips | length > 0 %}
-
+{% if logging_hosts is defined and logging_hosts | length > 0 %}
 elastic_fluentd_hosts: &elastic_fluentd_hosts
-{% for h in logging_hosts_ips %}
-  log{{ loop.index }}:
+{% for h in logging_hosts %}
+  {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
 
 kibana_hosts: *elastic_fluentd_hosts
-
 {% endif %}

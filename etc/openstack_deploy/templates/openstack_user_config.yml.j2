@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 ---
-cidr_networks:
+cidr_networks: &cidr_networks
   container: {{ container_network_cidr | default('172.29.236.0/22') }}
   tunnel: {{ tunnel_network_cidr | default('172.29.240.0/22') }}
   storage: {{ storage_network_cidr | default('172.29.244.0/22') }}
@@ -11,6 +11,7 @@ used_ips:
 {% endfor %}
 
 global_overrides:
+  cidr_networks: *cidr_networks
   internal_lb_vip_address: {{ internal_vip_address | default('172.29.236.100') }}
   # The external IP is quoted simply to ensure that the .aio file can be used as input
   # dynamic inventory testing.
@@ -67,6 +68,9 @@ global_overrides:
 {% if swift is defined and swift | bool %}
           - swift_proxy
 {% endif %}
+{% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
+          - ceph_osd
+{% endif %}
         type: "raw"
         container_bridge: "br-storage"
         container_type: "veth"
@@ -75,66 +79,54 @@ global_overrides:
         ip_from_q: "storage"
 
 # Infrastructure (memcached, galera, rabbitmq, ...) hosts
-{% if infrastructure_hosts_ips is defined and infrastructure_hosts_ips | length > 0 %}
+{% if infrastructure_hosts is defined and infrastructure_hosts | length > 0 %}
 _infrastructure_hosts: &infrastructure_hosts
-{% for h in infrastructure_hosts_ips %}
-  infra{{ loop.index }}:
+{% for h in infrastructure_hosts %}
+  {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
 {% endif %}
 
 # Compute hypervisor hosts
-{% if compute_hosts_ips is defined and compute_hosts_ips | length > 0 %}
-compute_hosts: &compute_hosts:
-{% for h in compute_hosts_ips %}
-  compute{{ loop.index }}:
+{% if compute_hosts is defined and compute_hosts | length > 0 %}
+compute_hosts: &compute_hosts
+{% for h in compute_hosts %}
+  {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
 {% endif %}
 
-##
-## Infrastructure middleware
-##
-
-shared-infra_hosts: *infrastructure_hosts
-
-# repository (apt cache, python packages, etc)
-repo-infra_hosts: *infrastructure_hosts
-
-# Ideally the load balancer should not use the infrastructure hosts.
-# Dedicated hardware is best for improved performance and security.
-haproxy_hosts: *infrastructure_hosts
-
 # Rsyslog
-{% if logging_hosts_ips is defined and logging_hosts_ips | length > 0 %}
+{% if logging_hosts is defined and logging_hosts | length > 0 %}
 log_hosts:
-  log1:
-    ip: "{{ logging_hosts_ips[0].ip_v4 }}"
-{% else if infrastructure_hosts_ips is defined and infrastructure_hosts_ips | length > 0 %}
-  log1:
-    ip: "{{ infrastructure_hosts_ips[0].ip_v4 }}"
+  {{ logging_hosts[0].name }}:
+    ip: {{ logging_hosts[0].ip_v4 }}
+{% elif infrastructure_hosts is defined and infrastructure_hosts | length > 0 %}
+  {{ infrastructure_hosts[0].name }}:
+    ip: {{ infrastructure_hosts_ips[0].ip_v4 }}
 {% endif %}
 
 ##
 ## Ceph storage
 ##
 
-# Cinder volune backend (LVM/iSCSI or Ceph RBD) hosts
-{% if ceph_osd_hosts_ips is defined and ceph_osd_hosts_ips | length > 0 %}
-storage_hosts: *infrastructure_hosts
+{% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
 # Ceph OSD hosts
 ceph-osd_hosts:
-{% for h in ceph_osd_hosts_ips %}
-  osd{{ loop.index }}:
+{% for h in ceph_osd_hosts %}
+  {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
-# Ceph monitor hosts
-ceph-mon_hosts: *infrastructure_hosts
 
-{% else if lvm_iscsi_hosts_ips is defined and lvm_iscsi_hosts_ips | length > 0 %}
+# Ceph monitor hosts
+{% if infrastructure_hosts is defined and infrastructure_hosts | length > 0 %}
+ceph-mon_hosts: *infrastructure_hosts
+{% endif %}
+
+{% elif lvm_iscsi_hosts is defined and lvm_iscsi_hosts | length > 0 %}
 storage_hosts:  
-{% for h in lvm_iscsi_hosts_ips %}
-  lvm-iscsi{{ loop.index }}:
+{% for h in lvm_iscsi_hosts %}
+  {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
       cinder_backends:
@@ -148,18 +140,37 @@ storage_hosts:
 {% endfor %}
 {% endif %}
 
+##
+## Infrastructure middleware
+##
+
+{% if infrastructure_hosts is defined and infrastructure_hosts | length > 0 %}
+shared-infra_hosts: *infrastructure_hosts
+
+# repository (apt cache, python packages, etc)
+repo-infra_hosts: *infrastructure_hosts
+
+# Ideally the load balancer should not use the infrastructure hosts.
+# Dedicated hardware is best for improved performance and security.
+haproxy_hosts: *infrastructure_hosts
+{% endif %}
+
 ###
 ### OpenStack
 ###
 
-# Keystone services
-identity_hosts: \*infrastructure_hosts
+{% if infrastructure_hosts is defined and infrastructure_hosts | length > 0 %}
+## Keystone services
+identity_hosts: *infrastructure_hosts
 
 # Neutron L2/L3 agents and metadata services
 network_hosts: *infrastructure_hosts
 
 # cinder api services
 storage-infra_hosts: *infrastructure_hosts
+
+# cinder volume backend (LVM/iSCSI or Ceph RBD) hosts
+storage_hosts: *infrastructure_hosts
 
 # nova api services
 compute-infra_hosts: *infrastructure_hosts
@@ -176,6 +187,7 @@ image_hosts: *infrastructure_hosts
 # neutron server, agents (L3, etc)
 network_hosts: *infrastructure_hosts
 
+{% if metering is defined and metering | bool %}
 # ceilometer (telemetry data collection)
 metering-infra_hosts: *infrastructure_hosts
 
@@ -184,6 +196,12 @@ metering-alarm_hosts: *infrastructure_hosts
 
 # gnocchi (telemetry metrics storage)
 metrics_hosts: *infrastructure_hosts
+{% endif %}
+{% endif %}
+{% if compute_hosts is defined and compute_hosts | length > 0 %}
+{% if metering is defined and metering | bool %}
 
 # ceilometer compute agent (telemetry data collection)
 metering-compute_hosts: *compute_hosts
+{% endif %}
+{% endif %}

@@ -109,16 +109,18 @@ swift_proxy_server_conf_overrides:
 ## Ceph cluster fsid (must be generated before first run)
 ## Generate a uuid using: python -c 'import uuid; print(str(uuid.uuid4()))'
 generate_fsid: false
-fsid: ab8caf91-6860-4a87-801c-44bfb1568340 # Replace with your generated UUID
+fsid: {{ ceph_uuid_seed | default('ceph_uuid') | to_uuid }} # Replace with your generated UUID
 
 ## ceph-ansible settings
 ## See https://github.com/ceph/ceph-ansible/tree/master/group_vars for
 ## additional configuration options availble.
+{%- raw %}
 monitor_address_block: "{{ cidr_networks.container }}"
 public_network: "{{ cidr_networks.container }}"
 cluster_network: "{{ cidr_networks.storage }}"
+{% endraw %}
 osd_scenario: collocated
-journal_size: 10240 # size in MB
+journal_size: {{ ceph_journal_size | default(10240) }} # size in MB
 # ceph-ansible automatically creates pools & keys for OpenStack services
 openstack_config: true
 cinder_ceph_client: cinder
@@ -132,10 +134,12 @@ cinder_backends:
     volume_driver: cinder.volume.drivers.rbd.RBDDriver
     rbd_pool: volumes
     rbd_ceph_conf: /etc/ceph/ceph.conf
-    rbd_store_chunk_size: 8
+    rbd_store_chunk_size: {{ cinder_rbd_store_chunk_size | default(8) }}
     volume_backend_name: rbddriver
+{%- raw %}
     rbd_user: "{{ cinder_ceph_client }}"
     rbd_secret_uuid: "{{ cinder_ceph_client_uuid }}"
+{% endraw %}
     report_discard_supported: true
 
 # By default, openstack-ansible configures all OpenStack services to talk to

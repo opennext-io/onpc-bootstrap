@@ -122,8 +122,13 @@ ceph-osd_hosts:
 {% if infrastructure_hosts is defined and infrastructure_hosts | length > 0 %}
 ceph-mon_hosts: *infrastructure_hosts
 {% endif %}
+{% endif %}
 
-{% elif lvm_iscsi_hosts is defined and lvm_iscsi_hosts | length > 0 %}
+##
+## Cinder storage
+##
+
+{% if lvm_iscsi_hosts is defined and lvm_iscsi_hosts | length > 0 %}
 storage_hosts:  
 {% for h in lvm_iscsi_hosts %}
   {{ h.name }}:

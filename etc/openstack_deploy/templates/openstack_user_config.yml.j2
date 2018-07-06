@@ -97,13 +97,13 @@ compute_hosts: &compute_hosts
 {% endif %}
 
 # Rsyslog
-{% if logging_hosts is defined and logging_hosts | length > 0 %}
 log_hosts:
+{% if logging_hosts is defined and logging_hosts | length > 0 %}
   {{ logging_hosts[0].name }}:
     ip: {{ logging_hosts[0].ip_v4 }}
 {% elif infrastructure_hosts is defined and infrastructure_hosts | length > 0 %}
   {{ infrastructure_hosts[0].name }}:
-    ip: {{ infrastructure_hosts_ips[0].ip_v4 }}
+    ip: {{ infrastructure_hosts[0].ip_v4 }}
 {% endif %}
 
 ##

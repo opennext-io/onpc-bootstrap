@@ -85,6 +85,7 @@ swift_proxy_server_conf_overrides:
 {% endif %}
 
 ## Common Ceph Overrides
+{% if ceph is defined and ceph | bool %}
 # ceph_mons:
 #   - 10.16.5.40
 #   - 10.16.5.41
@@ -141,6 +142,7 @@ cinder_backends:
     rbd_secret_uuid: "{{ cinder_ceph_client_uuid }}"
 {% endraw %}
     report_discard_supported: true
+{% endif %}
 
 # By default, openstack-ansible configures all OpenStack services to talk to
 # RabbitMQ over encrypted connections on port 5671. To opt-out of this default,

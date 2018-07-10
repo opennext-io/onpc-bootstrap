@@ -46,7 +46,7 @@ vm_flavors:
     disk: 600
     swap: 4
     ephemeral: 256
-  - name: m1.heavy
+  - name: m1.xxlarge
     ram: 32768
     vcpus: 48
     disk: 1200
@@ -55,12 +55,10 @@ vm_flavors:
 
 # Create shared networks and subnets:
 provider_net_name: PROVIDER_NET
-provider_net_cidr: 172.31.0.0/24
-provider_dns_server: "{{ DNS_NAMESERVER | default(['213.246.33.144', '213.246.36.14', '80.93.83.11']) }}"
-provider_subnet_name: "{{ provider_net_name }}_SUBNET"
-
-private_net_name: PRIVATE_NET
-private_net_cidr: 192.168.0.0/24
+provider_net_cidr: 172.32.0.0/22 
+provider_dns_server: "{{ DNS_NAMESERVER | default(['213.246.33.144', '213.246.36.14']) }}"
+enable_provider_net_dhcp: true
+private_net_cidr: 192.168.1.0/24
 private_subnet_name: "{{ private_net_name }}_SUBNET"
 
 networks:
@@ -71,7 +69,7 @@ networks:
     physical_network: flat
   - name: "{{ private_net_name }}"
     shared: true
-    external: true
+    external: false
     network_type: vxlan
     segmentation_id: 101
 

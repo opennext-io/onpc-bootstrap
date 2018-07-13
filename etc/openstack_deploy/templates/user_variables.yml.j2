@@ -138,6 +138,8 @@ glance_default_store: rbd
 glance_rbd_store_pool: images
 nova_libvirt_images_rbd_pool: vms
 
+{% endif %}
+
 # By default, openstack-ansible configures all OpenStack services to talk to
 # RabbitMQ over encrypted connections on port 5671. To opt-out of this default,
 # set the rabbitmq_use_ssl variable to 'false'. The default setting of 'true'

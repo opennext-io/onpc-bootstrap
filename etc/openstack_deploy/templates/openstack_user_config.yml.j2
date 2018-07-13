@@ -148,7 +148,6 @@ storage_hosts:
     ip: {{ h.ip_v4 }}
     container_vars:
       cinder_backends:
-        limit_container_types: cinder_volume
         RBD:
           volume_driver: cinder.volume.drivers.rbd.RBDDriver
           rbd_pool: volumes

@@ -34,3 +34,9 @@ rsyslog_client_user_defined_targets:
     port: "{{ fluentd_syslog_port }}"
     hostname: "{{ fluentd_host | default(internal_lb_vip_address) }}"
 {% endraw %}
+
+# Variable ceph_uuid_seed is used to generate a unique UUID for Ceph.
+# Alternativey, you can define a ceph_uuid_seed value using: python -c 'import uuid; print(str(uuid.uuid4()))'
+{% raw %}
+ceph_uuid_seed: "{{ ansible_date_time.iso8601_micro }}"
+{% endraw %}

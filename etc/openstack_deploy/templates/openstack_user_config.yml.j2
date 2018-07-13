@@ -129,7 +129,7 @@ ceph-mon_hosts: *infrastructure_hosts
 ##
 
 {% if lvm_iscsi_hosts is defined and lvm_iscsi_hosts | length > 0 %}
-storage_hosts:  
+storage_hosts:
 {% for h in lvm_iscsi_hosts %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
@@ -142,6 +142,25 @@ storage_hosts:
           volume_group: cinder-volumes
           iscsi_ip_address: "{{ h.ip_v4 }}"
           lvm_type: "thin"
+{% endfor %}
+{% elif ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
+{% for h in ceph_osd_hosts %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+    container_vars:
+      cinder_backends:
+        limit_container_types: cinder_volume
+        RBD:
+          volume_driver: cinder.volume.drivers.rbd.RBDDriver
+          rbd_pool: volumes
+          rbd_ceph_conf: /etc/ceph/ceph.conf
+          rbd_store_chunk_size: 8
+          volume_backend_name: rbddriver
+          report_discard_supported: true
+{%- raw %}
+          rbd_user: "{{ cinder_ceph_client }}"
+          rbd_secret_uuid: "{{ cinder_ceph_client_uuid }}"
+{% endraw %}
 {% endfor %}
 {% endif %}
 

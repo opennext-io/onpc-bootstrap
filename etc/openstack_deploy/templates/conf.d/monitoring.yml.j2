@@ -23,8 +23,10 @@ influx_hosts: &influx_hosts
 
 collectd_hosts:
 {% for h in monitoring_hosts %}
-# Temporay workaround until collectd is deployed in HA cluster
+{# Leave the next comments lines within the loop so that they are not duplicated #}
 {% if loop.index < 2 %}
+# Temporay workaround until collectd is deployed in HA cluster
+# Currently only the 'first' host with monitoring role is selected
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endif %}

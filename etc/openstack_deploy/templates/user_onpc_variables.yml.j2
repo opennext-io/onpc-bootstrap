@@ -14,15 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{% if slack is defined and slack.get('alert-channel', '') | length > 0 and slack.get('uuid', '') | length > 0 %}
 ## Use slack for alerts
+# To avoid being spammed with false alerts in slack, the slack_alert variable
+# should be defined in vars section of the top level inventory on infra-master
+# node like in:
+# [all:vars]
+# slack={ 'alert-channel': '<channel_name>', 'uuid': 'channel_uuid' }
+
+{% set slack = slack_alert | default({}) %}
+{% if slack.get('alert-channel', '') | length > 0 and slack.get('uuid', '') | length > 0 %}
 slack_alerts_enabled: True
 slack_alerts_channel: "#{{ slack.get('alert-channel') }}"
 # Should go in vault to avoid being spammed
-slack_webhooks_url: "https://hooks.slack.com/services/{{ slack.get('uuid') }}}"
+slack_webhooks_url: "https://hooks.slack.com/services/{{ slack.get('uuid') }}"
 {% endif %}
 
-onpc_environment_name: "ONPC_STARTER_KIT"
+onpc_environment_name: "{{ environment_name | default("ONPC_CLOUD_LAB") }}"
 
 fluentd_syslog_port: 5140
 # Variable used by 'rsyslog_client' role to define additional rsyslog targets

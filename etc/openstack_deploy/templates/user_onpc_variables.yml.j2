@@ -29,7 +29,14 @@ slack_alerts_channel: "#{{ slack.get('alert-channel') }}"
 slack_webhooks_url: "https://hooks.slack.com/services/{{ slack.get('uuid') }}"
 {% endif %}
 
-onpc_environment_name: "{{ environment_name | default("ONPC_CLOUD_LAB") }}"
+## Name of the environment can be defined in vars section of the top
+# level inventory on infra-master node.
+# The variable onpc_environment_name is used to tag the monitoring metrics
+# and alerts with the name of the environment.
+# [all:vars]
+# environment_name="my_environment_name"
+
+onpc_environment_name: "{{ environment_name | default("") }}"
 
 fluentd_syslog_port: 5140
 # Variable used by 'rsyslog_client' role to define additional rsyslog targets

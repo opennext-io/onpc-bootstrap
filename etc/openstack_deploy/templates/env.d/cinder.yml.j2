@@ -18,11 +18,9 @@
 # iSCSI protocol, the cinder-volume service *must* run on metal (default).
 # Reference: https://bugs.launchpad.net/ubuntu/+source/lxc/+bug/1226855
 
-{% raw %}
 {% if groups.get('ceph_all', []) | length > 0 %}
 container_skel:
   cinder_volumes_container:
     properties:
       is_metal: false
 {% endif %}
-{% endraw %}

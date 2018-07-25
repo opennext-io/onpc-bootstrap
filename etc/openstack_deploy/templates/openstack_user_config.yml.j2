@@ -143,7 +143,8 @@ storage_hosts:
           iscsi_ip_address: "{{ h.ip_v4 }}"
           lvm_type: "thin"
   {% endfor %}
-{% elif ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
+{% endif %}
+{% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
   {% for h in ceph_osd_hosts %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}

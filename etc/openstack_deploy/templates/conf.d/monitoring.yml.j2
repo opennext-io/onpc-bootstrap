@@ -1,3 +1,4 @@
+# {{ ansible_managed }}
 ---
 # Copyright 2018, OpenNext SAS
 #
@@ -12,16 +13,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-influx_hosts:
-  infra1:
-    ip: 0.0.0.0
-  infra2:
-    ip: 0.0.0.0
-  infra3:
-    ip: 0.0.0.0
+
+{% if monitoring_hosts is defined and monitoring_hosts | length > 0 %}
+influx_hosts: &influx_hosts
+{% for h in monitoring_hosts %}
+ {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+{% endfor %}
+
 collectd_hosts:
-  infra1:
-    ip: 0.0.0.0
-grafana_hosts:
-  infra1:
-    ip: 0.0.0.0
+{% for h in monitoring_hosts %}
+{# Leave the next comments lines within the loop so that they are not duplicated #}
+{% if loop.index < 2 %}
+# Temporay workaround until collectd is deployed in HA cluster
+# Currently only the 'first' host with monitoring role is selected
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+{% endif %}
+{% endfor %}
+
+grafana_hosts: *influx_hosts
+{% endif %}

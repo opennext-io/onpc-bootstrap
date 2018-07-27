@@ -1,0 +1,56 @@
+# {{ ansible_managed }}
+---
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+## Use slack for alerts
+# To avoid being spammed with false alerts in slack, the slack_alert variable
+# should be defined in vars section of the top level inventory on infra-master
+# node like in:
+# [all:vars]
+# slack={ 'alert-channel': '<channel_name>', 'uuid': 'channel_uuid' }
+
+{% set slack = slack_alert | default({}) %}
+{% if slack.get('alert-channel', '') | length > 0 and slack.get('uuid', '') | length > 0 %}
+slack_alerts_enabled: True
+slack_alerts_channel: "#{{ slack.get('alert-channel') }}"
+# Should go in vault to avoid being spammed
+slack_webhooks_url: "https://hooks.slack.com/services/{{ slack.get('uuid') }}"
+{% endif %}
+
+## Name of the environment can be defined in vars section of the top
+# level inventory on infra-master node.
+# The variable onpc_environment_name is used to tag the monitoring metrics
+# and alerts with the name of the environment.
+# [all:vars]
+# environment_name="my_environment_name"
+
+onpc_environment_name: "{{ environment_name | default("") }}"
+
+fluentd_syslog_port: 5140
+# Variable used by 'rsyslog_client' role to define additional rsyslog targets
+rsyslog_client_user_defined_targets:
+  - name: "fluentd"
+    proto: "tcp"
+    template: "$ActionFileDefaultTemplate RSYSLOG_ForwardFormat"
+{% raw %}
+    port: "{{ fluentd_syslog_port }}"
+    hostname: "{{ fluentd_host | default(internal_lb_vip_address) }}"
+{% endraw %}
+
+# Variable ceph_uuid_seed is used to generate a unique UUID for Ceph.
+# Alternativey, you can define a ceph_uuid_seed value using: python -c 'import uuid; print(str(uuid.uuid4()))'
+{% raw %}
+ceph_uuid_seed: "{{ ansible_date_time.iso8601_micro }}"
+{% endraw %}

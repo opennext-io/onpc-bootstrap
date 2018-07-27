@@ -1,3 +1,4 @@
+# {{ ansible_managed }}
 ---
 # Copyright 2018, OpenNext SAS
 #
@@ -31,14 +32,14 @@ container_skel:
       - elasticsearch
       - fluentd
     properties:
-      container_fs_size: 24G
+      container_fs_size: {{ elastic_fluentd_container_fs_size | default('8G') }}
   kibana_container:
     belongs_to:
       - kibana_containers
     contains:
       - kibana
     properties:
-      container_fs_size: 12G
+      container_fs_size: {{ kibana_container_fs_size | default('4G') }}
 physical_skel:
   elastic-fluentd_containers:
     belongs_to:
@@ -52,4 +53,3 @@ physical_skel:
   kibana_hosts:
     belongs_to:
       - hosts
-

@@ -1,3 +1,4 @@
+# {{ ansible_managed }}
 ---
 # Copyright 2018, OpenNext SAS
 #
@@ -12,6 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 component_skel:
   influxdb:
     belongs_to:
@@ -37,7 +39,7 @@ container_skel:
       - influxdb_relay
       - kapacitor
     properties:
-      container_fs_size: 24G
+      container_fs_size: {{ influx_container_fs_size | default('24G') }}
   collectd_container:
     belongs_to:
       - collectd_containers
@@ -49,7 +51,7 @@ container_skel:
     contains:
       - grafana
     properties:
-      container_fs_size: 8G
+      container_fs_size: {{ grafana_container_fs_size | default('8G') }}
 physical_skel:
   influx_containers:
     belongs_to:
@@ -69,4 +71,3 @@ physical_skel:
   grafana_hosts:
     belongs_to:
       - hosts
-      

@@ -7,12 +7,25 @@ OpenNext Private Cloud Basic Model
 
 About this repository
 ---------------------
-This repositry defines the OpenNext deployment model for a basic (a.k.a Starter Kit)
-OpenStack infrastructure. Supporta and all-in-one or multi-node deployment in virtual or
+This repository defines the OpenNext deployment model for a basic (a.k.a Starter Kit)
+OpenStack infrastructure. Supports all-in-one or multi-node deployment in virtual or
 physical machines.
 
 Process
 -------
+
+Prior to its integration within onpc-provisioning project, most of the files
+contained in this repository were usable using the Former Process section hereafter.
+
+However, due to the very automated nature of onpc-provisioning, most of these files
+have now become Jinja templates which needs to be instanciated for the various
+{{ var }} pattern that they now contain.
+
+The Former Process section hereafter has been kept as a reference to what was to
+be done manually before and which is now done in an automated way.
+
+Former Process
+--------------
 
 You have to become root to execute the following steps.
 
@@ -29,7 +42,7 @@ Copy everything under ./etc/openstack_deploy into /etc/openstack_deploy
 
     cd /opt/onpc-basic-model
     sudo cp -R ./etc/openstack_deploy/* /etc/openstack_deploy/
-    
+
 Generate the password values
 
 .. code-block:: bash
@@ -39,7 +52,7 @@ Generate the password values
 Import the ansible role dependencies
 
 .. code-block:: bash
-    
+
     cd /opt/openstack-ansible
     openstack-ansible ./tests/get-ansible-role-requirements.yml \
         -e role_file=/opt/onpc-basic-model/ansible_role_requirements.yml
@@ -51,6 +64,9 @@ Regenerate the inventory
     export ANSIBLE_INVENTORY=/opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py
     /opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py --config /etc/openstack_deploy
 
-Then proceed to the installation of the Logging and Monitoring stacks using the instructions
-provided in these two respective projects.
+Then proceed with:
+
+   * The installation of openstack-ansible
+   * The install of the monitoring stack (onpc-monitoring)
+   * The install of the logging stack (onpc-logging)
 

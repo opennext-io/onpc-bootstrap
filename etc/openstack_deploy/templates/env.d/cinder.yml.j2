@@ -1,3 +1,4 @@
+# {{ ansible_managed }}
 ---
 # Copyright 2018, OpenNext SAS
 #
@@ -12,13 +13,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-elastic_fluentd_hosts:
-  infra1:
-    ip: 0.0.0.0
-  infra2:
-    ip: 0.0.0.0
-  infra3:
-    ip: 0.0.0.0
-kibana_hosts:
-  infra1:
-    ip: 0.0.0.0
+
+# When using LVM or any iSCSI-based cinder backends, such as NetApp with
+# iSCSI protocol, the cinder-volume service *must* run on metal (default).
+# Reference: https://bugs.launchpad.net/ubuntu/+source/lxc/+bug/1226855
+
+{% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
+container_skel:
+  cinder_volumes_container:
+    properties:
+      is_metal: false
+{% endif %}

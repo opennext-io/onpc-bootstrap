@@ -157,10 +157,10 @@ storage_hosts:
           rbd_store_chunk_size: 8
           volume_backend_name: rbddriver
           report_discard_supported: true
-          {%- raw %}
+{% raw %}
           rbd_user: "{{ cinder_ceph_client }}"
           rbd_secret_uuid: "{{ cinder_ceph_client_uuid }}"
-          {% endraw %}
+{% endraw %}
 {% endfor %}
 {% endif %}
 
@@ -192,9 +192,6 @@ network_hosts: *infrastructure_hosts
 
 # cinder api services
 storage-infra_hosts: *infrastructure_hosts
-
-# cinder volume backend (LVM/iSCSI or Ceph RBD) hosts
-#storage_hosts: *infrastructure_hosts
 
 # nova api services
 compute-infra_hosts: *infrastructure_hosts

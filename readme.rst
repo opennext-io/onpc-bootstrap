@@ -64,6 +64,18 @@ Regenerate the inventory
     export ANSIBLE_INVENTORY=/opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py
     /opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py --config /etc/openstack_deploy
 
+
+Ceph Installation notes
+
+Create the ceph-mon container(s)
+
+.. code-block:: bash
+
+    openstack-ansible /opt/openstack-ansible/playbooks/lxc-containers-create.yml \
+      -e container_group='ceph-mon'
+
+Invoke the Ceph installation playbook
+
 Then proceed with:
 
    * The installation of openstack-ansible

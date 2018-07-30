@@ -126,10 +126,14 @@ fsid: {{ ceph_uuid_seed | default('ceph_uuid') | to_uuid }}
 monitor_address_block: "{{ cidr_networks.container }}"
 public_network: "{{ cidr_networks.container }}"
 cluster_network: "{{ cidr_networks.storage }}"
-devices: "{{ ceph_osd_devices }}"
 {% endraw %}
-osd_scenario: collocated
-journal_size: {{ ceph_journal_size | default(10240) }} # size in MB
+osd_objectstore: bluestore
+osd_scenario: lvm
+lvm_volumes:
+- data: osd-volumes-lv
+  data_vg: osd-volumes
+dmcrypt: false
+#journal_size: {{ ceph_journal_size | default(10240) }} # size in MB
 # ceph-ansible automatically creates pools & keys for OpenStack services
 openstack_config: true
 cinder_ceph_client: cinder
@@ -137,7 +141,6 @@ glance_ceph_client: glance
 glance_default_store: rbd
 glance_rbd_store_pool: images
 nova_libvirt_images_rbd_pool: vms
-
 {% endif %}
 
 # By default, openstack-ansible configures all OpenStack services to talk to

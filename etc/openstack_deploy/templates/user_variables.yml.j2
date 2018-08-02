@@ -127,11 +127,13 @@ monitor_address_block: "{{ cidr_networks.container }}"
 public_network: "{{ cidr_networks.container }}"
 cluster_network: "{{ cidr_networks.storage }}"
 {% endraw %}
-osd_objectstore: bluestore
+osd_objectstore: filestore
 osd_scenario: lvm
 lvm_volumes:
-- data: data
-  data_vg: osd-data
+  - data: data
+    data_vg: ceph 
+    journal: journal
+    journal_vg: ceph
 dmcrypt: false
 #journal_size: {{ ceph_journal_size | default(10240) }} # size in MB
 # ceph-ansible automatically creates pools & keys for OpenStack services

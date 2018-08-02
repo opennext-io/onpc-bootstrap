@@ -17,6 +17,11 @@
     name: "{{ item.name }}"
     filename: "/tmp/os_image_{{ item.name }}"
     disk_format: "{{ item.format }}"
+    properties:
+      hw_scsi_model: virtio-scsi
+      hw_disk_bus: scsi
+      hw_qemu_guest_agent: yes
+      os_require_quiesce: yes
 
 - name: Clean up temp file
   file:

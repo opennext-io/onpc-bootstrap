@@ -152,11 +152,14 @@ storage_hosts:
       cinder_backends:
         RBD:
           volume_driver: cinder.volume.drivers.rbd.RBDDriver
+          volume_backend_name: ceph
           rbd_pool: volumes
           rbd_ceph_conf: /etc/ceph/ceph.conf
-          rbd_store_chunk_size: 8
-          volume_backend_name: rbddriver
+          rbd_max_clone_depth: 5
+          rbd_flatten_volume_from_snapshot: false
+          rbd_store_chunk_size: 4
           report_discard_supported: true
+          rados_connect_timeout = -1
 {% raw %}
           rbd_user: "{{ cinder_ceph_client }}"
           rbd_secret_uuid: "{{ cinder_ceph_client_uuid }}"

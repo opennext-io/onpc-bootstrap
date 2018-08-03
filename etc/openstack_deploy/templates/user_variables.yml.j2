@@ -131,11 +131,12 @@ osd_objectstore: filestore
 osd_scenario: lvm
 lvm_volumes:
   - data: data
-    data_vg: ceph 
+    data_vg: ceph-data
     journal: journal
-    journal_vg: ceph
+    journal_vg: ceph-journal
 dmcrypt: false
-#journal_size: {{ ceph_journal_size | default(10240) }} # size in MB
+# Set a default 10G journal size (size in MB)
+journal_size: {{ ceph_journal_partition_size | default(10240) }} 
 # ceph-ansible automatically creates pools & keys for OpenStack services
 openstack_config: true
 cinder_ceph_client: cinder

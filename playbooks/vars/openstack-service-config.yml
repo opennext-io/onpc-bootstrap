@@ -80,17 +80,17 @@ subnets:
     cidr: "{{ provider_net_cidr }}"
     gateway_ip: "{{ provider_net_cidr | ipaddr('254') | ipaddr('address') }}"
     enable_dhcp: "{{ enable_provider_net_dhcp | default(false) | bool }}"
-    allocation_pool_start: "{{ provider_net_cidr | ipaddr('100') | ipaddr('address') }}"
+    allocation_pool_start: "{{ provider_net_cidr | ipaddr('1') | ipaddr('address') }}"
     allocation_pool_end:   "{{ provider_net_cidr | ipaddr('253') | ipaddr('address') }}"
     dns_nameservers: "{{ provider_dns_server }}"
   - name: "{{ private_subnet_name }}"
     network_name: "{{ private_net_name }}"
     ip_version: 4
     cidr: "{{ private_net_cidr }}"
-    gateway_ip: "{{ private_net_cidr | ipaddr('1') | ipaddr('address') }}"
+    gateway_ip: "{{ private_net_cidr | ipaddr('254') | ipaddr('address') }}"
     enable_dhcp: true
-    allocation_pool_start: "{{ private_net_cidr | ipaddr('10') | ipaddr('address') }}"
-    allocation_pool_end:   "{{ private_net_cidr | ipaddr('254') | ipaddr('address') }}"
+    allocation_pool_start: "{{ private_net_cidr | ipaddr('1') | ipaddr('address') }}"
+    allocation_pool_end:   "{{ private_net_cidr | ipaddr('253') | ipaddr('address') }}"
 
 router_name: PROVIDER_NET_ROUTER
 security_group_name: gateway_security

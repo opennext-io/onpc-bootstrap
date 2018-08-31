@@ -16,3 +16,6 @@
 - name: kapacitor
   scm: git
   src: https://github.com/opennext-io/ansible-kapacitor.git
+- name: sensu
+  scm: git
+  src: https://github.com/opennext-io/sensu-ansible.git

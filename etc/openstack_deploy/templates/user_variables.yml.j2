@@ -34,13 +34,20 @@ debug: false
 # glance_default_store: file
 
 ## Ceph pool name for Glance to use
-# glance_rbd_store_pool: images
-# glance_rbd_store_chunk_size: 8
+{% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
+glance_rbd_store_pool: images
+glance_rbd_store_chunk_size: 8
+glance_ceph_client: glance
+glance_default_store: rbd
+glance_rbd_store_pool: images
+{% endif %}
 
 ## Common Nova Overrides
 # When nova_libvirt_images_rbd_pool is defined, ceph will be installed on nova
 # hosts.
-# nova_libvirt_images_rbd_pool: vms
+{% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
+nova_libvirt_images_rbd_pool: vms
+{% endif %}
 
 nova_cpu_allocation_ratio: 8.0
 nova_nova_conf_overrides:
@@ -55,10 +62,13 @@ nova_nova_conf_overrides:
 cinder_cinder_conf_overrides:
   DEFAULT:
     image_volume_cache_enabled: true
+
 {% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
-  ceph:
-    image_volume_cache_enabled: true
+cinder_default_volume_type: RBD
+{% else %}
+cinder_default_volume_type: lvm
 {% endif %}
+
 
 # If you wish to change the dhcp_domain configured for both nova and neutron
 # dhcp_domain: openstacklocal
@@ -95,9 +105,13 @@ swift_proxy_server_conf_overrides:
     log_statsd_port: 8125
 {% endif %}
 
+## Magnum Overrides for cinder integration
+magnum_config_overrides:
+  cinder:
+    default_docker_volume_type: "{{ cinder_default_volume_type }}"
+
 ## Common Ceph Overrides
 {% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
-
 ## Custom Ceph Configuration File (ceph.conf)
 # By default, your deployment host will connect to one of the mons defined above to
 # obtain a copy of your cluster's ceph.conf.  If you prefer, uncomment ceph_conf_file
@@ -140,10 +154,6 @@ journal_size: {{ ceph_journal_partition_size | default(10240) }}
 # ceph-ansible automatically creates pools & keys for OpenStack services
 openstack_config: true
 cinder_ceph_client: cinder
-glance_ceph_client: glance
-glance_default_store: rbd
-glance_rbd_store_pool: images
-nova_libvirt_images_rbd_pool: vms
 {% endif %}
 
 # By default, openstack-ansible configures all OpenStack services to talk to

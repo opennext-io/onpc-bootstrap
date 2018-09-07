@@ -62,6 +62,10 @@ nova_nova_conf_overrides:
 cinder_cinder_conf_overrides:
   DEFAULT:
     image_volume_cache_enabled: true
+{% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
+  ceph:
+    image_volume_cache_enabled: true
+{% endif %}
 
 {% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
 cinder_default_volume_type: RBD
@@ -105,7 +109,7 @@ swift_proxy_server_conf_overrides:
     log_statsd_port: 8125
 {% endif %}
 
-## Magnum Overrides for cinder integration
+## Magnum overrides for cinder integration
 magnum_config_overrides:
   cinder:
     default_docker_volume_type: "{{ cinder_default_volume_type }}"

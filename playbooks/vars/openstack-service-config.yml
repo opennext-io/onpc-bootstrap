@@ -58,6 +58,7 @@ provider_net_name: PROVIDER_NET
 provider_net_cidr: 172.32.0.0/22 
 provider_dns_server: "{{ DNS_NAMESERVER | default(['213.246.33.144', '213.246.36.14']) }}"
 enable_provider_net_dhcp: true
+private_net_name: PRIVATE_NET
 private_net_cidr: 192.168.1.0/24
 private_subnet_name: "{{ private_net_name }}_SUBNET"
 
@@ -114,27 +115,32 @@ security_group_rules:
 
 # Create some default images
 images:
-  - name: Ubuntu 14.04 LTS
+  - name: Ubuntu_14.04_LTS
     format: qcow2
     url: http://uec-images.ubuntu.com/releases/14.04/release/ubuntu-14.04-server-cloudimg-amd64-disk1.img
-  - name: Ubuntu 16.04
+  - name: Ubuntu_16.04
     format: qcow2
     url: http://uec-images.ubuntu.com/releases/16.04/release/ubuntu-16.04-server-cloudimg-amd64-disk1.img
-  - name: Fedora 27
-    format: qcow2
-    url: http://dfw.mirror.rackspace.com/fedora/releases/27/CloudImages/x86_64/images/Fedora-Cloud-Base-27-1.6.x86_64.qcow2
-  - name: CentOS 7
+  - name: CentOS_7
     format: qcow2
     url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
-  - name: OpenSuse Leap 42.3
+  - name: OpenSuse_Leap_42.3
     format: qcow2
     url: http://download.opensuse.org/repositories/Cloud:/Images:/Leap_42.3/images/openSUSE-Leap-42.3-OpenStack.x86_64.qcow2
-  - name: Debian 9 Latest
+  - name: Debian_9
     format: qcow2
     url: http://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
-  - name: Debian TESTING
+  - name: Debian_Testing
     format: qcow2
     url: http://cdimage.debian.org/cdimage/openstack/testing/debian-testing-openstack-amd64.qcow2
-  - name: Cirros-0.3.5
+  - name: Cirros_0.3.5
     format: qcow2
     url: http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img
+  - name: Fedora_Cloud_Base_28
+    format: qcow2
+    url: https://download.fedoraproject.org/pub/fedora/linux/releases/28/Cloud/x86_64/images/Fedora-Cloud-Base-28-1.1.x86_64.qcow2
+- name: Fedora_AtomicHost_28
+    format: qcow2
+    url: https://download.fedoraproject.org/pub/alt/atomic/stable/Fedora-28-updates-20180902.0/AtomicHost/x86_64/images/Fedora-AtomicHost-28-20180902.0.x86_64.qcow2
+
+

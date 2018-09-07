@@ -112,7 +112,9 @@ swift_proxy_server_conf_overrides:
 ## Magnum overrides for cinder integration
 magnum_config_overrides:
   cinder:
+{%- raw %}
     default_docker_volume_type: "{{ cinder_default_volume_type }}"
+{% endraw %}
 
 ## Common Ceph Overrides
 {% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}

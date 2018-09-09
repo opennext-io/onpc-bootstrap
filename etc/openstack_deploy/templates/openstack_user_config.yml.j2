@@ -211,8 +211,10 @@ image_hosts: *infrastructure_hosts
 # neutron server, agents (L3, etc)
 network_hosts: *infrastructure_hosts
 
+{% if magnum is defined and magnum | bool %}
 # magnum services
 magnum-infra_hosts: *infrastructure_hosts
+{% endif %}
 
 {% if metering is defined and metering | bool %}
 # ceilometer (telemetry data collection)

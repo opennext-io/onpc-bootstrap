@@ -127,7 +127,8 @@ ceph-mon_hosts: *infrastructure_hosts
 ##
 ## Cinder storage
 ##
-
+## Either LVM/iSCSI or Ceph but not both simultaneously.
+##
 storage_hosts:
 {% if lvm_iscsi_hosts is defined and lvm_iscsi_hosts | length > 0 %}
 {% for h in lvm_iscsi_hosts %}
@@ -137,23 +138,23 @@ storage_hosts:
       cinder_backends:
         limit_container_types: cinder_volume
         lvm:
-          volume_backend_name: LVM_iSCSI
+          volume_backend_name: lvm
           volume_driver: cinder.volume.drivers.lvm.LVMVolumeDriver
           volume_group: cinder-volumes
           iscsi_ip_address: "{{ h.ip_v4 }}"
           lvm_type: "thin"
-{% endfor %}
-{% endif %}
-{% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
+{% endfor %}          
+{% elif ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
 {% for h in ceph_osd_hosts %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
       cinder_backends:
-        RBD:
+      limit_container_types: cinder_volume
+        rbd:
           volume_driver: cinder.volume.drivers.rbd.RBDDriver
-          volume_backend_name: ceph
-          rbd_pool: volumes
+          volume_backend_name: rbd
+          rbd_pool: cinder_volumes
           rbd_ceph_conf: /etc/ceph/ceph.conf
           rbd_max_clone_depth: 5
           rbd_flatten_volume_from_snapshot: false

@@ -32,5 +32,14 @@ collectd_hosts:
 {% endif %}
 {% endfor %}
 
-grafana_hosts: *influx_hosts
+grafana_hosts:
+{% for h in monitoring_hosts %}
+{# Leave the next comments lines within the loop so that they are not duplicated #}
+{% if loop.index < 2 %}
+# Temporay workaround until grafana is deployed in HA cluster
+# Currently only the 'first' host with monitoring role is selected
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+{% endif %}
+{% endfor %}
 {% endif %}

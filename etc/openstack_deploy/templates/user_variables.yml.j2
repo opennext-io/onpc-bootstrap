@@ -193,7 +193,7 @@ cinder_cinder_conf_overrides:
 {% endif %}
 
 {% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
-cinder_default_volume_type: RBD
+cinder_default_volume_type: rbd
 {% else %}
 cinder_default_volume_type: lvm
 {% endif %}

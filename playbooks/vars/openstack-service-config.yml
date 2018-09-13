@@ -31,25 +31,25 @@ vm_flavors:
   - name: m1.medium
     ram: 4096
     vcpus: 6
-    disk: 60
+    disk: 32
     swap: 4
     ephemeral: 20
   - name: m1.large
     ram: 8192
     vcpus: 12
-    disk: 300
+    disk: 256
     swap: 4
     ephemeral: 150
   - name: m1.xlarge
     ram: 16384
     vcpus: 24
-    disk: 600
+    disk: 512
     swap: 4
     ephemeral: 256
   - name: m1.xxlarge
     ram: 32768
     vcpus: 48
-    disk: 1200
+    disk: 1024
     swap: 4
     ephemeral: 256
 

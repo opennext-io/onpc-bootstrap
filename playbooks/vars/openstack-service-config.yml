@@ -141,5 +141,6 @@ images:
     url: https://download.fedoraproject.org/pub/fedora/linux/releases/28/Cloud/x86_64/images/Fedora-Cloud-Base-28-1.1.x86_64.qcow2
   - name: Fedora-Atomic-27-20180212.2
     format: qcow2
+    property: os_distro='fedora-atomic'
     url: https://download.fedoraproject.org/pub/alt/atomic/stable/Fedora-Atomic-27-20180212.2/CloudImages/x86_64/images/Fedora-Atomic-27-20180212.2.x86_64.qcow2
      

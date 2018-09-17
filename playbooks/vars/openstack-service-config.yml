@@ -55,12 +55,13 @@ vm_flavors:
 
 # Create shared networks and subnets:
 provider_net_name: PROVIDER_NET
+provider_subnet_name: "{{ provider_net_name }}_SUBNET"
 provider_net_cidr: 172.32.0.0/22 
-provider_dns_server: "{{ DNS_NAMESERVER | default(['213.246.33.144', '213.246.36.14']) }}"
+provider_dns_server: "{{ DNS_NAMESERVER | default(['8.8.8.8', '8.8.4.4']) }}"
 enable_provider_net_dhcp: true
 private_net_name: PRIVATE_NET
-private_net_cidr: 192.168.1.0/24
 private_subnet_name: "{{ private_net_name }}_SUBNET"
+private_net_cidr: 192.168.1.0/24
 
 networks:
   - name: "{{ provider_net_name }}"

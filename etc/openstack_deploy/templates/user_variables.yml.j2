@@ -241,6 +241,11 @@ magnum_config_overrides:
 {%- raw %}
     default_docker_volume_type: "{{ cinder_default_volume_type }}"
 {% endraw %}
+  drivers:
+{%- raw %}
+    verify_ca = {{ magnum_enable_verify_ca }}
+    openstack_ca_file = {{ magnum_ca_file_bundle_path }}
+{% endraw %}
 {% endif %}
 
 ## Common Ceph Overrides
@@ -336,6 +341,11 @@ haproxy_stats_enabled: True
 haproxy_stats_bind_address: 127.0.0.1
 haproxy_stats_port: 1936
 haproxy_username: admin
+
+## HAProxy SSL certificates, keys, and CA certificates from your own trusted certificate authority.
+#haproxy_user_ssl_cert: /etc/openstack_deploy/ssl/example.com.crt
+#haproxy_user_ssl_key: /etc/openstack_deploy/ssl/example.com.key
+#haproxy_user_ssl_ca_cert: /etc/openstack_deploy/ssl/ExampleCA.crt
 
 ## Tempest settings
 tempest_public_subnet_cidr: {{ tempest_subnet | default('172.29.248.0/22') }}

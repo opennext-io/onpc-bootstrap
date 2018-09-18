@@ -243,8 +243,8 @@ magnum_config_overrides:
 {% endraw %}
   drivers:
 {%- raw %}
-    verify_ca = {{ magnum_enable_verify_ca }}
-    openstack_ca_file = {{ magnum_ca_file_bundle_path }}
+    verify_ca = {{ magnum_enable_verify_ca | default(True) }}
+    openstack_ca_file = {{ magnum_ca_file_bundle_path | default('/etc/openstack_deploy/ssl/opennext_root_CA.pem') }}
 {% endraw %}
 {% endif %}
 
@@ -343,9 +343,9 @@ haproxy_stats_port: 1936
 haproxy_username: admin
 
 ## HAProxy SSL certificates, keys, and CA certificates from your own trusted certificate authority.
-#haproxy_user_ssl_cert: /etc/openstack_deploy/ssl/example.com.crt
-#haproxy_user_ssl_key: /etc/openstack_deploy/ssl/example.com.key
-#haproxy_user_ssl_ca_cert: /etc/openstack_deploy/ssl/ExampleCA.crt
+haproxy_user_ssl_cert: {{ haprox_ssl_cert_path | default('/etc/openstack_deploy/ssl/opennext_lab_private.crt') }}
+haproxy_user_ssl_key: {{ haproxy_ssl_key_path | default('/etc/openstack_deploy/ssl/opennext_lab_private.key') }}
+haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | defalut('/etc/openstack_deploy/ssl/opennext_root_CA.pem') }}
 
 ## Tempest settings
 tempest_public_subnet_cidr: {{ tempest_subnet | default('172.29.248.0/22') }}

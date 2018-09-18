@@ -116,27 +116,27 @@ security_group_rules:
 
 # Create some default images
 images:
-  - name: Ubuntu_14.04_LTS
+  - name: Ubuntu-14.04-server
     format: qcow2
     url: http://uec-images.ubuntu.com/releases/14.04/release/ubuntu-14.04-server-cloudimg-amd64-disk1.img
-  - name: Ubuntu_16.04
+  - name: Ubuntu-16.04-server
     format: qcow2
     url: http://uec-images.ubuntu.com/releases/16.04/release/ubuntu-16.04-server-cloudimg-amd64-disk1.img
-  - name: CentOS_7
+  - name: CentOS-7
     format: qcow2
     url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
-  - name: OpenSuse_Leap_42.3
+  - name: OpenSUSE-Leap-42.3
     format: qcow2
     url: http://download.opensuse.org/repositories/Cloud:/Images:/Leap_42.3/images/openSUSE-Leap-42.3-OpenStack.x86_64.qcow2
-  - name: Debian_9
+  - name: Debian-9
     format: qcow2
     url: http://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
-  - name: Debian_Testing
+  - name: Debian-testing-openstack
     format: qcow2
     url: http://cdimage.debian.org/cdimage/openstack/testing/debian-testing-openstack-amd64.qcow2
-  - name: Cirros_0.3.5
+  - name: Cirros-0.3.5
     format: qcow2
     url: http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img
-  - name: Fedora_Cloud_Base_28
+  - name: Fedora-Cloud-Base-28-1.1
     format: qcow2
     url: https://download.fedoraproject.org/pub/fedora/linux/releases/28/Cloud/x86_64/images/Fedora-Cloud-Base-28-1.1.x86_64.qcow2

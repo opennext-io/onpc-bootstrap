@@ -140,8 +140,3 @@ images:
   - name: Fedora_Cloud_Base_28
     format: qcow2
     url: https://download.fedoraproject.org/pub/fedora/linux/releases/28/Cloud/x86_64/images/Fedora-Cloud-Base-28-1.1.x86_64.qcow2
-- name: Fedora_AtomicHost_28
-    format: qcow2
-    url: https://download.fedoraproject.org/pub/alt/atomic/stable/Fedora-28-updates-20180902.0/AtomicHost/x86_64/images/Fedora-AtomicHost-28-20180902.0.x86_64.qcow2
-
-

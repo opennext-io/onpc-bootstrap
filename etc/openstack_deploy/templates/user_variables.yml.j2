@@ -236,6 +236,14 @@ swift_proxy_server_conf_overrides:
 
 ## Magnum overrides for cinder integration
 {% if magnum is defined and magnum | bool %}
+magnum_glance_images:
+  - name: fedora-atomic-latest
+    disk_format: qcow2
+    image_format: bare
+    public: true
+    file: https://fedorapeople.org/groups/magnum/fedora-atomic-latest.qcow2
+    distro: fedora-atomic
+    checksum: "sha1:f2aacc68fcb32ff7f2099b80e5b25bdad7ce9e33"
 magnum_config_overrides:
   cinder:
 {%- raw %}
@@ -243,8 +251,8 @@ magnum_config_overrides:
 {% endraw %}
   drivers:
 {%- raw %}
-    verify_ca = {{ magnum_enable_verify_ca | default(True) }}
-    openstack_ca_file = {{ magnum_ca_file_bundle_path | default('/etc/openstack_deploy/ssl/opennext_root_CA.pem') }}
+    verify_ca: "{{ magnum_enable_verify_ca | default(True) }}"
+    openstack_ca_file: "{{ magnum_ca_file_bundle_path | default('/etc/openstack_deploy/ssl/opennext_root_CA.pem') }}"
 {% endraw %}
 {% endif %}
 

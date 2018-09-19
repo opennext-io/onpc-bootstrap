@@ -145,7 +145,8 @@ trove_wsgi_processes: 1
 ## Sahara
 sahara_api_workers_max: 2
 sahara_api_workers: 1
-{% endif %}
+
+{% endif %} # End of low_end_profile
 
 ## Common Glance Overrides
 # Set glance_default_store to "swift" if using Cloud Files backend
@@ -166,6 +167,13 @@ glance_ceph_client: glance
 glance_default_store: rbd
 glance_rbd_store_pool: images
 {% endif %}
+
+## Common Neutron Overrides
+# Install standards Neutron plus LBaas V2 plugin
+neutron_plugin_base:
+  - router
+  - metering
+  - neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPluginv2
 
 ## Common Nova Overrides
 # When nova_libvirt_images_rbd_pool is defined, ceph will be installed on nova
@@ -237,13 +245,13 @@ swift_proxy_server_conf_overrides:
 ## Magnum overrides for cinder integration
 {% if magnum is defined and magnum | bool %}
 magnum_glance_images:
-  - name: fedora-atomic-latest
+  - name: Fedora-Atomic-28-20180806
     disk_format: qcow2
     image_format: bare
     public: true
-    file: https://fedorapeople.org/groups/magnum/fedora-atomic-latest.qcow2
+    file: Fedora-AtomicHost-28-20180806.0.x86_64.qcow2 
     distro: fedora-atomic
-    checksum: "sha1:f2aacc68fcb32ff7f2099b80e5b25bdad7ce9e33"
+    checksum: "sha256:2b74dec845396df2bfae2e9bda0cfd4e6d8ba185cc30f60be7d5131399b9551f"
 magnum_config_overrides:
   cinder:
 {%- raw %}
@@ -252,7 +260,7 @@ magnum_config_overrides:
   drivers:
 {%- raw %}
     verify_ca: "{{ magnum_enable_verify_ca | default(True) }}"
-    openstack_ca_file: "{{ magnum_ca_file_bundle_path | default('/etc/openstack_deploy/ssl/opennext_root_CA.pem') }}"
+    openstack_ca_file: "{{ magnum_ca_file_bundle_path | default('/etc/ssl/certs/openstack_root_ca.pem') }}"
 {% endraw %}
 {% endif %}
 

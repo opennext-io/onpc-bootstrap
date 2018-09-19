@@ -245,6 +245,11 @@ swift_proxy_server_conf_overrides:
 
 ## Magnum overrides for cinder integration
 {% if magnum is defined and magnum | bool %}
+# Currently using a fork where bug fixes relative to the generation of
+# AUTH_URL for Keystone V3 is fixed.
+magnum_git_repo: "https://github.com/opennext-io/magnum.git"
+magnum_git_install_branch: "stable/queens"
+
 magnum_glance_images:
   - name: Fedora-Atomic-28-20180806
     disk_format: qcow2

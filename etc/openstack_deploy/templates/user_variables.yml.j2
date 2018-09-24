@@ -88,6 +88,11 @@ heat_wsgi_threads: 1
 heat_wsgi_processes_max: 2
 heat_wsgi_processes: 1
 heat_wsgi_buffer_size: 16384
+heat_heat_conf_overrides:
+  clients_keystone:
+    insecure:  True
+    endpoint_type: publicURL
+    auth_uri: " {{ external_lb_vip_address}}.{{ keystone_service_port }}"
 
 ## Horizon
 horizon_wsgi_processes: 1

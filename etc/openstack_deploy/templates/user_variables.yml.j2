@@ -372,7 +372,7 @@ haproxy_username: admin
 ## HAProxy SSL certificates, keys, and CA certificates from your own trusted certificate authority.
 haproxy_user_ssl_cert: {{ haprox_ssl_cert_path | default('/etc/openstack_deploy/ssl/opennext_lab_private.crt') }}
 haproxy_user_ssl_key: {{ haproxy_ssl_key_path | default('/etc/openstack_deploy/ssl/opennext_lab_private.key') }}
-haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | defalut('/etc/openstack_deploy/ssl/opennext_root_CA.pem') }}
+haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | default('/etc/openstack_deploy/ssl/opennext_root_CA.pem') }}
 
 ## Tempest settings
 tempest_public_subnet_cidr: {{ tempest_subnet | default('172.29.248.0/22') }}

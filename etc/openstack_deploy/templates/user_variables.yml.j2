@@ -92,7 +92,9 @@ heat_heat_conf_overrides:
   clients_keystone:
     insecure:  True
     endpoint_type: publicURL
-    auth_uri: " {{ external_lb_vip_address}}.{{ keystone_service_port }}"
+{%- raw %}
+    auth_uri: "{{ keystone_service_publicurl }}"
+{% endraw %}
 
 ## Horizon
 horizon_wsgi_processes: 1

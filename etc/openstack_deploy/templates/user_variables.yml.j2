@@ -372,7 +372,7 @@ haproxy_stats_port: 1936
 haproxy_username: admin
 
 ## HAProxy SSL certificates, keys, and CA certificates from your own trusted certificate authority.
-haproxy_user_ssl_cert: {{ haprox_ssl_cert_path | default('/etc/openstack_deploy/ssl/opennext_lab_private.crt') }}
+haproxy_user_ssl_cert: {{ haproxy_ssl_cert_path | default('/etc/openstack_deploy/ssl/opennext_lab_private.crt') }}
 haproxy_user_ssl_key: {{ haproxy_ssl_key_path | default('/etc/openstack_deploy/ssl/opennext_lab_private.key') }}
 haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | default('/etc/openstack_deploy/ssl/opennext_root_CA.pem') }}
 

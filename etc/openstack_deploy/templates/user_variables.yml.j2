@@ -370,6 +370,10 @@ haproxy_stats_enabled: True
 haproxy_stats_bind_address: 127.0.0.1
 haproxy_stats_port: 1936
 haproxy_username: admin
+{% if proxy_host is defined and proxy_host | length > 0 %}
+# Needed to pass healthcheck-infrastructure.yml
+keepalived_ping_address: "{{ proxy_host }}"
+{% endif %}
 
 ## HAProxy SSL certificates, keys, and CA certificates from your own trusted certificate authority.
 {% if haproxy_ssl is defined and haproxy_ssl | bool %}

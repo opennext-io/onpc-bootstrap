@@ -377,10 +377,90 @@ keepalived_ping_address: "{{ proxy_host }}"
 
 ## HAProxy SSL certificates, keys, and CA certificates from your own trusted certificate authority.
 {% if haproxy_ssl is defined and haproxy_ssl | bool %}
-haproxy_user_ssl_cert: {{ haproxy_ssl_cert_path | default('/etc/openstack_deploy/ssl/opennext_lab_private.crt') }}
-haproxy_user_ssl_key: {{ haproxy_ssl_key_path | default('/etc/openstack_deploy/ssl/opennext_lab_private.key') }}
-haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | default('/etc/openstack_deploy/ssl/opennext_root_CA.pem') }}
+haproxy_user_ssl_cert: {{ haproxy_ssl_cert_path | default('/etc/openstack_deploy/ssl/openstack_cert.crt') }}
+haproxy_user_ssl_key: {{ haproxy_ssl_key_path | default('/etc/openstack_deploy/ssl/openstack_key.key') }}
+haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | default('/etc/openstack_deploy/ssl/openstack_ca.pem') }}
 {% endif %}
+
+## HAProxy load-balancing congiguration for the monitoring and logging services
+{%- raw %}
+haproxy_extra_services:
+  - service:
+    haproxy_service_name: influxdb_admin
+    haproxy_backend_nodes: "{{ groups['influxdb'] | default([]) }}"
+    haproxy_ssl: False
+    haproxy_port: "{{ influxdb_port }}"
+    haproxy_balance_type: tcp
+  - service:
+    haproxy_service_name: influxdb
+    haproxy_backend_nodes: "{{ groups['influxdb'] | default([]) }}"
+    haproxy_ssl: False
+    haproxy_port: "{{ influxdb_port }}"
+    haproxy_backend_port: "{{ influxdb_port }}"
+    haproxy_balance_type: http
+    haproxy_backend_options:
+      - "httpchk HEAD /ping"
+    haproxy_acls:
+      read_queries:
+        rule: "path_sub -i query"
+      write_queries:
+        rule: "path_sub -i write"
+        backend_name: "influxdb_relay"
+  - service:
+    haproxy_service_name: influxdb_relay
+    haproxy_backend_nodes: "{{ groups['influxdb_relay'] | default([]) }}"
+    haproxy_ssl: False
+    haproxy_port: "{{ influxdb_relay_port }}"
+    haproxy_backend_port: "{{ influxdb_relay_port }}"
+    haproxy_balance_type: http
+    haproxy_backend_options:
+      - tcp-check
+    haproxy_acls:
+      write_queries:
+        rule: "path_sub -i write"
+      read_queries:
+        rule: "path_sub -i query"
+        backend_name: "influxdb"
+  - service:
+    haproxy_service_name: grafana
+    haproxy_backend_nodes: "{{ groups['grafana'] | default([]) }}"
+    haproxy_ssl: "{{ haproxy_ssl }}"
+    haproxy_port: "{{ grafana_port }}"
+    haproxy_balance_type: tcp
+
+# Not needed anymore since elasticsearch client running in kibana container proxies the
+# elasticsearch cluster acccess
+#  - service:
+#    haproxy_service_name: elasticsearch
+#    haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
+#    haproxy_ssl: "{{ haproxy_ssl }}"
+#    haproxy_port: "{{ elastic_port }}"
+#    haproxy_backend_port: "{{ elastic_port }}"
+#    haproxy_balance_type: http
+#    haproxy_backend_options:
+#      - "httpchk GET /_cat/health"
+  - service:
+    haproxy_service_name: kibana
+    haproxy_backend_nodes: "{{ groups['kibana'] | default([]) }}"
+    haproxy_ssl: "{{ haproxy_ssl }}"
+    haproxy_port: "{{ kibana_server_port }}"
+    haproxy_backend_port: "{{ kibana_server_port }}"
+    haproxy_balance_type: http
+    haproxy_backend_options:
+      - "httpchk GET /"
+    haproxy_backend_reqrep: '^([^\ :]*)\ /kibana/(.*) \1\ /\2'
+    haproxy_acls:
+      acl_kibana:
+        rule: "path_beg /kibana"
+        backend_name: "kibana"
+  - service:
+      haproxy_service_name: fluentd
+      haproxy_backend_nodes: "{{ groups['fluentd'] | default([]) }}"
+      haproxy_ssl: False
+      haproxy_port: "{{ tdagent_syslog_port }}"
+      haproxy_balance_type: tcp
+  
+{%- endraw %}
 
 ## Tempest settings
 tempest_public_subnet_cidr: {{ tempest_subnet | default('172.29.248.0/22') }}

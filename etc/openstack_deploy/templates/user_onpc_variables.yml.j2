@@ -28,12 +28,12 @@ monitoring_user_role_name: "admin"
 
 {% set slack = slack_alert | default({}) %}
 {% if slack.get('alert-channel', '') | length > 0 and slack.get('uuid', '') | length > 0 %}
-slack_alerts_enabled: True
+slack_alerts_enabled: true
 slack_alerts_channel: "#{{ slack.get('alert-channel') }}"
 # Should go in vault to avoid being spammed
 slack_webhooks_url: "https://hooks.slack.com/services/{{ slack.get('uuid') }}"
 {% else %}
-slack_alerts_enabled: False
+slack_alerts_enabled: false
 {% endif %}
 
 ## Name of the environment can be defined in vars section of the top
@@ -116,7 +116,7 @@ kibana_log_dir: "/var/log/kibana"
 collectd_use_ppa: no
 collectd_version: 5.8.0
 collectd_default_plugins: []
-collectd_prefix: /opt/collectd
+collectd_prefix: /etc/collectd
 collectd_types_db_path: "{{ '/usr/share/collectd/types.db' if collectd_use_ppa else collectd_prefix + '/share/collectd/types.db' }}"
 {% raw %}
 collectd_hostname: "\"{{ ansible_hostname if inventory_hostname in groups['all_containers'] else inventory_hostname }}\""
@@ -124,6 +124,8 @@ collectd_hostname: "\"{{ ansible_hostname if inventory_hostname in groups['all_c
 collectd_interval: 60
 collectd_logs_dir: "/var/log/collectd"
 collectd_logpath: "{{ collectd_logs_dir }}/collectd.log"
+collectd_logrotate: no
+
 
 ## Grafana variables
 #
@@ -135,6 +137,8 @@ grafana_address: "{{ hostvars[inventory_hostname]['ansible_host'] | default('0.0
 grafana_port: 8089
 grafana_db_name: grafana
 grafana_db_user: grafana
+grafana_logs_dir: "/var/log/grafana"
+grafana_data_dir: "/var/lib/grafana"
 
 # Grafana database vars
 grafana_database:
@@ -210,7 +214,7 @@ influxdb_db_metric_password: "{{ influxdb_db_metric_password_secret }}"
 influxdb_db_root_password: "{{ influxdb_db_root_password_secret }}"
 {% endraw %}
 
-influxdb_prefix: /var/lib/influxdb
+influxdb_prefix: "/var/lib/influxdb"
 influxdb_logs_dir: "/var/log/influxdb" 
 influxdb_cache_max_memory_size: 1073741824
 influxdb_cache_snapshot_memory_size: 26214400
@@ -228,15 +232,15 @@ influxdb_container_bind_mounts:
 ## Kapacitor variables
 #
 kapacitor_port: 9092
-kapacitor_data_dir: /var/lib/kapacitor
-kapacitor_logs_dir: /var/log/kapacitor
+kapacitor_data_dir: "/var/lib/kapacitor"
+kapacitor_logs_dir: "/var/log/kapacitor"
 kapacitor_logging_level: ERROR
 kapacitor_logging_file: "{{ kapacitor_logs_dir }}/kapacitor.log"
-kapacitor_tick_script_dir: ../files/kapacitor/tick/scripts
-kapacitor_tick_template_dir: ../files/kapacitor/tick/templates
-kapacitor_tick_var_dir: ../files/kapacitor/tick/vars
-kapacitor_tick_handler_dir: ../templates/kapacitor/handlers
-kapacitor_log_alerts_enabled: False
+kapacitor_tick_script_dir: "../files/kapacitor/tick/scripts"
+kapacitor_tick_template_dir: "../files/kapacitor/tick/templates"
+kapacitor_tick_var_dir: "../files/kapacitor/tick/vars"
+kapacitor_tick_handler_dir: "../templates/kapacitor/handlers"
+kapacitor_log_alerts_enabled: false
 
 kapacitor_container_bind_mounts:
   - bind_dir_path: "{{ kapacitor_data_dir }}"
@@ -261,7 +265,7 @@ kapacitor_influx:
     ssl-cert: ""
     ssl-key: ""
     insecure-skip-verify: false
-    subscription-mode: server
+    subscription-mode: "server"
     timeout: "0s"
     disable-subscriptions: false
     subscription-protocol: "http"
@@ -278,9 +282,9 @@ kapacitor_slack_default: false
 kapacitor_slack_global: true
 kapacitor_slack_channel: "{{ slack_alerts_channel }}"
 kapacitor_slack_url: "{{ slack_webhooks_url }}"
-kapacitor_slack_username: kapacitor
+kapacitor_slack_username: "kapacitor"
 kapacitor_slack_state_changes_only: true
-kapacitor_slack_workspace: OpenNext
+kapacitor_slack_workspace: "OpenNext"
 
 # Configure global deadman
 kapacitor_deadman_global: true
@@ -290,27 +294,27 @@ kapacitor_deadman_threshold: 1.0
 # Sensu variables
 kapacitor_sensu_addr: "127.0.0.1:3030"
 kapacitor_sensu_enabled: "{{ sensu_alerts_enabled }}"
-kapacitor_sensu_source: Kapacitor
+kapacitor_sensu_source: "Kapacitor"
 kapacitor_sensu_alerts_handlers: "{{ sensu_alerts_handlers | default([])}}"
 
-haproxy_handler_id: haproxy_alerts_publisher
-haproxy_handler_topic: haproxy
-monitoring_handler_id: montoring_alerts_publisher
-monitoring_handler_topic: monitoring
-openstack_handler_id: openstack_alerts_publisher
-openstack_handler_topic: openstack
-slack_handler_id: slack_alerts_forwarder
-slack_handler_topic: slack
-sensu_handler_id: sensu_alerts_forwarder
-sensu_handler_topic: sensu
-log_handler_id: log_alerts_forwarder
-log_handler_topic: log
-system_handler_id: system_alerts_publisher
-system_handler_topic: system
-network_handler_id: network_alerts_publisher
-network_handler_topic: network
-ceph_handler_id: ceph_alerts_publisher
-ceph_handler_topic: ceph
+haproxy_handler_id: "haproxy_alerts_publisher"
+haproxy_handler_topic: "haproxy"
+monitoring_handler_id: "montoring_alerts_publisher"
+monitoring_handler_topic: "monitoring"
+openstack_handler_id: "openstack_alerts_publisher"
+openstack_handler_topic: "openstack"
+slack_handler_id: "slack_alerts_forwarder"
+slack_handler_topic: "slack"
+sensu_handler_id: "sensu_alerts_forwarder"
+sensu_handler_topic: "sensu"
+log_handler_id: "log_alerts_forwarder"
+log_handler_topic: "log"
+system_handler_id: "system_alerts_publisher"
+system_handler_topic: "system"
+network_handler_id: "network_alerts_publisher"
+network_handler_topic: "network"
+ceph_handler_id: "ceph_alerts_publisher"
+ceph_handler_topic: "ceph'
 
 
 kapacitor_handlers: [
@@ -374,7 +378,7 @@ kapacitor_templates: [
 telegraf_agent_version: latest
 telegraf_agent_metric_batch_size: 1024
 telegraf_agent_metric_buffer_limit: 10240
-telegraf_agent_quiet: True
+telegraf_agent_quiet: true
 telegraf_agent_interval: 10
 telegraf_agent_flush_interval: "{{ telegraf_agent_interval * 2 }}"
 telegraf_db_name: "telegraf"
@@ -423,29 +427,29 @@ telegraf_cephx:
 # sensu_alert={ 'handlers': {'<handler1>', '<handler2>'}}
 {% set sensu = sensu_alert | default({}) %}
 {% if sensu.get('handlers', {}) | length > 0 %}
-sensu_alerts_enabled: True
+sensu_alerts_enabled: true
 sensu_alerts_handlers: "{{ sensu.get('handlers') }}"
 {% else %}
-sensu_alerts_enabled: False
+sensu_alerts_enabled: false
 {% endif %}
 sensu_rabbitmq_user_name: "{{ monitoring_user_name }}"
 sensu_rabbitmq_user_password: "{{ monitoring_user_password_secret }}"
-sensu_rabbitmq_vhost: /sensu
-sensu_rabbitmq_use_ssl: False
+sensu_rabbitmq_vhost: "/sensu"
+sensu_rabbitmq_use_ssl: false
 sensu_rabbitmq_host: "{{ hostvars[groups['rabbitmq_all'][0]]['ansible_host'] }}"
 sensu_rabbitmq_port: 5672
-sensu_deploy_rabbitmq_server: False
-sensu_deploy_redis_server: True
-sensu_include_dashboard: True
+sensu_deploy_rabbitmq_server: false
+sensu_deploy_redis_server: true
+sensu_include_dashboard: true
 sensu_redis_host: "{{ hostvars[groups['sensu_all'][0]]['ansible_host'] }}"
 sensu_api_host: "{{ hostvars[groups['sensu_all'][0]]['ansible_host'] }}"
-sensu_api_user_name: admin
+sensu_api_user_name: "admin"
 sensu_api_password: "{{ sensu_admin_password_secret }}"
-sensu_api_uchiwa_path: uchiwa
+sensu_api_uchiwa_path: "uchiwa"
 sensu_redis_passord: "{{ sensu_redis_password_secret }}"
 sensu_logs_dir: "/var/log/sensu"
-uchiwa_dc_name: OpenNext
-uchiwa_path: /etc/uchiwa
+uchiwa_dc_name: "OpenNext"
+uchiwa_path: "/etc/uchiwa"
 uchiwa_users:
-  - username: admin
+  - username: "admin"
     password: "{{ sensu_admin_password_secret }}"

@@ -30,6 +30,9 @@ component_skel:
   collectd:
     belongs_to:
       - monitoring_all
+  sensu:
+    belongs_to:
+      - monitoring_all
 container_skel:
   influx_container:
     belongs_to:
@@ -52,6 +55,13 @@ container_skel:
       - grafana
     properties:
       container_fs_size: {{ grafana_container_fs_size | default('8G') }}
+  sensu_container:
+    belongs_to:
+      - sensu_containers
+    contains:
+      - sensu-server
+      - uchiwa
+      - redis
 physical_skel:
   influx_containers:
     belongs_to:
@@ -62,6 +72,9 @@ physical_skel:
   grafana_containers:
     belongs_to:
       - all_containers
+  sensu_containers:
+    belongs_to:
+      - all_containers
   influx_hosts:
     belongs_to:
       - hosts
@@ -69,5 +82,8 @@ physical_skel:
     belongs_to:
       - hosts
   grafana_hosts:
+    belongs_to:
+      - hosts
+  sensu_hosts:
     belongs_to:
       - hosts

@@ -413,6 +413,7 @@ haproxy_extra_services:
     haproxy_port: "{{ influxdb_relay_port }}"
     haproxy_backend_port: "{{ influxdb_relay_port }}"
     haproxy_balance_type: http
+    haproxy_balance_alg: roundrobin
     haproxy_acls:
       write_queries:
         rule: "path_sub -i write"
@@ -431,7 +432,7 @@ haproxy_extra_services:
     haproxy_backend_reqrep: '^([^\ ]*\ /)grafana[/]?(.*) \1\2'
   - service:
     haproxy_service_name: redis
-    haproxy_backend_nodes: "{{ groups['redis'] | default([]) }}"
+    haproxy_backend_nodes: "{{ groups['redis_all'] | default([]) }}"
     haproxy_ssl: False
     haproxy_port: "{{ redis_port }}"
     haproxy_backend_port: "{{ redis_port }}"
@@ -453,7 +454,6 @@ haproxy_extra_services:
     haproxy_port: "{{ elastic_port }}"
     haproxy_backend_port: "{{ elastic_port }}"
     haproxy_balance_type: tcp
-    haproxy_balance_alg: roundrobin
     haproxy_backend_options:
       - "tcpka"
       - "httpchk GET /_cat/health"
@@ -474,18 +474,16 @@ haproxy_extra_services:
         backend_name: "kibana"
   - service:
       haproxy_service_name: fluentd
-      haproxy_backend_nodes: "{{ groups['fluentd'] | default([]) }}"
+      haproxy_backend_nodes: "{{ groups['fluentd_all'] | default([]) }}"
       haproxy_ssl: False
       haproxy_port: "{{ tdagent_syslog_port }}"
       haproxy_balance_type: tcp
       haproxy_balance_alg: roundrobin
       haproxy_backend_options:
-        - "tcp-check"
-        - "log-health-checks"
         - "tcpka"
   - service:
     haproxy_service_name: uchiwa
-    haproxy_backend_nodes: "{{ groups['uchiwa'] | default([]) }}"
+    haproxy_backend_nodes: "{{ groups['sensu_all'] | default([]) }}"
     haproxy_ssl: "{{ haproxy_ssl }}"
     haproxy_port: "{{ uchiwa_port }}"
     haproxy_backend_port: "{{ uchiwa_port }}"
@@ -493,7 +491,15 @@ haproxy_extra_services:
     haproxy_balance_alg: source
     haproxy_backend_options:
       - "httpchk GET /"
-  
+  - service:
+      haproxy_service_name: sensu_api
+      haproxy_backend_nodes: "{{ groups['sensu_all'] | default([]) }}"
+      haproxy_ssl: False
+      haproxy_port: "{{ sensu_api_port }}"
+      haproxy_balance_type: tcp
+      haproxy_backend_options:
+        - "httpchk GET /"
+
 {%- endraw %}
 
 ## Tempest settings

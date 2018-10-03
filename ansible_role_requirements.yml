@@ -19,3 +19,7 @@
 - name: sensu
   scm: git
   src: https://github.com/opennext-io/ansible-sensu.git
+- name: redis
+  scm: git
+  src: https://github.com/opennext-io/ansible-redis.git
+

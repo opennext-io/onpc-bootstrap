@@ -432,10 +432,11 @@ sensu_alerts_handlers: "{{ sensu.get('handlers') }}"
 {% else %}
 sensu_alerts_enabled: false
 {% endif %}
-sensu_rabbitmq_user_name: "{{ monitoring_user_name }}"
-sensu_rabbitmq_user_password: "{{ monitoring_user_password_secret }}"
+sensu_rabbitmq_user_name: "sensu"
+sensu_rabbitmq_user_password: "{{ sensu_rabbitmq_password_secret }}"
 sensu_rabbitmq_vhost: "/sensu"
 sensu_rabbitmq_use_ssl: false
+sensu_rabbitmq_host_group: "{{ rabbitmq_host_group }}"
 sensu_rabbitmq_host: "{{ hostvars[groups['rabbitmq_all'][0]]['ansible_host'] }}"
 sensu_rabbitmq_port: 5672
 sensu_deploy_rabbitmq_server: false

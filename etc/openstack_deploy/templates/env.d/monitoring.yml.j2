@@ -33,6 +33,9 @@ component_skel:
   sensu:
     belongs_to:
       - monitoring_all
+  redis:
+    belongs_to:
+      - monitoring_all
 container_skel:
   influx_container:
     belongs_to:
@@ -60,7 +63,12 @@ container_skel:
       - sensu_containers
     contains:
       - sensu-server
+      - sensu-api
       - uchiwa
+  redis_container:
+    belongs_to:
+      - redis_containers
+    contains:
       - redis
 physical_skel:
   influx_containers:
@@ -75,6 +83,9 @@ physical_skel:
   sensu_containers:
     belongs_to:
       - all_containers
+  redis_containers:
+    belongs_to:
+      - all_containers
   influx_hosts:
     belongs_to:
       - hosts
@@ -85,5 +96,8 @@ physical_skel:
     belongs_to:
       - hosts
   sensu_hosts:
+    belongs_to:
+      - hosts
+  redis_hosts:
     belongs_to:
       - hosts

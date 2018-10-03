@@ -348,10 +348,10 @@ rabbitmq_monitoring_userid: monitoring
 # internal and external addresses.
 
 ## Load Balancer Configuration (haproxy/keepalived)
-{% if is_aio is defined and not is_aio %}
+{% if is_aio is undefined or (is_aio is defined and not is_aio) %}
 haproxy_keepalived_external_vip_cidr: "{{ hapk_ext_vip_cidr | default('172.31.0.100/32') }}"
 haproxy_keepalived_internal_vip_cidr: "{{ hapk_int_vip_cidr | default('172.29.236.100/22') }}"
-haproxy_keepalived_external_interface: {{ hapk_ext_itf | default('eno1') }}
+haproxy_keepalived_external_interface: {{ hapk_ext_itf | default('br-flat') }}
 haproxy_keepalived_internal_interface: {{ hapk_int_itf | default('br-mgmt') }}
 {% endif %}
 
@@ -413,8 +413,6 @@ haproxy_extra_services:
     haproxy_port: "{{ influxdb_relay_port }}"
     haproxy_backend_port: "{{ influxdb_relay_port }}"
     haproxy_balance_type: http
-    haproxy_backend_options:
-      - tcp-check
     haproxy_acls:
       write_queries:
         rule: "path_sub -i write"
@@ -426,19 +424,39 @@ haproxy_extra_services:
     haproxy_backend_nodes: "{{ groups['grafana'] | default([]) }}"
     haproxy_ssl: "{{ haproxy_ssl }}"
     haproxy_port: "{{ grafana_port }}"
+    haproxy_balance_type: http
+    haproxy_balance_alg: source
+    haproxy_backend_options:
+      - "httpchk GET /"
+    haproxy_backend_reqrep: '^([^\ ]*\ /)grafana[/]?(.*) \1\2'
+  - service:
+    haproxy_service_name: redis
+    haproxy_backend_nodes: "{{ groups['redis'] | default([]) }}"
+    haproxy_ssl: False
+    haproxy_port: "{{ redis_port }}"
+    haproxy_backend_port: "{{ redis_port }}"
     haproxy_balance_type: tcp
-
-# Not needed anymore since elasticsearch client running in kibana container proxies the
-# elasticsearch cluster acccess
-#  - service:
-#    haproxy_service_name: elasticsearch
-#    haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
-#    haproxy_ssl: "{{ haproxy_ssl }}"
-#    haproxy_port: "{{ elastic_port }}"
-#    haproxy_backend_port: "{{ elastic_port }}"
-#    haproxy_balance_type: http
-#    haproxy_backend_options:
-#      - "httpchk GET /_cat/health"
+    haproxy_balance_alg: roundrobin
+    haproxy_timeout_server: "6s"
+    haproxy_backend_options:
+      - "tcp-check"
+    haproxy_backend_arguments:
+      - "tcp-check connect"
+      - "tcp-check send PING\r\n"
+      - "tcp-check expect string +PONG"
+      - "tcp-check send QUIT\r\n"
+      - "tcp-check expect string +OK"
+  - service:
+    haproxy_service_name: elasticsearch
+    haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
+    haproxy_ssl: "{{ haproxy_ssl }}"
+    haproxy_port: "{{ elastic_port }}"
+    haproxy_backend_port: "{{ elastic_port }}"
+    haproxy_balance_type: tcp
+    haproxy_balance_alg: roundrobin
+    haproxy_backend_options:
+      - "tcpka"
+      - "httpchk GET /_cat/health"
   - service:
     haproxy_service_name: kibana
     haproxy_backend_nodes: "{{ groups['kibana'] | default([]) }}"
@@ -446,6 +464,7 @@ haproxy_extra_services:
     haproxy_port: "{{ kibana_server_port }}"
     haproxy_backend_port: "{{ kibana_server_port }}"
     haproxy_balance_type: http
+    haproxy_balance_alg: source
     haproxy_backend_options:
       - "httpchk GET /"
     haproxy_backend_reqrep: '^([^\ :]*)\ /kibana/(.*) \1\ /\2'
@@ -459,6 +478,21 @@ haproxy_extra_services:
       haproxy_ssl: False
       haproxy_port: "{{ tdagent_syslog_port }}"
       haproxy_balance_type: tcp
+      haproxy_balance_alg: roundrobin
+      haproxy_backend_options:
+        - "tcp-check"
+        - "log-health-checks"
+        - "tcpka"
+  - service:
+    haproxy_service_name: uchiwa
+    haproxy_backend_nodes: "{{ groups['uchiwa'] | default([]) }}"
+    haproxy_ssl: "{{ haproxy_ssl }}"
+    haproxy_port: "{{ uchiwa_port }}"
+    haproxy_backend_port: "{{ uchiwa_port }}"
+    haproxy_balance_type: http
+    haproxy_balance_alg: source
+    haproxy_backend_options:
+      - "httpchk GET /"
   
 {%- endraw %}
 

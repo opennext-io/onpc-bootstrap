@@ -449,8 +449,17 @@ sensu_api_password: "{{ sensu_admin_password_secret }}"
 sensu_api_uchiwa_path: "uchiwa"
 sensu_redis_passord: "{{ sensu_redis_password_secret }}"
 sensu_logs_dir: "/var/log/sensu"
+uchiwa_port: 3000
 uchiwa_dc_name: "OpenNext"
 uchiwa_path: "/etc/uchiwa"
 uchiwa_users:
   - username: "admin"
     password: "{{ sensu_admin_password_secret }}"
+
+## Redis variables
+redis_logs_dir: "/var/log/redis"
+redis_logfile: "{{ redis_logs_dir }}/redis.log"
+redis_syslog_enabled: "no"
+redis_sentinel: true
+redis_port: 6379
+

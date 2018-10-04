@@ -15,9 +15,9 @@
 # limitations under the License.
 
 ## OpenStack user and tenant use by monitoring
-monitoring_user_name: "monitor"
-monitoring_tenant_name: "service"
-monitoring_user_role_name: "admin"
+monitoring_user_name: monitor
+monitoring_tenant_name: service
+monitoring_user_role_name: admin
 
 ## Use Slack for alerts
 # To avoid being spammed with false alerts in slack, the slack_alert variable
@@ -88,14 +88,14 @@ ceph_uuid_seed: "{{ ansible_date_time.iso8601_micro }}"
 
 ## Elasticsearch variables
 #
-elastic_log_dir: "/var/log/elasticsearch"
-elastic_data_dir: "/var/lib/elasticsearch/data"
+elastic_log_dir: /var/log/elasticsearch
+elastic_data_dir: /var/lib/elasticsearch/data
 elastic_container_bind_mounts:
 {% raw %}
   - bind_dir_path: "{{ elastic_data_dir }}"
     mount_path: "/openstack/{{ inventory_hostname }}"
 {% endraw %}
-elastic_cluster_name: "elasticsearch"
+elastic_cluster_name: elasticsearch
 elastic_port: 9200
 elastic_transport_port: 9300
 {% raw %}
@@ -112,8 +112,8 @@ kibana_major_version: "6.x"
 {% raw %}
 kibana_elasticsearch_url: "http://localhost:{{ elastic_port }}"
 {% endraw %}
-kibana_conf_template: "kibana/kibana.yml.j2"
-kibana_log_dir: "/var/log/kibana"
+kibana_conf_template: kibana/kibana.yml.j2
+kibana_log_dir: /var/log/kibana
 
 ## Collectd variables
 #
@@ -122,7 +122,7 @@ collectd_version: 5.8.0
 collectd_default_plugins: []
 collectd_prefix: /etc/collectd
 collectd_interval: 60
-collectd_logs_dir: "/var/log/collectd"
+collectd_logs_dir: /var/log/collectd
 collectd_logrotate: no
 {% raw %}
 collectd_types_db_path: "{{ '/usr/share/collectd/types.db' if collectd_use_ppa else collectd_prefix + '/share/collectd/types.db' }}"
@@ -140,8 +140,8 @@ grafana_address: "{{ hostvars[inventory_hostname]['ansible_host'] | default('0.0
 grafana_port: 8089
 grafana_db_name: grafana
 grafana_db_user: grafana
-grafana_logs_dir: "/var/log/grafana"
-grafana_data_dir: "/var/lib/grafana"
+grafana_logs_dir: /var/log/grafana
+grafana_data_dir: /var/lib/grafana
 
 # Grafana database vars
 grafana_database:
@@ -201,7 +201,7 @@ onpc_grafana_dashboards:
 
 ## InfluxDB variables
 #
-influxdb_log_level: "info"
+influxdb_log_level: info
 influxdb_admin_port: 8083
 influxdb_port: 8086
 influxdb_relay_port: 8096
@@ -216,8 +216,8 @@ influxdb_db_metric_password: "{{ influxdb_db_metric_password_secret }}"
 influxdb_db_root_password: "{{ influxdb_db_root_password_secret }}"
 {% endraw %}
 
-influxdb_prefix: "/var/lib/influxdb"
-influxdb_logs_dir: "/var/log/influxdb" 
+influxdb_prefix: /var/lib/influxdb
+influxdb_logs_dir: /var/log/influxdb 
 influxdb_cache_max_memory_size: 1073741824
 influxdb_cache_snapshot_memory_size: 26214400
 # WAL dir could use tempfs instead on reduce disk iops
@@ -233,16 +233,16 @@ influxdb_container_bind_mounts:
 ## Kapacitor variables
 #
 kapacitor_port: 9092
-kapacitor_data_dir: "/var/lib/kapacitor"
-kapacitor_logs_dir: "/var/log/kapacitor"
+kapacitor_data_dir: /var/lib/kapacitor
+kapacitor_logs_dir: /var/log/kapacitor
 kapacitor_logging_level: ERROR
 {% raw %}
 kapacitor_logging_file: "{{ kapacitor_logs_dir }}/kapacitor.log"
 {% endraw %}
-kapacitor_tick_script_dir: "../files/kapacitor/tick/scripts"
-kapacitor_tick_template_dir: "../files/kapacitor/tick/templates"
-kapacitor_tick_var_dir: "../files/kapacitor/tick/vars"
-kapacitor_tick_handler_dir: "../templates/kapacitor/handlers"
+kapacitor_tick_script_dir: ../files/kapacitor/tick/scripts
+kapacitor_tick_template_dir: ../files/kapacitor/tick/templates
+kapacitor_tick_var_dir: ../files/kapacitor/tick/vars
+kapacitor_tick_handler_dir: ../templates/kapacitor/handlers
 kapacitor_log_alerts_enabled: false
 {% raw %}
 kapacitor_container_bind_mounts:
@@ -265,10 +265,10 @@ kapacitor_influx:
     ssl-cert: ""
     ssl-key: ""
     insecure-skip-verify: false
-    subscription-mode: "server"
+    subscription-mode: server
     timeout: "0s"
     disable-subscriptions: false
-    subscription-protocol: "http"
+    subscription-protocol: http
     http-port: 0
     udp-bind: ""
     udp-buffer: 1000
@@ -279,9 +279,9 @@ kapacitor_influx:
 # Slack variables  
 kapacitor_slack_default: false
 kapacitor_slack_global: true
-kapacitor_slack_username: "kapacitor"
+kapacitor_slack_username: kapacitor
 kapacitor_slack_state_changes_only: true
-kapacitor_slack_workspace: "OpenNext"
+kapacitor_slack_workspace: OpenNext
 {% raw %}
 kapacitor_slack_enabled: "{{ slack_alerts_enabled }}"
 kapacitor_slack_channel: "{{ slack_alerts_channel }}"
@@ -295,30 +295,30 @@ kapacitor_deadman_threshold: 1.0
 
 # Sensu variables
 kapacitor_sensu_addr: "127.0.0.1:3030"
-kapacitor_sensu_source: "Kapacitor"
+kapacitor_sensu_source: Kapacitor
 {% raw %}
 kapacitor_sensu_alerts_handlers: "{{ sensu_alerts_handlers | default([]) }}"
 kapacitor_sensu_enabled: "{{ sensu_alerts_enabled }}"
 {% endraw %}
 
-haproxy_handler_id: "haproxy_alerts_publisher"
-haproxy_handler_topic: "haproxy"
-monitoring_handler_id: "montoring_alerts_publisher"
-monitoring_handler_topic: "monitoring"
-openstack_handler_id: "openstack_alerts_publisher"
-openstack_handler_topic: "openstack"
-slack_handler_id: "slack_alerts_forwarder"
-slack_handler_topic: "slack"
-sensu_handler_id: "sensu_alerts_forwarder"
-sensu_handler_topic: "sensu"
-log_handler_id: "log_alerts_forwarder"
-log_handler_topic: "log"
-system_handler_id: "system_alerts_publisher"
-system_handler_topic: "system"
-network_handler_id: "network_alerts_publisher"
-network_handler_topic: "network"
-ceph_handler_id: "ceph_alerts_publisher"
-ceph_handler_topic: "ceph'
+haproxy_handler_id: haproxy_alerts_publisher
+haproxy_handler_topic: haproxy
+monitoring_handler_id: montoring_alerts_publisher
+monitoring_handler_topic: monitoring
+openstack_handler_id: openstack_alerts_publisher
+openstack_handler_topic: openstack
+slack_handler_id: slack_alerts_forwarder
+slack_handler_topic: slack
+sensu_handler_id: sensu_alerts_forwarder
+sensu_handler_topic: sensu
+log_handler_id: log_alerts_forwarder
+log_handler_topic: log
+system_handler_id: system_alerts_publisher
+system_handler_topic: system
+network_handler_id: network_alerts_publisher
+network_handler_topic: network
+ceph_handler_id: ceph_alerts_publisher
+ceph_handler_topic: ceph
 
 ## Kapacitor variables
 #
@@ -391,9 +391,9 @@ telegraf_agent_metric_batch_size: 1024
 telegraf_agent_metric_buffer_limit: 10240
 telegraf_agent_quiet: true
 telegraf_agent_interval: 10
-telegraf_db_name: "telegraf"
+telegraf_db_name: telegraf
 telegraf_prometheus_enabled: false
-telegraf_logs_dir: "/var/log/telegraf"
+telegraf_logs_dir: /var/log/telegraf
 {% raw %}
 telegraf_agent_logfile: "{{ telegraf_logs_dir }}/telegraf.log"
 telegraf_agent_flush_interval: "{{ telegraf_agent_interval * 2 }}"
@@ -446,17 +446,17 @@ sensu_alerts_handlers: "{{ sensu.get('handlers') }}"
 {% else %}
 sensu_alerts_enabled: false
 {% endif %}
-sensu_rabbitmq_user_name: "sensu"
-sensu_rabbitmq_vhost: "/sensu"
+sensu_rabbitmq_user_name: sensu
+sensu_rabbitmq_vhost: /sensu
 sensu_rabbitmq_use_ssl: false
 sensu_rabbitmq_port: 5672
 sensu_deploy_rabbitmq_server: false
 sensu_deploy_redis_server: false
 sensu_include_dashboard: true
-sensu_api_uchiwa_path: "uchiwa"
+sensu_api_uchiwa_path: uchiwa
 sensu_api_port: 4567
-sensu_api_user_name: "admin"
-sensu_logs_dir: "/var/log/sensu"
+sensu_api_user_name: admin
+sensu_logs_dir: /var/log/sensu
 {% raw %}
 sensu_rabbitmq_user_password: "{{ sensu_rabbitmq_password_secret }}"
 sensu_rabbitmq_host_group: "{{ rabbitmq_host_group }}"
@@ -468,20 +468,20 @@ sensu_redis_passord: "{{ sensu_redis_password_secret }}"
 {% endraw %}
 
 uchiwa_port: 3000
-uchiwa_dc_name: "OpenNext"
-uchiwa_path: "/etc/uchiwa"
+uchiwa_dc_name: OpenNext
+uchiwa_path: /etc/uchiwa
 uchiwa_users:
-  - username: "admin"
+  - username: admin
 {% raw %}
     password: "{{ sensu_admin_password_secret }}"
 {% endraw %}
 
 ## Redis variables
-redis_logs_dir: "/var/log/redis"
+redis_logs_dir: /var/log/redis
 {% raw %}
 redis_logfile: "{{ redis_logs_dir }}/redis.log"
 {% endraw %}
-redis_syslog_enabled: "no"
+redis_syslog_enabled: no
 redis_sentinel: true
 redis_port: 6379
 

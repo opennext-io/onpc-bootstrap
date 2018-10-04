@@ -236,7 +236,9 @@ kapacitor_port: 9092
 kapacitor_data_dir: "/var/lib/kapacitor"
 kapacitor_logs_dir: "/var/log/kapacitor"
 kapacitor_logging_level: ERROR
+{% raw %}
 kapacitor_logging_file: "{{ kapacitor_logs_dir }}/kapacitor.log"
+{% endraw %}
 kapacitor_tick_script_dir: "../files/kapacitor/tick/scripts"
 kapacitor_tick_template_dir: "../files/kapacitor/tick/templates"
 kapacitor_tick_var_dir: "../files/kapacitor/tick/vars"
@@ -295,7 +297,7 @@ kapacitor_deadman_threshold: 1.0
 kapacitor_sensu_addr: "127.0.0.1:3030"
 kapacitor_sensu_source: "Kapacitor"
 {% raw %}
-kapacitor_sensu_alerts_handlers: "{{ sensu_alerts_handlers | default([])}}"
+kapacitor_sensu_alerts_handlers: "{{ sensu_alerts_handlers | default([]) }}"
 kapacitor_sensu_enabled: "{{ sensu_alerts_enabled }}"
 {% endraw %}
 
@@ -318,7 +320,8 @@ network_handler_topic: "network"
 ceph_handler_id: "ceph_alerts_publisher"
 ceph_handler_topic: "ceph'
 
-
+## Kapacitor variables
+#
 kapacitor_handlers: [
 {% raw %}
   { topic: "{{ haproxy_handler_topic }}", id: "{{ haproxy_handler_id}}", enabled: true },

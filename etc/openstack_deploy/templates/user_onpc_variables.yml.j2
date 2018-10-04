@@ -47,8 +47,11 @@ onpc_environment_name: "{{ environment_name | default("") }}"
 
 ## td-agent variables
 # Variable used by 'rsyslog_client' role to define additional rsyslog targets
+fluentd_syslog_port: 5140
 tgagent_log_dir: "/var/log/td-agent"
+{% raw %}
 tdagent_syslog_port: "{{ fluentd_syslog_port }}"
+{% endraw %}
 tgagent_bind_address: 0.0.0.0
 tdagent_plugins:
   - fluent-plugin-multiprocess
@@ -68,13 +71,12 @@ tdagent_conf_template: "templates/fluentd/td-agent.conf.j2"
 #    src:  templates/fluentd/influxdb.conf.j2
 #    dest: influxdb.conf
 
-fluentd_syslog_port: 5140
 rsyslog_client_user_defined_targets:
   - name: "fluentd"
     proto: "tcp"
     template: "$ActionFileDefaultTemplate RSYSLOG_ForwardFormat"
-    port: "{{ fluentd_syslog_port }}"
 {% raw %}
+    port: "{{ fluentd_syslog_port }}"
     hostname: "{{ fluentd_host | default(internal_lb_vip_address) }}"
 {% endraw %}
 
@@ -89,8 +91,8 @@ ceph_uuid_seed: "{{ ansible_date_time.iso8601_micro }}"
 elastic_log_dir: "/var/log/elasticsearch"
 elastic_data_dir: "/var/lib/elasticsearch/data"
 elastic_container_bind_mounts:
-  - bind_dir_path: "{{ elastic_data_dir }}"
 {% raw %}
+  - bind_dir_path: "{{ elastic_data_dir }}"
     mount_path: "/openstack/{{ inventory_hostname }}"
 {% endraw %}
 elastic_cluster_name: "elasticsearch"
@@ -117,15 +119,14 @@ collectd_use_ppa: no
 collectd_version: 5.8.0
 collectd_default_plugins: []
 collectd_prefix: /etc/collectd
-collectd_types_db_path: "{{ '/usr/share/collectd/types.db' if collectd_use_ppa else collectd_prefix + '/share/collectd/types.db' }}"
-{% raw %}
-collectd_hostname: "\"{{ ansible_hostname if inventory_hostname in groups['all_containers'] else inventory_hostname }}\""
-{% endraw %}
 collectd_interval: 60
 collectd_logs_dir: "/var/log/collectd"
-collectd_logpath: "{{ collectd_logs_dir }}/collectd.log"
 collectd_logrotate: no
-
+{% raw %}
+collectd_types_db_path: "{{ '/usr/share/collectd/types.db' if collectd_use_ppa else collectd_prefix + '/share/collectd/types.db' }}"
+collectd_hostname: "\"{{ ansible_hostname if inventory_hostname in groups['all_containers'] else inventory_hostname }}\""
+collectd_logpath: "{{ collectd_logs_dir }}/collectd.log"
+{% endraw %}
 
 ## Grafana variables
 #
@@ -146,9 +147,9 @@ grafana_database:
 {% raw %}
   host: "{{ galera_address|default('127.0.0.1') }}:3306"
   password: "{{ grafana_db_password_secret }}"
-{% endraw %}
   name: "{{ grafana_db_name }}"
   user: "{{ grafana_db_user }}"
+{% endraw %}
 
 # Grafana security vars
 grafana_security:
@@ -162,13 +163,12 @@ grafana_datasources:
     type: influxdb
     access: proxy
     isDefault: true
-    database: "{{ influxdb_db_name }}"
 {% raw %}
-    url: "{{ influxdb_protocol|default('http') }}://{{ influxdb_host|default(internal_lb_vip_address) }}:{{ influxdb_port }}"
-{% endraw %}    
+    database: "{{ influxdb_db_name }}"
+    url: "{{ influxdb_protocol|default('http') }}://{{ influxdb_host|default(internal_lb_vip_address) }}:{{ influxdb_port }}"    
     user: "{{ influxdb_db_metric_user }}"
     password: "{{influxdb_db_metric_password }}"
-
+{% endraw %}
 grafana_plugins: ['grafana-clock-panel']
 grafana_dashboards: []
 
@@ -218,14 +218,13 @@ influxdb_prefix: "/var/lib/influxdb"
 influxdb_logs_dir: "/var/log/influxdb" 
 influxdb_cache_max_memory_size: 1073741824
 influxdb_cache_snapshot_memory_size: 26214400
-
-influxdb_meta_dir: "{{ influxdb_prefix }}/meta"
 # WAL dir could use tempfs instead on reduce disk iops
+{% raw %}
 influxdb_wal_dir: "{{ influxdb_prefix }}/wal"
+influxdb_meta_dir: "{{ influxdb_prefix }}/meta"
 influxdb_data_dir: "{{ influxdb_prefix }}/data"
 influxdb_container_bind_mounts:
   - bind_dir_path: "{{ influxdb_data_dir }}"
-{% raw %}
     mount_path: "/openstack/{{ inventory_hostname }}/influxdb"
 {% endraw %}
 
@@ -241,20 +240,17 @@ kapacitor_tick_template_dir: "../files/kapacitor/tick/templates"
 kapacitor_tick_var_dir: "../files/kapacitor/tick/vars"
 kapacitor_tick_handler_dir: "../templates/kapacitor/handlers"
 kapacitor_log_alerts_enabled: false
-
+{% raw %}
 kapacitor_container_bind_mounts:
   - bind_dir_path: "{{ kapacitor_data_dir }}"
-{% raw %}
     mount_path: "/openstack/{{ inventory_hostname }}/kapacitor"
 {% endraw %}
 
 kapacitor_influx:
 {% raw %}
   - name: "{{ ansible_hostname }}"
-{% endraw %}
     enabled: true
     default: true
-{% raw %}
 #   urls: ["{% for host in groups['influxdb'] %}http://{{ hostvars[host]['ansible_host'] }}:{{ influxdb_port }}{% if not loop.last %}, {% endif %}{% endfor %}"]
     urls: ["http://localhost:{{ influxdb_port }}"]
     kapacitor-hostname: "{{ ansible_hostname }}"
@@ -277,14 +273,16 @@ kapacitor_influx:
     subscriptions-sync-interval: "1m0s"
 
 # Slack variables  
-kapacitor_slack_enabled: "{{ slack_alerts_enabled }}"
 kapacitor_slack_default: false
 kapacitor_slack_global: true
-kapacitor_slack_channel: "{{ slack_alerts_channel }}"
-kapacitor_slack_url: "{{ slack_webhooks_url }}"
 kapacitor_slack_username: "kapacitor"
 kapacitor_slack_state_changes_only: true
 kapacitor_slack_workspace: "OpenNext"
+{% raw %}
+kapacitor_slack_enabled: "{{ slack_alerts_enabled }}"
+kapacitor_slack_channel: "{{ slack_alerts_channel }}"
+kapacitor_slack_url: "{{ slack_webhooks_url }}"
+{% endraw %}
 
 # Configure global deadman
 kapacitor_deadman_global: true
@@ -293,9 +291,11 @@ kapacitor_deadman_threshold: 1.0
 
 # Sensu variables
 kapacitor_sensu_addr: "127.0.0.1:3030"
-kapacitor_sensu_enabled: "{{ sensu_alerts_enabled }}"
 kapacitor_sensu_source: "Kapacitor"
+{% raw %}
 kapacitor_sensu_alerts_handlers: "{{ sensu_alerts_handlers | default([])}}"
+kapacitor_sensu_enabled: "{{ sensu_alerts_enabled }}"
+{% endraw %}
 
 haproxy_handler_id: "haproxy_alerts_publisher"
 haproxy_handler_topic: "haproxy"
@@ -318,6 +318,7 @@ ceph_handler_topic: "ceph'
 
 
 kapacitor_handlers: [
+{% raw %}
   { topic: "{{ haproxy_handler_topic }}", id: "{{ haproxy_handler_id}}", enabled: true },
   { topic: "{{ monitoring_handler_topic }}", id: "{{ monitoring_handler_id}}", enabled: true },
   { topic: "{{ openstack_handler_topic }}", id: "{{ openstack_handler_id }}", enabled: true },
@@ -327,9 +328,11 @@ kapacitor_handlers: [
   { topic: "{{ system_handler_topic }}", id: "{{ system_handler_id }}", enabled: true },
   { topic: "{{ network_handler_topic }}", id: "{{ network_handler_id }}", enabled: true },
   { topic: "{{ ceph_handler_topic }}", id: "{{ ceph_handler_id }}", enabled: true }
+{% endraw %}
 ]
 
 kapacitor_tasks: [
+{% raw %}
   { id: "ceph_health_status_alert", type: "stream", tick: "{{ kapacitor_tick_script_dest_dir }}/ceph_health_status_alert_stream.tick", dbrp: "telegraf.autogen", enabled: true },
   { id: "ceph_osd_out_alert", type: "stream", tick: "{{ kapacitor_tick_script_dest_dir }}/ceph_osd_out_alert_stream.tick", dbrp: "telegraf.autogen", enabled: true },
   { id: "ceph_degraded_object_alert", type: "stream", tick: "{{ kapacitor_tick_script_dest_dir }}/ceph_degraded_object_alert_stream.tick", dbrp: "telegraf.autogen", enabled: true },
@@ -364,6 +367,7 @@ kapacitor_tasks: [
   { id: "nova_worker_alert", type: "stream", tick: "{{ kapacitor_tick_script_dest_dir }}/nova_worker_alert_stream.tick", dbrp: "telegraf.autogen", enabled: true },
   { id: "nova_worker_cluster_alert", type: "stream", tick: "{{ kapacitor_tick_script_dest_dir }}/nova_worker_cluster_alert_stream.tick", dbrp: "telegraf.autogen", enabled: true },
   { id: "openstack_apis_alert", type: "stream", tick: "{{ kapacitor_tick_script_dest_dir }}/openstack_apis_alert_stream.tick", dbrp: "telegraf.autogen", enabled: true }
+{% endraw %}
 ]
 
 # Kapacitor template example:
@@ -380,16 +384,19 @@ telegraf_agent_metric_batch_size: 1024
 telegraf_agent_metric_buffer_limit: 10240
 telegraf_agent_quiet: true
 telegraf_agent_interval: 10
-telegraf_agent_flush_interval: "{{ telegraf_agent_interval * 2 }}"
 telegraf_db_name: "telegraf"
 telegraf_prometheus_enabled: false
 telegraf_logs_dir: "/var/log/telegraf"
+{% raw %}
 telegraf_agent_logfile: "{{ telegraf_logs_dir }}/telegraf.log"
+telegraf_agent_flush_interval: "{{ telegraf_agent_interval * 2 }}"
+{% endraw %}
+
 # TODO: make this dynamic
-telegraf_prefix: "{{ '/opt/telegraf' if telegraf_agent_version|version_compare('0.10.0', '<') else '/etc/telegraf' }}"
-telegraf_plugins_prefix: "{{telegraf_prefix}}/telegraf.d"
 telegraf_plugins_list: [ outputs, galera, haproxy, influxdb, listener, memcached, rabbitmq, swift, system, ceph ]
 {% raw %}
+telegraf_prefix: "{{ '/opt/telegraf' if telegraf_agent_version|version_compare('0.10.0', '<') else '/etc/telegraf' }}"
+telegraf_plugins_prefix: "{{telegraf_prefix}}/telegraf.d"
 telegraf_agent_hostname: "{{ ansible_hostname if inventory_hostname in groups['all_containers'] else inventory_hostname }}"
 telegraf_influxdb_targets:
       - "{{ influxdb_protocol|default('http') }}://{{ influxdb_host|default(internal_lb_vip_address) }}:{{ influxdb_relay_port }}"
@@ -397,14 +404,14 @@ telegraf_influxdb_targets:
 
 # Global tags
 telegraf_global_tags:
-  - tag_name: node_type
 {% raw %}
+  - tag_name: node_type
     tag_value: "{{ 'container' if inventory_hostname in groups['all_containers'] else 'host' }}"
   - tag_name: region
     tag_value: "{{ service_region }}"
-{% endraw %}
   - tag_name: environment
     tag_value: "{{ onpc_environment_name }}"
+{% endraw %}
 
 telegraf_agent_output: []
 telegraf_plugins_default: []
@@ -433,33 +440,40 @@ sensu_alerts_handlers: "{{ sensu.get('handlers') }}"
 sensu_alerts_enabled: false
 {% endif %}
 sensu_rabbitmq_user_name: "sensu"
-sensu_rabbitmq_user_password: "{{ sensu_rabbitmq_password_secret }}"
 sensu_rabbitmq_vhost: "/sensu"
 sensu_rabbitmq_use_ssl: false
-sensu_rabbitmq_host_group: "{{ rabbitmq_host_group }}"
-sensu_rabbitmq_host: "{{ hostvars[groups['rabbitmq_all'][0]]['ansible_host'] }}"
 sensu_rabbitmq_port: 5672
 sensu_deploy_rabbitmq_server: false
 sensu_deploy_redis_server: false
 sensu_include_dashboard: true
-sensu_redis_host: "{{ internal_lb_vip_address }}"
-sensu_api_host: "{{ internal_lb_vip_address }}"
+sensu_api_uchiwa_path: "uchiwa"
 sensu_api_port: 4567
 sensu_api_user_name: "admin"
-sensu_api_password: "{{ sensu_admin_password_secret }}"
-sensu_api_uchiwa_path: "uchiwa"
-sensu_redis_passord: "{{ sensu_redis_password_secret }}"
 sensu_logs_dir: "/var/log/sensu"
+{% raw %}
+sensu_rabbitmq_user_password: "{{ sensu_rabbitmq_password_secret }}"
+sensu_rabbitmq_host_group: "{{ rabbitmq_host_group }}"
+sensu_rabbitmq_host: "{{ hostvars[groups['rabbitmq_all'][0]]['ansible_host'] }}"
+sensu_redis_host: "{{ internal_lb_vip_address }}"
+sensu_api_host: "{{ internal_lb_vip_address }}"
+sensu_api_password: "{{ sensu_admin_password_secret }}"
+sensu_redis_passord: "{{ sensu_redis_password_secret }}"
+{% endraw %}
+
 uchiwa_port: 3000
 uchiwa_dc_name: "OpenNext"
 uchiwa_path: "/etc/uchiwa"
 uchiwa_users:
   - username: "admin"
+
     password: "{{ sensu_admin_password_secret }}"
+{% endraw %}
 
 ## Redis variables
 redis_logs_dir: "/var/log/redis"
+{% raw %}
 redis_logfile: "{{ redis_logs_dir }}/redis.log"
+{% endraw %}
 redis_syslog_enabled: "no"
 redis_sentinel: true
 redis_port: 6379

@@ -376,7 +376,9 @@ kapacitor_tasks: [
 ]
 
 # Kapacitor template example:
+{% raw %}
 #   { id: "example", type: "stream", tick: "{{ kapacitor_tick_template_dest_dir }}/example.tick"},
+{% endraw %}
 kapacitor_templates: [
 ]
 

@@ -327,9 +327,9 @@ kapacitor_handlers: [
   { topic: "{{ haproxy_handler_topic }}", id: "{{ haproxy_handler_id}}", enabled: true },
   { topic: "{{ monitoring_handler_topic }}", id: "{{ monitoring_handler_id}}", enabled: true },
   { topic: "{{ openstack_handler_topic }}", id: "{{ openstack_handler_id }}", enabled: true },
-  { topic: "{{ slack_handler_topic }}", id: "{{ slack_handler_id }}", enabled: {{ slack_alerts_enabled }} },
-  { topic: "{{ sensu_handler_topic }}", id: "{{ sensu_handler_id }}", enabled: {{ sensu_alerts_enabled }} },
-  { topic: "{{ log_handler_topic }}", id: "{{ log_handler_id }}", enabled: {{ kapacitor_log_alerts_enabled }} },
+  { topic: "{{ slack_handler_topic }}", id: "{{ slack_handler_id }}", enabled: "{{ slack_alerts_enabled }}" },
+  { topic: "{{ sensu_handler_topic }}", id: "{{ sensu_handler_id }}", enabled: "{{ sensu_alerts_enabled }}" },
+  { topic: "{{ log_handler_topic }}", id: "{{ log_handler_id }}", enabled: "{{ kapacitor_log_alerts_enabled }}" },
   { topic: "{{ system_handler_topic }}", id: "{{ system_handler_id }}", enabled: true },
   { topic: "{{ network_handler_topic }}", id: "{{ network_handler_id }}", enabled: true },
   { topic: "{{ ceph_handler_topic }}", id: "{{ ceph_handler_id }}", enabled: true }

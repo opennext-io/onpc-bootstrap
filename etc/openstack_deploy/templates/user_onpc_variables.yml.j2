@@ -109,7 +109,9 @@ kibana_server_host: 0.0.0.0
 kibana_server_port: 5601
 kibana_version: 6.2.4
 kibana_major_version: "6.x"
+{% raw %}
 kibana_elasticsearch_url: "http://localhost:{{ elastic_port }}"
+{% endraw %}
 kibana_conf_template: "kibana/kibana.yml.j2"
 kibana_log_dir: "/var/log/kibana"
 

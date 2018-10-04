@@ -72,8 +72,8 @@ tdagent_conf_template: "templates/fluentd/td-agent.conf.j2"
 #    dest: influxdb.conf
 
 rsyslog_client_user_defined_targets:
-  - name: "fluentd"
-    proto: "tcp"
+  - name: fluentd
+    proto: tcp
     template: "$ActionFileDefaultTemplate RSYSLOG_ForwardFormat"
 {% raw %}
     port: "{{ fluentd_syslog_port }}"
@@ -88,8 +88,8 @@ ceph_uuid_seed: "{{ ansible_date_time.iso8601_micro }}"
 
 ## Elasticsearch variables
 #
-elastic_log_dir: /var/log/elasticsearch
-elastic_data_dir: /var/lib/elasticsearch/data
+elastic_log_dir: "/var/log/elasticsearch"
+elastic_data_dir: "/var/lib/elasticsearch/data"
 elastic_container_bind_mounts:
 {% raw %}
   - bind_dir_path: "{{ elastic_data_dir }}"
@@ -113,16 +113,16 @@ kibana_major_version: "6.x"
 kibana_elasticsearch_url: "http://localhost:{{ elastic_port }}"
 {% endraw %}
 kibana_conf_template: kibana/kibana.yml.j2
-kibana_log_dir: /var/log/kibana
+kibana_log_dir: "/var/log/kibana"
 
 ## Collectd variables
 #
 collectd_use_ppa: no
 collectd_version: 5.8.0
 collectd_default_plugins: []
-collectd_prefix: /etc/collectd
+collectd_prefix: "/etc/collectd"
 collectd_interval: 60
-collectd_logs_dir: /var/log/collectd
+collectd_logs_dir: "/var/log/collectd"
 collectd_logrotate: no
 {% raw %}
 collectd_types_db_path: "{{ '/usr/share/collectd/types.db' if collectd_use_ppa else collectd_prefix + '/share/collectd/types.db' }}"
@@ -140,8 +140,8 @@ grafana_address: "{{ hostvars[inventory_hostname]['ansible_host'] | default('0.0
 grafana_port: 8089
 grafana_db_name: grafana
 grafana_db_user: grafana
-grafana_logs_dir: /var/log/grafana
-grafana_data_dir: /var/lib/grafana
+grafana_logs_dir: "/var/log/grafana"
+grafana_data_dir: "/var/lib/grafana"
 
 # Grafana database vars
 grafana_database:
@@ -216,8 +216,8 @@ influxdb_db_metric_password: "{{ influxdb_db_metric_password_secret }}"
 influxdb_db_root_password: "{{ influxdb_db_root_password_secret }}"
 {% endraw %}
 
-influxdb_prefix: /var/lib/influxdb
-influxdb_logs_dir: /var/log/influxdb 
+influxdb_prefix: "/var/lib/influxdb"
+influxdb_logs_dir: "/var/log/influxdb" 
 influxdb_cache_max_memory_size: 1073741824
 influxdb_cache_snapshot_memory_size: 26214400
 # WAL dir could use tempfs instead on reduce disk iops
@@ -233,16 +233,16 @@ influxdb_container_bind_mounts:
 ## Kapacitor variables
 #
 kapacitor_port: 9092
-kapacitor_data_dir: /var/lib/kapacitor
-kapacitor_logs_dir: /var/log/kapacitor
+kapacitor_data_dir: "/var/lib/kapacitor"
+kapacitor_logs_dir: "/var/log/kapacitor"
 kapacitor_logging_level: ERROR
 {% raw %}
 kapacitor_logging_file: "{{ kapacitor_logs_dir }}/kapacitor.log"
 {% endraw %}
-kapacitor_tick_script_dir: ../files/kapacitor/tick/scripts
-kapacitor_tick_template_dir: ../files/kapacitor/tick/templates
-kapacitor_tick_var_dir: ../files/kapacitor/tick/vars
-kapacitor_tick_handler_dir: ../templates/kapacitor/handlers
+kapacitor_tick_script_dir: "../files/kapacitor/tick/scripts"
+kapacitor_tick_template_dir: "../files/kapacitor/tick/templates"
+kapacitor_tick_var_dir: "../files/kapacitor/tick/vars"
+kapacitor_tick_handler_dir: "../templates/kapacitor/handlers"
 kapacitor_log_alerts_enabled: false
 {% raw %}
 kapacitor_container_bind_mounts:
@@ -393,7 +393,7 @@ telegraf_agent_quiet: true
 telegraf_agent_interval: 10
 telegraf_db_name: telegraf
 telegraf_prometheus_enabled: false
-telegraf_logs_dir: /var/log/telegraf
+telegraf_logs_dir: "/var/log/telegraf"
 {% raw %}
 telegraf_agent_logfile: "{{ telegraf_logs_dir }}/telegraf.log"
 telegraf_agent_flush_interval: "{{ telegraf_agent_interval * 2 }}"
@@ -447,7 +447,7 @@ sensu_alerts_handlers: "{{ sensu.get('handlers') }}"
 sensu_alerts_enabled: false
 {% endif %}
 sensu_rabbitmq_user_name: sensu
-sensu_rabbitmq_vhost: /sensu
+sensu_rabbitmq_vhost: "/sensu"
 sensu_rabbitmq_use_ssl: false
 sensu_rabbitmq_port: 5672
 sensu_deploy_rabbitmq_server: false
@@ -456,7 +456,7 @@ sensu_include_dashboard: true
 sensu_api_uchiwa_path: uchiwa
 sensu_api_port: 4567
 sensu_api_user_name: admin
-sensu_logs_dir: /var/log/sensu
+sensu_logs_dir: "/var/log/sensu"
 {% raw %}
 sensu_rabbitmq_user_password: "{{ sensu_rabbitmq_password_secret }}"
 sensu_rabbitmq_host_group: "{{ rabbitmq_host_group }}"
@@ -469,7 +469,7 @@ sensu_redis_passord: "{{ sensu_redis_password_secret }}"
 
 uchiwa_port: 3000
 uchiwa_dc_name: OpenNext
-uchiwa_path: /etc/uchiwa
+uchiwa_path: "/etc/uchiwa"
 uchiwa_users:
   - username: admin
 {% raw %}
@@ -477,7 +477,7 @@ uchiwa_users:
 {% endraw %}
 
 ## Redis variables
-redis_logs_dir: /var/log/redis
+redis_logs_dir: "/var/log/redis"
 {% raw %}
 redis_logfile: "{{ redis_logs_dir }}/redis.log"
 {% endraw %}

@@ -387,7 +387,7 @@ haproxy_extra_services:
   - service:
     haproxy_service_name: influxdb_admin
     haproxy_ssl: False
-{% raw %}
+{%- raw %}
     haproxy_backend_nodes: "{{ groups['influxdb'] | default([]) }}"
     haproxy_port: "{{ influxdb_port }}"
 {% endraw %}

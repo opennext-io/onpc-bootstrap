@@ -467,7 +467,6 @@ sensu_api_password: "{{ sensu_admin_password_secret }}"
 sensu_redis_passord: "{{ sensu_redis_password_secret }}"
 {% endraw %}
 
-uchiwa_port: 3000
 uchiwa_dc_name: OpenNext
 uchiwa_path: "/etc/uchiwa"
 uchiwa_users:
@@ -475,6 +474,7 @@ uchiwa_users:
 {% raw %}
     password: "{{ sensu_admin_password_secret }}"
 {% endraw %}
+uchiwa_port: 3000
 
 ## Redis variables
 redis_logs_dir: "/var/log/redis"

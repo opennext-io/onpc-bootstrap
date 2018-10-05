@@ -15,15 +15,17 @@
 # limitations under the License.
 
 {% if monitoring_hosts is defined and monitoring_hosts | length > 0 %}
-influx_hosts: &influx_hosts
+influxdb_hosts: &monitoring_cluster
 {% for h in monitoring_hosts %}
  {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
 
-grafana_hosts: &influx_hosts
-sensu_hosts: &influx_hosts
-redis_hosts: &influx_hosts
+influxdb_hosts: *monitoring_cluster
+grafana_hosts: *monitoring_cluster
+sensu_hosts: *monitoring_cluster
+redis_hosts: *monitoring_cluster
+sentinel_hosts: *monitoring_cluster
 
 collectd_hosts:
 {% for h in monitoring_hosts %}

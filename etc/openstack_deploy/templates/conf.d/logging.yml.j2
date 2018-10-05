@@ -16,11 +16,12 @@
 
 # Logging (Elasticsearch, Rsyslog, ...) hosts
 {% if logging_hosts is defined and logging_hosts | length > 0 %}
-elastic_fluentd_hosts: &elastic_fluentd_hosts
+elastic_fluentd_hosts: &logging_cluster
 {% for h in logging_hosts %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
 
-kibana_hosts: *elastic_fluentd_hosts
+kibana_hosts: *logging_cluster
+
 {% endif %}

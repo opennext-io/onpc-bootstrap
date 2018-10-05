@@ -480,8 +480,8 @@ uchiwa_users:
 redis_logs_dir: "/var/log/redis"
 {% raw %}
 redis_logfile: "{{ redis_logs_dir }}/redis.log"
+redis_sentinel_logfile: "{{ redis_logs_dir }}/sentinel.log"
 {% endraw %}
-redis_syslog_enabled: no
-redis_sentinel: true
+redis_syslog_enabled: "no"
 redis_port: 6379
 

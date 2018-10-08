@@ -33,6 +33,10 @@ component_skel:
   sensu:
     belongs_to:
       - monitoring_all
+      - sensu_masters
+  uchiwa:
+    belongs_to:
+      - monitoring_all
   redis:
     belongs_to:
       - monitoring_all
@@ -48,7 +52,7 @@ container_skel:
       - influxdb_relay
       - kapacitor
     properties:
-      container_fs_size: {{ influx_container_fs_size | default('24G') }}
+      container_fs_size: 24G
   collectd_container:
     belongs_to:
       - collectd_containers
@@ -60,12 +64,13 @@ container_skel:
     contains:
       - grafana
     properties:
-      container_fs_size: {{ grafana_container_fs_size | default('8G') }}
+      container_fs_size: 8G
   sensu_container:
     belongs_to:
       - sensu_containers
     contains:
       - sensu
+      - uchiwa
   redis_container:
     belongs_to:
       - redis_containers

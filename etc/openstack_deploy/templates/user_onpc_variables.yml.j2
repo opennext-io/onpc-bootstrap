@@ -458,7 +458,7 @@ sensu_api_port: 4567
 sensu_api_user_name: admin
 sensu_logs_dir: "/var/log/sensu"
 {% raw %}
-sensu_client_subscriptions: "{{ groups['hosts'] + groups['kapacitor'] }}"
+sensu_client_subscriptions: "{{ groups['hosts'] }}"
 sensu_rabbitmq_user_password: "{{ sensu_rabbitmq_password_secret }}"
 sensu_rabbitmq_host_group: "{{ rabbitmq_host_group }}"
 sensu_rabbitmq_host: "{{ hostvars[groups['rabbitmq_all'][0]]['ansible_host'] }}"

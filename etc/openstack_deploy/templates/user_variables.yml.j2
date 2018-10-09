@@ -452,9 +452,9 @@ haproxy_extra_services:
         - "tcp-check"
       haproxy_backend_arguments:
         - "tcp-check connect"
-        - "tcp-check send PING\r\n"
+        - 'tcp-check send PING\r\n'
         - "tcp-check expect string +PONG"
-        - "tcp-check send QUIT\r\n"
+        - 'tcp-check send QUIT\r\n'
         - "tcp-check expect string +OK"
 # No need anymore for Elasticsearch load-balacing for two reasons
 # 1 - Kibana is connected to a local Elasticsearch clients_keystone

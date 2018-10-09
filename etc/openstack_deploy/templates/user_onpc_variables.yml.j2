@@ -453,16 +453,17 @@ sensu_rabbitmq_port: 5672
 sensu_deploy_rabbitmq_server: false
 sensu_deploy_redis_server: false
 sensu_include_dashboard: true
-sensu_api_uchiwa_path: uchiwa
+sensu_api_uchiwa_path: "/uchiwa"
 sensu_api_port: 4567
 sensu_api_user_name: admin
 sensu_logs_dir: "/var/log/sensu"
 {% raw %}
+sensu_client_subscriptions: "{{ groups['hosts'] + groups['kapacitor'] }}"
 sensu_rabbitmq_user_password: "{{ sensu_rabbitmq_password_secret }}"
 sensu_rabbitmq_host_group: "{{ rabbitmq_host_group }}"
 sensu_rabbitmq_host: "{{ hostvars[groups['rabbitmq_all'][0]]['ansible_host'] }}"
 sensu_redis_host: "{{ internal_lb_vip_address }}"
-sensu_api_host: "{{ internal_lb_vip_address }}"
+sensu_api_host: "{{ hostvars[inventory_hostname]['ansible_host'] | default('0.0.0.0') }}"
 sensu_api_password: "{{ sensu_admin_password_secret }}"
 sensu_redis_passord: "{{ sensu_redis_password_secret }}"
 {% endraw %}

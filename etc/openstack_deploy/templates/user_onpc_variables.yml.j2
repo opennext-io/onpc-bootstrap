@@ -469,7 +469,7 @@ sensu_rabbitmq_host: "{{ hostvars[groups['rabbitmq_all'][0]]['ansible_host'] }}"
 sensu_redis_host: "{{ internal_lb_vip_address }}"
 sensu_api_host: "{{ hostvars[inventory_hostname]['ansible_host'] | default('0.0.0.0') }}"
 sensu_api_password: "{{ sensu_admin_password_secret }}"
-sensu_redis_passord: "{{ redis_password_secret }}"
+sensu_redis_password: "{{ redis_password_secret }}"
 {% endraw %}
 
 uchiwa_dc_name: OpenNext
@@ -486,8 +486,8 @@ redis_logs_dir: "/var/log/redis"
 {% raw %}
 redis_logfile: "{{ redis_logs_dir }}/redis.log"
 redis_sentinel_logfile: "{{ redis_logs_dir }}/sentinel.log"
+redis_password: "{{ redis_password_secret }}"
 {% endraw %}
 redis_syslog_enabled: "no"
 redis_port: 6379
-redis_password: "{{ redis_password_secret }}"
 

@@ -466,7 +466,6 @@ sensu_redis_host: "{{ internal_lb_vip_address }}"
 #sensu_api_host: "{{ hostvars[inventory_hostname]['ansible_host'] | default('0.0.0.0') }}"
 sensu_api_host: "{{ internal_lb_vip_address }}"
 sensu_api_password: "{{ sensu_admin_password_secret }}"
-sensu_redis_password: "{{ redis_password_secret }}"
 {% endraw %}
 
 uchiwa_dc_name: OpenNext

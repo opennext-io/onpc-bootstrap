@@ -458,7 +458,7 @@ sensu_ssl_gen_certs: false
 sensu_logs_dir: "/var/log/sensu"
 sensu_rabbitmq_enable_ssl: false
 {% raw %}
-sensu_client_subscriptions: ['host', 'infra', 'storage', 'compute', 'container']
+sensu_client_subscriptions: ['host']
 sensu_rabbitmq_user_password: "{{ sensu_rabbitmq_password_secret }}"
 sensu_rabbitmq_host_group: "{{ rabbitmq_host_group }}"
 sensu_rabbitmq_host: "{{ hostvars[groups['rabbitmq_all'][0]]['ansible_host'] }}"

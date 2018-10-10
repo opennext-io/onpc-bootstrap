@@ -520,7 +520,7 @@ haproxy_extra_services:
 {% endraw %}
       haproxy_balance_type: tcp
       haproxy_backend_options:
-        - "httpchk GET /"
+        - "httpchk GET /health"
 
 ## Tempest settings
 tempest_public_subnet_cidr: {{ tempest_subnet | default('172.29.248.0/22') }}

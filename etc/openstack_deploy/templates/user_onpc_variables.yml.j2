@@ -481,9 +481,9 @@ redis_logs_dir: "/var/log/redis"
 {% raw %}
 redis_logfile: "{{ redis_logs_dir }}/redis.log"
 redis_sentinel_logfile: "{{ redis_logs_dir }}/sentinel.log"
+redis_sentinels: ["{% for host in groups['sentinel'] %}{'host': {{ hostvars[host]['ansible_host'] }}, 'port': {{ redis_sentinel_port }} }{% if not loop.last %}, {% endif %}{% endfor %}"]
 {% endraw %}
 redis_syslog_enabled: "no"
 redis_sentinel_port: 26379
-redis_sentinels: ["{% for host in groups['sentinel'] %}{'host': {{ hostvars[host]['ansible_host'] }}, 'port': {{ redis_sentinel_port }} }{% if not loop.last %}, {% endif %}{% endfor %}"]
 redis_master: master01
 

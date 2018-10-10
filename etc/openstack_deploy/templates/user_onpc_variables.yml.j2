@@ -454,7 +454,6 @@ sensu_deploy_redis_server: false
 sensu_include_dashboard: true
 sensu_api_port: 4567
 sensu_api_user_name: admin
-sensu_ssl_gen_certs: false 
 sensu_logs_dir: "/var/log/sensu"
 sensu_rabbitmq_enable_ssl: false
 {% raw %}
@@ -482,8 +481,9 @@ redis_logs_dir: "/var/log/redis"
 {% raw %}
 redis_logfile: "{{ redis_logs_dir }}/redis.log"
 redis_sentinel_logfile: "{{ redis_logs_dir }}/sentinel.log"
-redis_password: "{{ redis_password_secret }}"
 {% endraw %}
 redis_syslog_enabled: "no"
-redis_port: 6379
+redis_sentinel_port: 26379
+redis_sentinels: ["{% for host in groups['sentinel'] %}{'host': {{ hostvars[host]['ansible_host'] }}, 'port': {{ redis_sentinel_port }} }{% if not loop.last %}, {% endif %}{% endfor %}"]
+redis_master: master01
 

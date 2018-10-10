@@ -437,26 +437,28 @@ haproxy_extra_services:
       haproxy_backend_options:
         - "httpchk GET /"
       haproxy_backend_reqrep: '^([^\ ]*\ /)grafana[/]?(.*) \1\2'
-  - service:
-      haproxy_service_name: redis
-      haproxy_ssl: False
-{%- raw %}
-      haproxy_backend_nodes: "{{ groups['redis'] | default([]) }}"
-      haproxy_port: "{{ redis_port }}"
-      haproxy_backend_port: "{{ redis_port }}"
-{% endraw %}
-      haproxy_balance_type: tcp
-      haproxy_balance_alg: roundrobin
-      haproxy_timeout_server: "6s"
-      haproxy_backend_options:
-        - "tcp-check"
-      haproxy_backend_arguments:
-        - "tcp-check connect"
-        - 'tcp-check send PING\r\n'
-        - "tcp-check expect string +PONG"
-        - 'tcp-check send QUIT\r\n'
-        - "tcp-check expect string +OK"
-# No need anymore for Elasticsearch load-balacing for two reasons
+# No need for Redis load-balacing anymore because it's proxied by Sentinel
+# and Sensu uses an array of Sentinel endpoints as defined in redis_sentinels
+#  - service:
+#      haproxy_service_name: redis
+#      haproxy_ssl: False
+#{%- raw %}
+#      haproxy_backend_nodes: "{{ groups['redis'] | default([]) }}"
+#      haproxy_port: "{{ redis_port }}"
+#      haproxy_backend_port: "{{ redis_port }}"
+#{% endraw %}
+#      haproxy_balance_type: tcp
+#      haproxy_balance_alg: roundrobin
+#      haproxy_timeout_server: "6s"
+#      haproxy_backend_options:
+#        - "tcp-check"
+#      haproxy_backend_arguments:
+#        - "tcp-check connect"
+#        - 'tcp-check send PING\r\n'
+#        - "tcp-check expect string +PONG"
+#        - 'tcp-check send QUIT\r\n'
+#        - "tcp-check expect string +OK"
+# No need for Elasticsearch load-balacing anymore for two reasons
 # 1 - Kibana is connected to a local Elasticsearch clients_keystone
 # 2 - Fluentd is co-located with the Elasticsearch servers in the cluster
 #  - service:

@@ -486,4 +486,5 @@ redis_sentinels: ["{% for host in groups['sentinel'] %}{'host': {{ hostvars[host
 redis_syslog_enabled: "no"
 redis_sentinel_port: 26379
 redis_master: master01
+redis_port: 6379
 

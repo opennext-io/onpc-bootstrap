@@ -520,10 +520,12 @@ haproxy_extra_services:
       haproxy_backend_nodes: "{{ groups['sensu'] | default([]) }}"
       haproxy_port: "{{ sensu_api_port }}"
 {% endraw %}
-      haproxy_balance_type: tcp
+      haproxy_balance_type: http
+      haproxy_balance_alg: roundrobin
       haproxy_backend_options:
-        - "httpchk GET /health"
-
+{%- raw %}
+        - "httpchk GET /health HTTP/1.1\\r\\nAuthorization:\\ Basic\\ {{ [sensu_api_user_name, ':', sensu_api_password] | join | b64encode }}"
+{% endraw %}
 ## Tempest settings
 tempest_public_subnet_cidr: {{ tempest_subnet | default('172.29.248.0/22') }}
 tempest_public_subnet_allocation_pools: "{{ tempest_pool | default('172.29.249.110-172.29.249.200') }}"

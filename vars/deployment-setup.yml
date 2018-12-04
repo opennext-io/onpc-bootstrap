@@ -26,7 +26,6 @@ onpc_cpu_overcommit: 8.0
 onpc_magnum_git_repo: "https://github.com/opennext-io/magnum.git"
 onpc_magnum_git_install_branch: "stable/rocky"
 onpc_dhcp_domain: "opennext.local"
-nova_cpu_allocation_ratio: 8.0
 nova_cpu_allocation_ratio: "{{ onpc_nova_overcommit }}" 
 region_controller: "maas"
 ip_prefix: ""

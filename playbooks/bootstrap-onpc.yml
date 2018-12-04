@@ -15,19 +15,21 @@
 
 - name: Get controller nodes ansible facts
   hosts: controller
+  gather_facts: True
   tasks:
-    - setup:
     - include_tasks: ../tasks/roles_check.yml
 
 - name: Setup OpenStack-Ansible deployment host
   hosts: localhost
+  gather_facts: True
+  user: root
 
   vars_files:
     - ../vars/deployment_setup.yml
 
   tasks:
 
-    - include_tasks: ../tasks/set_deployment_facts.yml
+    - include_tasks: ../tasks/bootstrap_facts.yml
     - include_tasks: ../tasks/global_checks.yml
 
     - name: Get OSA repository from GitHub

@@ -27,11 +27,13 @@
 
   tasks:
 
+    - include_tasks: ../tasks/set_deployment_facts.yml
     - include_tasks: ../tasks/global_checks.yml
+
     - name: Get OSA repository from GitHub
       git:
         repo: "https://github.com/openstack/openstack-ansible"
-        dest: "{{ dest_repo_dir }}/openstack-ansible"
+        dest: "{{ osa_repo_dir }}/openstack-ansible"
         accept_hostkey: yes
         force: no 
         recursive: no
@@ -42,7 +44,7 @@
     - name: Get OpenNext Repositories
       git:
         repo: "https://github.com/opennext-io/{{ item }}"
-        dest: "{{ dest_repo_dir }}/{{ item }}"
+        dest: "{{ osa_repo_dir }}/{{ item }}"
         force: no
         recursive: no
       with_items:
@@ -54,7 +56,7 @@
     - name: Boostrap Ansible for OSA
       command: "./scripts/bootstrap-ansible.sh"
       args:
-        chdir: "{{ dest_repo_dir }}/openstack-ansible"
+        chdir: "{{ osa_repo_dir }}/openstack-ansible"
         creates: "/opt/ansible-runtime/bin/ansible-playbook"
       environment: "{{ proxy_env | default({}) | combine({ 'TMPDIR': '/var/tmp' }) }}"
       register: bootstrap_ansible_result
@@ -78,14 +80,14 @@
 
     - name: Copy template for user_secrets.yml
       copy:
-        src: "{{ dest_repo_dir }}/openstack-ansible/etc/openstack_deploy/user_secrets.yml"
+        src: "{{ osa_repo_dir }}/openstack-ansible/etc/openstack_deploy/user_secrets.yml"
         dest: "{{ osa_deploy_dir }}/user_secrets.yml"
         remote_src: yes
       when: not user_secrets_info.stat.exists
       tags: ['setup']
     
     - name: Generate user_secrets password
-      command: "/opt/ansible-runtime/bin/python {{ dest_repo_dir }}/openstack-ansible/scripts/pw-token-gen.py --file {{ osa_deploy_dir }}/user_secrets.yml"
+      command: "/opt/ansible-runtime/bin/python {{ osa_repo_dir }}/openstack-ansible/scripts/pw-token-gen.py --file {{ osa_deploy_dir }}/user_secrets.yml"
       changed_when: false
       when: not user_secrets_info.stat.exists
       tags: ['setup']
@@ -105,12 +107,10 @@
       tags: ['setup']
 
     - name: Generate user_onpc_secrets passwords
-      command: "/opt/ansible-runtime/bin/python {{ dest_repo_dir }}/openstack-ansible/scripts/pw-token-gen.py --file {{ osa_deploy_dir }}/user_onpc_secrets.yml"
+      command: "/opt/ansible-runtime/bin/python {{ osa_repo_dir }}/openstack-ansible/scripts/pw-token-gen.py --file {{ osa_deploy_dir }}/user_onpc_secrets.yml"
       changed_when: false
       when: not user_onpc_secrets_info.stat.exists
       tags: ['setup']
-
-    - include_tasks: ../tasks/set_inventory_facts.yml
 
     # It seems find module has a problem with using variable in paths attribute
     - name: Get deployment model env.d templates
@@ -120,7 +120,7 @@
         use_regex: yes
       register: onpc_model_envd_templates
 
-    - name: Generate depoyment model env.d templates
+    - name: Generate env.d config files from templates 
       template:
         src: "{{ item }}"
         dest: "{{ out_file }}"
@@ -138,7 +138,7 @@
         use_regex: yes
       register: onpc_model_confd_templates
 
-    - name: Generate depoyment model conf.d templates
+    - name: Generate conf.d config files from templates 
       template:
         src: "{{ item }}"
         dest: "{{ out_file }}"
@@ -148,3 +148,19 @@
       vars:
         out_file: "{{ osa_deploy_dir }}/conf.d/{{ (item | basename).split('.')[:-1] | join('.') }}"
       with_items: "{{ onpc_model_confd_templates.get('files', []) | map(attribute='path') | list }}"
+
+    - name: Generate openstack_user_config.yml file from template 
+      template:
+        src: "{{ onpc_model_repo_dir }}/etc/openstack_deploy/templates/openstack_user_config.yml.j2"
+        dest: "{{ osa_deploy_dir }}/openstack_user_config.yml"
+        backup: yes
+        group: root
+        mode: 0644
+
+    - name: Generate user_variables.yml file from template 
+      template:
+        src: "{{ onpc_model_repo_dir }}/etc/openstack_deploy/templates/user_variables.yml.j2"
+        dest: "{{ osa_deploy_dir }}/user_variables.yml"
+        backup: yes
+        group: root
+        mode: 0644

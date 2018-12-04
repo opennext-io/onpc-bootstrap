@@ -13,16 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-osa_release: "18.1.0"
 root_ssh_dir: "{{ root_dot_ssh_dir | default('/root/.ssh') }}"
+osa_release: "18.1.0"
 osa_deploy_dir: "/etc/openstack_deploy"
-dest_repo_dir: "/opt"
-osa_user_conf_file: "{{ osa_deploy_dir }}/user_variables.yml"
+osa_repo_dir: "/opt"
 onpc_deployment_model: "onpc-basic-model"
 onpc_user_conf_file: "{{ osa_deploy_dir }}/user_onpc_variables.yml"
-onpc_model_repo_dir: "{{ dest_repo_dir }}/{{ onpc-deployment-model }}"
+onpc_model_repo_dir: "{{ osa_repo_dir }}/{{ onpc_deployment_model }}"
+onpc_debug_enabled: false
+onpc_low_end_profile: false
+onpc_cpu_overcommit: 8.0
+onpc_magnum_git_repo: "https://github.com/opennext-io/magnum.git"
+onpc_magnum_git_install_branch: "stable/rocky"
+onpc_dhcp_domain: "opennext.local"
+nova_cpu_allocation_ratio: 8.0
+nova_cpu_allocation_ratio: "{{ onpc_nova_overcommit }}" 
 region_controller: "maas"
-region_domain: "opennext.local"
 ip_prefix: ""
 
 # The proxy is the deployment host when it is configured as the default
@@ -40,27 +46,40 @@ ip_prefix: ""
 #   'no_proxy': 'localhost,127.0.0.1',
 # }
 
-region_subnets:
-  - external:
-    cidr: 172.31.0.0/24
+#
+# This a temporary workaround. The below should be extracted dynamically from
+# querying the MAAS API using subnet tagging.
+#
+# external_network: used to provide access to external services and floating IPs
+# provider_network: used to provides access to the Internet 
+# container_network: used to provide access the internal services and containers
+# tunnel_network: used by tenants private networks 
+# storage_network: used by the storage services (optional) 
+
+external_network: 172.31.0.0/24
+provider_network: 172.32.0.0/24
+container_network: 172.29.236.0/22
+tunnel_network: 172.29.240.0/22
+storage_network: 172.29.244.0/22
+
+onpc_networks:
+  - name: external
+    cidr: "{{ external_network }}" 
     reserved:
-      - "172.31.0.1,172.31.0.100"
-  - provider:
-    cidr: 172.32.0.0/24
+            - "172.31.0.1,172.31.0.100"
+  - name: provider
+    cidr: "{{ provider_network }}" 
     reserved:
       - "172.32.0.1,172.32.0.100"
-  - management:
-    cidr: 172.29.236.0/22
+  - name: management
+    cidr: "{{ container_network }}" 
     reserved:
       - "172.29.236.1,172.29.236.100"
-  - private:
-    cidr: 172.29.240.0/22
+  - name: tunnel
+    cidr: "{{ tunnel_network }}"
     reserved:
       - "172.29.240.1,172.29.240.100"
-  - storage:
-    cidr: 172.29.244.0/22
+  - name: storage
+    cidr: "{{ storage_network }}" 
     reserved:
       - "172.29.244.1,172.29.244.50"
-
-internal_lb_vip_address: 172.29.236.100
-external_lb_vip_address: 172.31.0.100

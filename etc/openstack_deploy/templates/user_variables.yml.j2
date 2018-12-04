@@ -1,6 +1,7 @@
 # {{ ansible_managed }}
 ---
 # Copyright 2014, Rackspace US, Inc.
+# Copyright 2018, OpenNext SAS. 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,9 +21,15 @@
 ###
 
 ## Debug and Verbose options (pay attention to high log verbosity when debug set to true).
-debug: false
+debug: {{ onpc_debug_enabled | default(false) }} 
 
-{% if low_end_profile is defined and low_end_profile | bool %}
+## Installation method for OpenStack services
+# Default option (source) is to install the OpenStack services using PIP
+# packages. An alternative method (distro) is to use the distribution cloud
+# repositories to install OpenStack using distribution packages
+install_method: {{ onpc_install_method | default('source') }}
+
+{% if onpc_low_end_profile is defined and onpc_low_end_profile | bool %}
 ## Galera settings
 galera_innodb_buffer_pool_size: 16M
 galera_innodb_log_buffer_size: 4M
@@ -190,12 +197,10 @@ neutron_plugin_base:
 nova_libvirt_images_rbd_pool: vms
 {% endif %}
 
-nova_cpu_allocation_ratio: 8.0
+nova_cpu_allocation_ratio: "{{ onpc_cpu_overcommit | default(8.0) }}" 
 nova_nova_conf_overrides:
   DEFAULT:
-{%- raw %}
     cpu_allocation_ratio: "{{ nova_cpu_allocation_ratio }}"
-{% endraw %}
     block_device_allocate_retries: 60
     block_device_allocate_retries_interval: 5
     block_device_creation_timeout: 300
@@ -215,8 +220,10 @@ cinder_default_volume_type: lvm
 {% endif %}
 
 
-# If you wish to change the dhcp_domain configured for both nova and neutron
-# dhcp_domain: openstacklocal
+# DHCP domain configured for both nova and neutron
+{%- raw %}
+dhcp_domain: "{{ onpc_dhcp_domain }} | default ("openstack.local") }}
+{% endraw %}
 
 ## Common Glance Overrides when using a Swift back-end
 # By default when 'glance_default_store' is set to 'swift' the playbooks will
@@ -253,16 +260,16 @@ swift_proxy_server_conf_overrides:
 ## Magnum overrides for cinder integration
 {% if magnum is defined and magnum | bool %}
 # Currently using a fork where bug fixes relative to the generation of
-# AUTH_URL for Keystone V3 is fixed.
-magnum_git_repo: "https://github.com/opennext-io/magnum.git"
-magnum_git_install_branch: "stable/queens"
-
+# AUTH_URL for Keystone V3 is fixed. 
+magnum_git_repo: "{{ onpc_magnum_git_repo }}"
+magnum_git_install_branch: "{{ onpc_magnum_git_install_branch }}"
+  
 magnum_glance_images:
   - name: Fedora-Atomic-28-20180806
     disk_format: qcow2
     image_format: bare
     public: true
-    file: Fedora-AtomicHost-28-20180806.0.x86_64.qcow2 
+    file: Fedora-AtomicHost-28-20180806.0.x86_64.qcow2
     distro: fedora-atomic
     checksum: "sha256:2b74dec845396df2bfae2e9bda0cfd4e6d8ba185cc30f60be7d5131399b9551f"
 magnum_config_overrides:
@@ -349,10 +356,10 @@ rabbitmq_monitoring_userid: monitoring
 
 ## Load Balancer Configuration (haproxy/keepalived)
 {% if is_aio is undefined or (is_aio is defined and not is_aio) %}
-haproxy_keepalived_external_vip_cidr: "{{ hapk_ext_vip_cidr | default('172.31.0.100/32') }}"
-haproxy_keepalived_internal_vip_cidr: "{{ hapk_int_vip_cidr | default('172.29.236.100/22') }}"
-haproxy_keepalived_external_interface: {{ hapk_ext_itf | default('eno1') }}
-haproxy_keepalived_internal_interface: {{ hapk_int_itf | default('br-mgmt') }}
+haproxy_keepalived_external_vip_cidr: "{{ external_vip_cidr }}"
+haproxy_keepalived_internal_vip_cidr: "{{ internal_vip_cidr }}"
+haproxy_keepalived_external_interface: "{{ external_vip_interface }}"
+haproxy_keepalived_internal_interface: "{{ internal_vip_interface }}"
 {% endif %}
 
 # Defines the default VRRP id used for keepalived with haproxy.

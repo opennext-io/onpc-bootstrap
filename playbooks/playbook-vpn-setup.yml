@@ -1,0 +1,87 @@
+---
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- hosts: localhost
+  become: yes
+
+  vars_files:
+    - ../vars/vpn-setup.yml
+
+  pre-tasks: 
+    - name: Setting some interesting facts to keep
+      set_fact:
+        osa_master_ip: "{{ osa_infos[0] }}"
+        infra_master_public_ips_and_or_names:
+          - "{{ ansible_default_ipv4.address }}"
+          - "{{ ipify_results.get('ansible_facts', {}).get('ipify_public_ip', '') }}"
+        openvpn_client_routes:
+          - "{{ hostvars[inventory_hostname]['ansible_br_host']['ipv4']['network'] }} {{ hostvars[inventory_hostname]['ansible_br_host']['ipv4']['netmask'] }}"
+          - "{{ hostvars[inventory_hostname]['ansible_br_mgmt']['ipv4']['network'] }} {{ hostvars[inventory_hostname]['ansible_br_mgmt']['ipv4']['netmask'] }}"
+        # Relying on variable format openvpn_server: 10.8.0.0 255.255.255.0
+        vpn_network: "{{ openvpn_server.split(' ') | join('/') | ipaddr('net') | ipaddr('0') }}"
+
+    - name: Setting some more interesting facts to keep
+      set_fact:
+        openvpn_client_routes: "{{ openvpn_client_routes + [ hostvars[inventory_hostname]['ansible_br_prov']['ipv4']['network'] ~ ' ' ~ hostvars[inventory_hostname]['ansible_br_prov']['ipv4']['netmask'] ] }}"
+      when: baremetal_provisioning | default(false) | bool == False
+
+    - name: Setting some more interesting facts to keep
+      set_fact:
+        openvpn_client_routes: "{{ openvpn_client_routes }} + {{ additional_openvpn_client_routes | default([]) }}"
+
+    - name: Computing network cidr adresses of client routes
+      set_fact:
+        routed_networks: "{% set sel = [] %} {% for x in openvpn_client_routes %} {% set l = sel.append(x.split(' ') | join('/') | ipaddr('net') | ipaddr('0')) %}{% endfor %}{{ sel | reject('equalto', false) | list | to_yaml }}"
+
+    - name: Computing final network cidr adresses of client routes
+      set_fact:
+        routed_networks_list: "{{ routed_networks | from_yaml }}"
+
+    - fail: msg="Some networks are badly expressed {{ routed_networks }} vs {{ openvpn_client_routes }}"
+      when: routed_networks_list | length != openvpn_client_routes | length
+
+    - include_tasks: ../tasks/store_facts.yml facts_file="opennext_infra_master_opennext_post_osa_deploy"
+      vars:
+        keys_to_store:
+          - "^osa_infos$"
+          - "^infra_master_public_ips_and_or_names$"
+
+ roles:
+    - role: ansible.openvpn
+ 
+  post_tasks:
+
+    - name: Adding iptables masquerading rules
+      iptables:
+        table: nat
+        chain: POSTROUTING
+        source: "{{ vpn_network }}"
+        destination: "{{ item }}"
+        jump: MASQUERADE
+      with_items: "{{ routed_networks_list }}"
+      register: iptables_result
+
+    - name: Installing netfilter and iptables persistent packages
+      package:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - iptables-persistent
+        - netfilter-persistent
+      register: iptables_packages_result
+
+    - name: Saving iptables for persistence of rules across reboots
+      shell: netfilter-persistent save
+      when: iptables_result is changed or iptables_packages_result is changed

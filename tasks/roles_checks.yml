@@ -15,7 +15,7 @@
 
 - debug:
     msg: >
-      "WARNING: 'Role {{ item }}' is not defined for '{{ inventory_hostname }}'. Will default to 'controller' role instead'"
+      "'Role {{ item }}' is not defined for '{{ inventory_hostname }}'. Will default to 'controller' role instead'"
   when: item not in group_names
   with_items:
     - "compute"
@@ -23,3 +23,4 @@
     - "network"
     - "logging"
     - "monitoring"
+    - "swift"

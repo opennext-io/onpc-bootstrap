@@ -25,8 +25,32 @@
     msg: >
       "You must define at least one node with the 'controller' role (MAAS tag) in your inventory"
 
-- name: Verify that both 'storage' and 'ceph' roles are not specified in the inventory
+- name: Verify that 'storage' and 'ceph' roles are not both specified in the inventory
   assert:
     that: "not ('storage' in groups and 'ceph' in groups)"
     msg: >
       "Having both 'storage' (defaults to LVM iSCSI) and 'ceph' roles in the same depoyment is not currently supported"
+
+- name: Verify that container network is properly defined
+  assert:
+    that: "container_network is defined and container_network.split('/') | length == 2"
+    msg: >
+      "Variable 'container_network' is not properly defined"
+
+- name: Verify that tunnel network is properly defined
+  assert:
+    that: "tunnel_network is defined and tunnel_network.split('/') | length == 2"
+    msg: >
+      "Variable 'tunnel_network' is not properly defined"
+
+- name: Verify that storage network is properly defined
+  assert:
+    that: "storage_network is defined and storage_network.split('/') | length == 2"
+    msg: >
+      "Variable 'storage_network' is not properly defined"
+
+- name: Verify that external network is properly defined
+  assert:
+    that: "external_network is defined and external_network.split('/') | length == 2"
+    msg: >
+      "Variable 'storage_network' is not properly defined"

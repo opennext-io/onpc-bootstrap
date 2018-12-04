@@ -1,21 +1,19 @@
 # {{ ansible_managed }}
 ---
 cidr_networks: &cidr_networks
-  container: {{ container_network_cidr | default('172.29.236.0/22') }}
-  tunnel: {{ tunnel_network_cidr | default('172.29.240.0/22') }}
-  storage: {{ storage_network_cidr | default('172.29.244.0/22') }}
+  container: {{ container_network | default('') }}
+  tunnel: {{ tunnel_network | default('') }}
+  storage: {{ storage_network | default('') }}
 
 used_ips:
 {% for ip_or_range in reserved_ips %}
-  - "{{ ip_or_range }}"
+  - {{ ip_or_range }}
 {% endfor %}
 
 global_overrides:
-  cidr_networks: *cidr_networks
-  internal_lb_vip_address: {{ internal_vip_address | default('172.29.236.100') }}
-  # The external IP is quoted simply to ensure that the .aio file can be used as input
-  # dynamic inventory testing.
-  external_lb_vip_address: "{{ bootstrap_host_public_address | default(ansible_default_ipv4.address) }}"
+  #cidr_networks: *cidr_networks
+  internal_lb_vip_address: {{ internal_vip_address | default('') }}
+  external_lb_vip_address: {{ external_vip_address | default('') }}"
   management_bridge: "br-mgmt"
   tunnel_bridge: "br-vxlan"
   provider_networks:
@@ -158,7 +156,7 @@ storage_hosts:
           rbd_ceph_conf: /etc/ceph/ceph.conf
           rbd_max_clone_depth: 5
           rbd_flatten_volume_from_snapshot: false
-          rbd_store_chunk_size: 4
+          rbd_store_chunk_size: 8
           report_discard_supported: true
           rados_connect_timeout = -1
 {% raw %}

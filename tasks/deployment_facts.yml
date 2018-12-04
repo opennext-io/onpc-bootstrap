@@ -22,18 +22,23 @@
     network_hosts_list: "{% set sel = [] %}{% if 'network' in groups %}{% for host in groups['network'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
     monitoring_hosts_list: "{% set sel = [] %}{% if 'monitoring' in groups %}{% for host in groups['monitoring'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
     logging_hosts_list: "{% set sel = [] %}{% if 'logging' in groups %}{% for host in groups['logging'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
+    swift_hosts_list: "{% set sel = [] %}{% if 'swift' in groups %}{% for host in groups['swift'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
 
-- name: Set OSA first controller node name fact
+- name: Set OSA first controller node facts
   set_fact:
     osa_first_controller_node_name:  "{{ infra_hosts_list | sort | first }}"
 
-- name: Ensure OSA nodes inventory facts 
+- name: Set Swift facts
+  set_fact:
+    swift: "{% if swift_hosts_list | length > 0 %}True{% else %}False{% endif %}"
+
+- name: Set default OSA nodes inventory facts 
   set_fact:
     network_hosts_list: "{% if network_hosts_list | length == 0  %}{{ infra_hosts_list}}{% endif %}"
     monitoring_hosts_list: "{% if monitoring_hosts_list | length == 0  %}{{ infra_hosts_list}}{% else %}{{ monitoring_hosts_list }}{% endif %}"
     logging_hosts_list: "{% if logging_hosts_list | length == 0  %}{{ infra_hosts_list}}{% else %}{{ logging_hosts_list }}{% endif %}"
 
-- name: Computing OSA deployment nodes additional facts
+- name: Set deployment nodes facts
   set_fact:
     infrastructure_hosts: "{% set sel = [] %}{% for host in infra_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     lvm_iscsi_hosts: "{% set sel = [] %}{% for host in storage_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
@@ -44,8 +49,25 @@
     monitoring_hosts: "{% set sel = [] %}{% for host in monitoring_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     logging_hosts: "{% set sel = [] %}{% for host in logging_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
 
-- name: Set primary network interface fact
+- name: Set networking facts
   set_fact:
-        primary_net_itf: "{% set sel = [] %}{% for k in hostvars.get(osa_first_controller_node_name, {}).get('ansible_interfaces', []) %}{% set l = sel.append(k) %}{% endfor %}{{ sel }}"
+    primary_net_itf: "{% set sel = [] %}{% for itf in hostvars.get(osa_first_controller_node_name, {}).get('ansible_interfaces', []) %}{% set l = sel.append(itf) %}{% endfor %}{{ sel }}"
+    reserved_ips: "{% set sel = [] %}{% for net in onpc_networks %}{% for rsv in net['reserved'] %}{% set l = sel.append(rsv) %}{% endfor %}{% endfor %}{{ sel }}"
+    internal_vip_address: "{% set sel = container_network.split('.')[:-1] + ['100'] %}{{ sel | join('.') }}"
+    external_vip_address: "{% set sel = external_network.split('.')[:-1] + ['100'] %}{{ sel | join('.') }}"
+
+- name: Set HAProxy / Keepalive facts
+  set_fact:
+    internal_vip_cidr: "{{ internal_vip_address }}/{{ container_network.split('/')[1] }}"
+    external_vip_cidr: "{{ external_vip_address }}/{{ external_network.split('/')[1] }}"
+    internal_vip_interface: "{{ hostvars[osa_first_controller_node_name]['ansible_facts']['br_mgmt']['device'] }}"
+    external_vip_interface: "{{ hostvars[osa_first_controller_node_name]['ansible_facts']['default_ipv4']['interface'] }}"
 
 - debug: var=primary_net_itf
+- debug: var=internal_vip_address
+- debug: var=external_vip_address
+- debug: var=internal_vip_cidr
+- debug: var=external_vip_cidr
+- debug: var=internal_vip_interface
+- debug: var=external_vip_interface
+- debug: var=reserved_ips

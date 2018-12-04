@@ -29,8 +29,8 @@
 
   tasks:
 
-    - include_tasks: ../tasks/bootstrap_facts.yml
-    - include_tasks: ../tasks/global_checks.yml
+    - include_tasks: ../tasks/bootstrap-facts.yml
+    - include_tasks: ../tasks/global-checks.yml
 
     - name: Get OSA repository from GitHub
       git:

@@ -55,7 +55,7 @@ Import the ansible role dependencies
 
     cd /opt/openstack-ansible
     openstack-ansible ./tests/get-ansible-role-requirements.yml \
-        -e role_file=/opt/onpc-basic-model/ansible_role_requirements.yml
+        -e role_file=/opt/onpc-basic-model/ansible-role-requirements.yml
 
 Regenerate the inventory
 

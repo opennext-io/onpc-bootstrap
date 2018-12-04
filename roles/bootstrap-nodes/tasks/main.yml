@@ -1,5 +1,6 @@
 ---
 # Copyright 2015, Rackspace US, Inc.
+# Copyright 2018, OpenNext SAS. 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
 # limitations under the License.
 
 # Before we do anything, check the minimum requirements
-- include: check-requirements.yml
+- include_tasks: check-requirements.yml
   tags:
     - check-requirements
 
@@ -40,12 +41,14 @@
   tags:
     - create-directories
 
-- include: install_packages.yml
+- include_tasks: install_packages.yml
   tags:
     - install-packages
 
+- meta: end_play
+
 # Prepare the data disk, if one is provided
-- include: prepare_data_disk.yml
+- import_tasks: prepare_data_disk.yml
   when:
     - bootstrap_host_data_disk_device != None
   tags:
@@ -53,8 +56,7 @@
 
 # Prepare the swap space loopback disk
 # This is only necessary if there isn't swap already
-- include: prepare_loopback_swap.yml
-  static: no
+- include_tasks : prepare_loopback_swap.yml
   when:
     - bootstrap_host_loopback_swap | bool
     - ansible_swaptotal_mb < 1
@@ -62,7 +64,7 @@
     - prepare-loopback
 
 # Prepare the Machines storage loopback disk
-- include: prepare_loopback_machines.yml
+- include_tasks: prepare_loopback_machines.yml
   when:
     - bootstrap_host_loopback_machines | bool
     - bootstrap_host_data_disk_device == None
@@ -71,7 +73,7 @@
     - prepare-loopback
 
 # Prepare the zfs storage loopback disk
-- include: prepare_loopback_zfs.yml
+- include_tasks: prepare_loopback_zfs.yml
   when:
     - bootstrap_host_loopback_zfs | bool
     - bootstrap_host_data_disk_device == None
@@ -80,7 +82,7 @@
     - prepare-loopback
 
 # Prepare the btrfs storage loopback disk
-- include: prepare_loopback_btrfs.yml
+- include_tasks: prepare_loopback_btrfs.yml
   when:
     - bootstrap_host_loopback_btrfs | bool
     - bootstrap_host_data_disk_device == None
@@ -90,59 +92,59 @@
 
 # Prepare the Cinder LVM VG loopback disk
 # This is only necessary if bootstrap_host_loopback_cinder is set to yes
-- include: prepare_loopback_cinder.yml
+- include_tasks: prepare_loopback_cinder.yml
   when:
     - bootstrap_host_loopback_cinder | bool
   tags:
     - prepare-loopback
 
 # Prepare the Nova instance storage loopback disk
-- include: prepare_loopback_nova.yml
+- include_tasks: prepare_loopback_nova.yml
   when:
     - bootstrap_host_loopback_nova | bool
   tags:
     - prepare-loopback
 
 # Prepare the Swift data storage loopback disks
-- include: prepare_loopback_swift.yml
+- include_tasks: prepare_loopback_swift.yml
   when:
     - bootstrap_host_loopback_swift | bool
   tags:
     - prepare-loopback
 
 # Prepare the Ceph cluster UUID and loopback disks
-- include: prepare_ceph.yml
+- include_tasks: prepare_ceph.yml
   when:
     - bootstrap_host_ceph | bool
   tags:
     - prepare-ceph
 
 # Prepare the Octavia certs and image
-- include: prepare_octavia.yml
+- include_tasks: prepare_octavia.yml
   when:
     - bootstrap_host_octavia | bool
   tags:
     - prepare-octavia
 
 # Ensure hostname/ip is consistent with inventory
-- include: prepare_hostname.yml
+- include_tasks: prepare_hostname.yml
   tags:
     - prepare-hostname
 
 # Prepare the network interfaces
-- include: prepare_networking.yml
+- include_tasks: prepare_networking.yml
   when:
     - container_tech != 'nspawn'
   tags:
     - prepare-networking
 
 # Ensure that there are both private and public ssh keys for root
-- include: prepare_ssh_keys.yml
+- include_tasks: prepare_ssh_keys.yml
   tags:
     - prepare-ssh-keys
 
 # Put the OpenStack-Ansible configuration for an All-In-One on the host
-- include: prepare_aio_config.yml
+- include_tasks: prepare_aio_config.yml
   when:
     - bootstrap_host_aio_config | bool
   tags:

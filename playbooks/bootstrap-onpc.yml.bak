@@ -1,0 +1,168 @@
+---
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Get controller nodes ansible facts
+  hosts: controller
+  gather_facts: True
+  tasks:
+    - include_tasks: ../tasks/roles_check.yml
+
+- name: Setup OpenStack-Ansible deployment host
+  hosts: localhost
+  gather_facts: True
+  user: root
+
+  vars_files:
+    - ../vars/bootstrap-setup.yml
+
+  tasks:
+
+    - include_tasks: ../tasks/bootstrap-facts.yml
+    - include_tasks: ../tasks/global-checks.yml
+
+    - name: Get OSA repository from GitHub
+      git:
+        repo: "https://github.com/openstack/openstack-ansible"
+        dest: "{{ osa_repo_dir }}/openstack-ansible"
+        accept_hostkey: yes
+        force: no 
+        recursive: no
+        version: "{{ osa_release | default('stable/rocky') }}"
+      environment: "{{ proxy_env | default('{}') }}"
+      tags: ['repositories']
+
+    - name: Get OpenNext Repositories
+      git:
+        repo: "https://github.com/opennext-io/{{ item }}"
+        dest: "{{ osa_repo_dir }}/{{ item }}"
+        force: no
+        recursive: no
+      with_items:
+        - "onpc-logging"
+        - "onpc-monitoring"
+      environment: "{{ proxy_env | default('{}') }}"
+      tags: ['repositories']
+
+    - name: Boostrap Ansible for OSA
+      command: "./scripts/bootstrap-ansible.sh"
+      args:
+        chdir: "{{ osa_repo_dir }}/openstack-ansible"
+        creates: "/opt/ansible-runtime/bin/ansible-playbook"
+      environment: "{{ proxy_env | default({}) | combine({ 'TMPDIR': '/var/tmp' }) }}"
+      register: bootstrap_ansible_result
+      tags: ['bootstrap']
+
+    - name: Create OSA directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items:
+        - "{{ osa_deploy_dir }}"
+        - "{{ osa_deploy_dir }}/conf.d"
+        - "{{ osa_deploy_dir }}/env.d"
+      tags: ['setup']
+
+    - name: Check existence of user_secrets.yml
+      stat:
+        path: "{{ osa_deploy_dir }}/user_secrets.yml"
+      register: user_secrets_info
+      tags: ['setup']
+
+    - name: Copy template for user_secrets.yml
+      copy:
+        src: "{{ osa_repo_dir }}/openstack-ansible/etc/openstack_deploy/user_secrets.yml"
+        dest: "{{ osa_deploy_dir }}/user_secrets.yml"
+        remote_src: yes
+      when: not user_secrets_info.stat.exists
+      tags: ['setup']
+    
+    - name: Generate user_secrets password
+      command: "/opt/ansible-runtime/bin/python {{ osa_repo_dir }}/openstack-ansible/scripts/pw-token-gen.py --file {{ osa_deploy_dir }}/user_secrets.yml"
+      changed_when: false
+      when: not user_secrets_info.stat.exists
+      tags: ['setup']
+
+    - name: Check existence of user_onpc_secrets.yml
+      stat:
+        path: "{{ osa_deploy_dir }}/user_onpc_secrets.yml"
+      register: user_onpc_secrets_info
+      tags: ['setup']
+
+    - name: Copy template for user_onpc_secrets.yml
+      copy:
+        src: "{{ onpc_model_repo_dir }}/etc/openstack_deploy/user_onpc_secrets.yml"
+        dest: "{{ osa_deploy_dir }}/user_onpc_secrets.yml"
+        remote_src: yes
+      when: not user_onpc_secrets_info.stat.exists
+      tags: ['setup']
+
+    - name: Generate user_onpc_secrets passwords
+      command: "/opt/ansible-runtime/bin/python {{ osa_repo_dir }}/openstack-ansible/scripts/pw-token-gen.py --file {{ osa_deploy_dir }}/user_onpc_secrets.yml"
+      changed_when: false
+      when: not user_onpc_secrets_info.stat.exists
+      tags: ['setup']
+
+    # It seems find module has a problem with using variable in paths attribute
+    - name: Get deployment model env.d templates
+      find:
+        paths: "/opt/onpc-basic-model/etc/openstack_deploy/templates/env.d"
+        patterns: '^.*\.j2$'
+        use_regex: yes
+      register: onpc_model_envd_templates
+
+    - name: Generate env.d config files from templates 
+      template:
+        src: "{{ item }}"
+        dest: "{{ out_file }}"
+        backup: yes
+        group: root
+        mode: 0644
+      vars:
+        out_file: "{{ osa_deploy_dir }}/env.d/{{ (item | basename).split('.')[:-1] | join('.') }}"
+      with_items: "{{ onpc_model_envd_templates.get('files', []) | map(attribute='path') | list }}"
+
+    - name: Get deployment model conf.d templates
+      find:
+        paths: "/opt/onpc-basic-model/etc/openstack_deploy/templates/conf.d"
+        patterns: '^.*\.j2$'
+        use_regex: yes
+      register: onpc_model_confd_templates
+
+    - name: Generate conf.d config files from templates 
+      template:
+        src: "{{ item }}"
+        dest: "{{ out_file }}"
+        backup: yes
+        group: root
+        mode: 0644
+      vars:
+        out_file: "{{ osa_deploy_dir }}/conf.d/{{ (item | basename).split('.')[:-1] | join('.') }}"
+      with_items: "{{ onpc_model_confd_templates.get('files', []) | map(attribute='path') | list }}"
+
+    - name: Generate openstack_user_config.yml file from template 
+      template:
+        src: "{{ onpc_model_repo_dir }}/etc/openstack_deploy/templates/openstack_user_config.yml.j2"
+        dest: "{{ osa_deploy_dir }}/openstack_user_config.yml"
+        backup: yes
+        group: root
+        mode: 0644
+
+    - name: Generate user_variables.yml file from template 
+      template:
+        src: "{{ onpc_model_repo_dir }}/etc/openstack_deploy/templates/user_variables.yml.j2"
+        dest: "{{ osa_deploy_dir }}/user_variables.yml"
+        backup: yes
+        group: root
+        mode: 0644

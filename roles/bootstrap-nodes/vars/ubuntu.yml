@@ -14,25 +14,18 @@
 # limitations under the License.
 
 packages_install:
-  - apt-transport-https
   - bridge-utils
-  - btrfs-tools
-  - build-essential
-  - curl
-  - dbus
-  - ethtool
-  - git-core
-  - iptables
-  - iputils-tracepath
-  - ipython
+  - debootstrap
+  - ifenslave
+  - ifenslave-2.6
+  - lsof
   - lvm2
-  - parted
-  - python2.7
-  - python-dev
-  - sshpass
-  - vim
+  - ntp
+  - ntpdate
+  - openssh-server
+  - sudo
+  - tcpdump
   - vlan
-  - xfsprogs
 
 packages_install_zfs:
   - zfsutils-linux

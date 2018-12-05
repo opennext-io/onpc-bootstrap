@@ -14,12 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Logging (Elasticsearch, Rsyslog, ...) hosts
-{% if 'logging' in bootstrap_host_services %}
-elastic_fluentd_hosts: &logging_cluster
-{% for h in logging_hosts_dict %}
+{% if 'metering' in bootstrap_host_services %}
+# The compute host that the ceilometer compute agent will be running on
+metering-compute_hosts:
+{% for h in compute_hosts %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
-kibana_hosts: *logging_cluster
+
+# The infra nodes that the central agents will be running on.
+# For running Ceilometer in HA for workload partitioning, see
+# https://docs.openstack.org/pike/admin/#support-for-ha-deployment
+metering-infra_hosts:
+{% for h in infrastructure_hosts %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+{% endfor %}
 {% endif %}

@@ -13,9 +13,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-- name: "Verify that one of the mandatory roles defined for {{ inventory_hostname }}"
-  assert:
-    that: "{{ onpc_mandatory_roles | intersect(group_names) | lenght > 0}}"
-    msg: >
-      "None of the mandatory roles is defined for '{{ inventory_hostname }}'"
+onpc_release: "18.1.0"
+onpc_deployment_model: "onpc-basic-model"
+onpc_user_conf_file: "/etc/openstack_deploy/user_onpc_variables.yml"
+onpc_model_repo_dir: "/opt/{{ onpc_deployment_model }}"
+onpc_debug_enabled: false
+onpc_low_end_profile: false
+onpc_cpu_overcommit: 8.0
+onpc_magnum_git_repo: "https://github.com/opennext-io/magnum.git"
+onpc_magnum_git_install_branch: "stable/rocky"
+onpc_dhcp_domain: "opennext.local"
+onpc_region_controller: "maas"
+onpc_mandatory_roles:
+    - "compute"
+    - "storage"
+    - "network"
+    - "logging"
+    - "monitoring"

@@ -1,9 +1,12 @@
 # {{ ansible_managed }}
 ---
 cidr_networks: &cidr_networks
-  container: {{ container_network | default('') }}
-  tunnel: {{ tunnel_network | default('') }}
-  storage: {{ storage_network | default('') }}
+  container: {{ container_network }}
+  tunnel: {{ tunnel_network }}
+  storage: {{ storage_network }}
+{% if 'octavia' in bootstrap_host_services %}
+  lbaas: {{ lbaas_network }}
+{% endif %}
 
 used_ips:
 {% for ip_or_range in reserved_ips %}
@@ -12,25 +15,41 @@ used_ips:
 
 global_overrides:
   #cidr_networks: *cidr_networks
-  internal_lb_vip_address: {{ internal_vip_address | default('') }}
-  external_lb_vip_address: {{ external_vip_address | default('') }}"
+  internal_lb_vip_address: {{ internal_vip_address }}
+  external_lb_vip_address: {{ external_vip_address }}"
   management_bridge: "br-mgmt"
   tunnel_bridge: "br-vxlan"
   provider_networks:
     - network:
-        group_binds:
-          - all_containers
-          - hosts
-        type: "raw"
         container_bridge: "br-mgmt"
         container_interface: "eth1"
         container_type: "veth"
         ip_from_q: "container"
         is_container_address: true
         is_ssh_address: true
-    - network:
+        type: "raw"
         group_binds:
-          - neutron_linuxbridge_agent
+          - all_containers
+          - hosts
+    - network:
+        container_bridge: "br-storage"
+        container_interface: "eth2"
+        container_type: "veth"
+        container_mtu: "9000"
+        ip_from_q: "storage"
+        type: "raw"
+        group_binds:
+          - glance_api
+          - cinder_api
+          - cinder_volume
+          - nova_compute
+{% if 'swift' in bootstrap_host_services %}
+          - swift_proxy
+{% endif %}
+{% if 'ceph' in bootstrap_host_services %}
+          - ceph_osd
+{% endif %}
+    - network:
         container_bridge: "br-vxlan"
         container_type: "veth"
         container_interface: "eth10"
@@ -39,138 +58,112 @@ global_overrides:
         type: "vxlan"
         range: "1:1000"
         net_name: "vxlan"
-    - network:
         group_binds:
           - neutron_linuxbridge_agent
+    - network:
         container_bridge: "br-vlan"
         container_type: "veth"
         container_interface: "eth11"
         type: "vlan"
-        range: "1:1"
+        range: "101:200,301:400"
         net_name: "vlan"
-    - network:
         group_binds:
           - neutron_linuxbridge_agent
+    - network:
         container_bridge: "br-vlan"
         container_type: "veth"
         container_interface: "eth12"
         host_bind_override: "eth12"
         type: "flat"
         net_name: "flat"
-    - network:
         group_binds:
-          - glance_api
-          - cinder_api
-          - cinder_volume
-          - nova_compute
-{% if swift is defined and swift | bool %}
-          - swift_proxy
-{% endif %}
-{% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
-          - ceph_osd
-{% endif %}
-        type: "raw"
-        container_bridge: "br-storage"
+          - neutron_linuxbridge_agent
+{% if 'octavia' in bootstrap_host_services %}
+    - network:
+        container_bridge: "br-lbaas"
         container_type: "veth"
-        container_interface: "eth2"
-        container_mtu: "9000"
-        ip_from_q: "storage"
+        container_interface: "eth14"
+        host_bind_override: "eth14"
+        ip_from_q: "lbaas"
+        type: "flat"
+        net_name: "lbaas"
+        group_binds:
+          - neutron_linuxbridge_agent
+          - octavia-worker
+          - octavia-housekeeping
+          - octavia-health-manager
+{% endif %}
 
 # Infrastructure (memcached, galera, rabbitmq, ...) hosts
-{% if infrastructure_hosts is defined and infrastructure_hosts | length > 0 %}
 _infrastructure_hosts: &infrastructure_hosts
-{% for h in infrastructure_hosts %}
+{% for h in infrastructure_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
-{% endif %}
 
 # Compute hypervisor hosts
-{% if compute_hosts is defined and compute_hosts | length > 0 %}
 compute_hosts: &compute_hosts
-{% for h in compute_hosts %}
+{% for h in compute_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
-{% endif %}
 
-# Rsyslog
+# Rsyslog host
 log_hosts:
-{% if logging_hosts is defined and logging_hosts | length > 0 %}
-  {{ logging_hosts[0].name }}:
-    ip: {{ logging_hosts[0].ip_v4 }}
-{% elif infrastructure_hosts is defined and infrastructure_hosts | length > 0 %}
-  {{ infrastructure_hosts[0].name }}:
-    ip: {{ infrastructure_hosts[0].ip_v4 }}
-{% endif %}
+  {{ logging_hosts_dict[0].name }}:
+    ip: {{ logging_hosts_dict[0].ip_v4 }}
 
-##
-## Ceph storage
-##
-
-{% if ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
-# Ceph OSD hosts
-ceph-osd_hosts:
-{% for h in ceph_osd_hosts %}
-  {{ h.name }}:
-    ip: {{ h.ip_v4 }}
-{% endfor %}
-
-# Ceph monitor hosts
-{% if infrastructure_hosts is defined and infrastructure_hosts | length > 0 %}
-ceph-mon_hosts: *infrastructure_hosts
-{% endif %}
-{% endif %}
-
-##
-## Cinder storage
-##
-## Either LVM/iSCSI or Ceph but not both simultaneously.
-##
+# Cinder storage (LVM/iSCSI)
 storage_hosts:
-{% if lvm_iscsi_hosts is defined and lvm_iscsi_hosts | length > 0 %}
-{% for h in lvm_iscsi_hosts %}
+{% for h in storage_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
       cinder_backends:
         limit_container_types: cinder_volume
         lvm:
-          volume_backend_name: lvm
+          volume_backend_name: LVM_iSCSI
           volume_driver: cinder.volume.drivers.lvm.LVMVolumeDriver
           volume_group: cinder-volumes
           iscsi_ip_address: "{{ h.ip_v4 }}"
           lvm_type: "thin"
-{% endfor %}          
-{% elif ceph_osd_hosts is defined and ceph_osd_hosts | length > 0 %}
-{% for h in ceph_osd_hosts %}
+          extra_volume_types:
+            - low-iops
+            - high-iops
+            - ultra-high-iops
+{% endfor %}
+storage-infra_hosts:
+{% for h in infrastructure_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
-      cinder_backends:
-      limit_container_types: cinder_volume
-        rbd:
-          volume_driver: cinder.volume.drivers.rbd.RBDDriver
-          volume_backend_name: rbd
-          rbd_pool: cinder_volumes
-          rbd_ceph_conf: /etc/ceph/ceph.conf
-          rbd_max_clone_depth: 5
-          rbd_flatten_volume_from_snapshot: false
-          rbd_store_chunk_size: 8
-          report_discard_supported: true
-          rados_connect_timeout = -1
-{% raw %}
-          rbd_user: "{{ cinder_ceph_client }}"
-          rbd_secret_uuid: "{{ cinder_ceph_client_uuid }}"
-{% endraw %}
+      cinder_qos_specs:
+        - name: low-iops
+          options:
+            consumer: front-end
+            read_iops_sec: 75
+            write_iops_sec: 75
+          cinder_volume_types:
+            - low-iops
+        - name: high-iops
+          options:
+            consumer: front-end
+            read_iops_sec: 150
+            write_iops_sec: 150
+          cinder_volume_types:
+            - high-iops
+        - name: ultra-high-iops
+          options:
+            consumer: front-end
+            read_iops_sec: 300
+            write_iops_sec: 300
+          cinder_volume_types:
+            - ultra-high-iops
 {% endfor %}
-{% endif %}
 
 ##
 ## Infrastructure middleware
 ##
-
-{% if infrastructure_hosts is defined and infrastructure_hosts | length > 0 %}
 shared-infra_hosts: *infrastructure_hosts
 
 # repository (apt cache, python packages, etc)
@@ -179,21 +172,20 @@ repo-infra_hosts: *infrastructure_hosts
 # Ideally the load balancer should not use the infrastructure hosts.
 # Dedicated hardware is best for improved performance and security.
 haproxy_hosts: *infrastructure_hosts
-{% endif %}
 
 ###
-### OpenStack
+### OpenStack mandatory services
 ###
 
-{% if infrastructure_hosts is defined and infrastructure_hosts | length > 0 %}
 ## Keystone services
 identity_hosts: *infrastructure_hosts
 
 # Neutron L2/L3 agents and metadata services
-network_hosts: *infrastructure_hosts
-
-# cinder api services
-storage-infra_hosts: *infrastructure_hosts
+network_hosts:
+{% for h in network_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+{% endfor %}
 
 # nova api services
 compute-infra_hosts: *infrastructure_hosts
@@ -201,35 +193,24 @@ compute-infra_hosts: *infrastructure_hosts
 # horizon services
 dashboard_hosts: *infrastructure_hosts
 
-# heat services
-orchestration_hosts: *infrastructure_hosts
-
 # glance services: 
-image_hosts: *infrastructure_hosts
+image_hosts:
+{% for h in image_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+    container_vars:
+      limit_container_types: glance
+      glance_nfs_client:
+        - server: "{{ infrastructure_hosts_dict[0].ip_v4 }}"
+          remote_path: "/images"
+          local_path: "/var/lib/glance/images"
+          type: "nfs"
+          options: "_netdev,auto"
+{% endfor %}
 
 # neutron server, agents (L3, etc)
-network_hosts: *infrastructure_hosts
-
-{% if magnum is defined and magnum | bool %}
-# magnum services
-magnum-infra_hosts: *infrastructure_hosts
-{% endif %}
-
-{% if metering is defined and metering | bool %}
-# ceilometer (telemetry data collection)
-metering-infra_hosts: *infrastructure_hosts
-
-# aodh (telemetry alarm service)
-metering-alarm_hosts: *infrastructure_hosts
-
-# gnocchi (telemetry metrics storage)
-metrics_hosts: *infrastructure_hosts
-{% endif %}
-{% endif %}
-{% if compute_hosts is defined and compute_hosts | length > 0 %}
-{% if metering is defined and metering | bool %}
-
-# ceilometer compute agent (telemetry data collection)
-metering-compute_hosts: *compute_hosts
-{% endif %}
-{% endif %}
+network_hosts:
+{% for h in network_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+{% endfor %}

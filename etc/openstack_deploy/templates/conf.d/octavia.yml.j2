@@ -14,12 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Logging (Elasticsearch, Rsyslog, ...) hosts
-{% if 'logging' in bootstrap_host_services %}
-elastic_fluentd_hosts: &logging_cluster
-{% for h in logging_hosts_dict %}
+# The controller host that the octavia control plane will be run on
+{% if 'octavia' in bootstrap_host_services %}
+octavia-infra_hosts:
+{% for h in infrastructure_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
-{% endfor %}
-kibana_hosts: *logging_cluster
 {% endif %}

@@ -14,18 +14,22 @@
 # limitations under the License.
 
 - name: Get controller nodes ansible facts
-  hosts: controller
+  hosts: all
   gather_facts: True
+ 
+  vars_files:
+    - ../vars/bootstrap-global-setup.yml
+ 
   tasks:
     - include_tasks: ../tasks/roles_check.yml
+  
 
 - name: Setup OpenStack-Ansible deployment host
   hosts: localhost
-  gather_facts: True
-  user: root
 
   vars_files:
-    - ../vars/bootstrap-setup.yml
+    - ../vars/bootstrap-global-setup.yml
+    - ../vars/bootstrap-network-setup.yml
 
   tasks:
 
@@ -35,18 +39,18 @@
     - name: Get OSA repository from GitHub
       git:
         repo: "https://github.com/openstack/openstack-ansible"
-        dest: "{{ osa_repo_dir }}/openstack-ansible"
+        dest: "/opt/openstack-ansible"
         accept_hostkey: yes
         force: no 
         recursive: no
-        version: "{{ osa_release | default('stable/rocky') }}"
+        version: "{{ onpc_release | default('stable/rocky') }}"
       environment: "{{ proxy_env | default('{}') }}"
       tags: ['repositories']
 
     - name: Get OpenNext Repositories
       git:
         repo: "https://github.com/opennext-io/{{ item }}"
-        dest: "{{ osa_repo_dir }}/{{ item }}"
+        dest: "/opt/{{ item }}"
         force: no
         recursive: no
       with_items:
@@ -58,7 +62,7 @@
     - name: Boostrap Ansible for OSA
       command: "./scripts/bootstrap-ansible.sh"
       args:
-        chdir: "{{ osa_repo_dir }}/openstack-ansible"
+        chdir: "/opt/openstack-ansible"
         creates: "/opt/ansible-runtime/bin/ansible-playbook"
       environment: "{{ proxy_env | default({}) | combine({ 'TMPDIR': '/var/tmp' }) }}"
       register: bootstrap_ansible_result
@@ -69,47 +73,47 @@
         path: "{{ item }}"
         state: directory
       with_items:
-        - "{{ osa_deploy_dir }}"
-        - "{{ osa_deploy_dir }}/conf.d"
-        - "{{ osa_deploy_dir }}/env.d"
+        - "/etc/openstack_deploy"
+        - "/etc/openstack_deploy/conf.d"
+        - "/etc/openstack_deploy/env.d"
       tags: ['setup']
 
     - name: Check existence of user_secrets.yml
       stat:
-        path: "{{ osa_deploy_dir }}/user_secrets.yml"
+        path: "/etc/openstack_deploy/user_secrets.yml"
       register: user_secrets_info
       tags: ['setup']
 
     - name: Copy template for user_secrets.yml
       copy:
-        src: "{{ osa_repo_dir }}/openstack-ansible/etc/openstack_deploy/user_secrets.yml"
-        dest: "{{ osa_deploy_dir }}/user_secrets.yml"
+        src: "/opt/openstack-ansible/etc/openstack_deploy/user_secrets.yml"
+        dest: "/etc/openstack_deploy/user_secrets.yml"
         remote_src: yes
       when: not user_secrets_info.stat.exists
       tags: ['setup']
     
     - name: Generate user_secrets password
-      command: "/opt/ansible-runtime/bin/python {{ osa_repo_dir }}/openstack-ansible/scripts/pw-token-gen.py --file {{ osa_deploy_dir }}/user_secrets.yml"
+      command: "/opt/ansible-runtime/bin/python /opt/openstack-ansible/scripts/pw-token-gen.py --file /etc/openstack_deploy/user_secrets.yml"
       changed_when: false
       when: not user_secrets_info.stat.exists
       tags: ['setup']
 
     - name: Check existence of user_onpc_secrets.yml
       stat:
-        path: "{{ osa_deploy_dir }}/user_onpc_secrets.yml"
+        path: "/etc/openstack_deploy/user_onpc_secrets.yml"
       register: user_onpc_secrets_info
       tags: ['setup']
 
     - name: Copy template for user_onpc_secrets.yml
       copy:
         src: "{{ onpc_model_repo_dir }}/etc/openstack_deploy/user_onpc_secrets.yml"
-        dest: "{{ osa_deploy_dir }}/user_onpc_secrets.yml"
+        dest: "/etc/openstack_deploy/user_onpc_secrets.yml"
         remote_src: yes
       when: not user_onpc_secrets_info.stat.exists
       tags: ['setup']
 
     - name: Generate user_onpc_secrets passwords
-      command: "/opt/ansible-runtime/bin/python {{ osa_repo_dir }}/openstack-ansible/scripts/pw-token-gen.py --file {{ osa_deploy_dir }}/user_onpc_secrets.yml"
+      command: "/opt/ansible-runtime/bin/python /opt/openstack-ansible/scripts/pw-token-gen.py --file /etc/openstack_deploy/user_onpc_secrets.yml"
       changed_when: false
       when: not user_onpc_secrets_info.stat.exists
       tags: ['setup']
@@ -130,7 +134,7 @@
         group: root
         mode: 0644
       vars:
-        out_file: "{{ osa_deploy_dir }}/env.d/{{ (item | basename).split('.')[:-1] | join('.') }}"
+        out_file: "/etc/openstack_deploy/env.d/{{ (item | basename).split('.')[:-1] | join('.') }}"
       with_items: "{{ onpc_model_envd_templates.get('files', []) | map(attribute='path') | list }}"
 
     - name: Get deployment model conf.d templates
@@ -148,13 +152,13 @@
         group: root
         mode: 0644
       vars:
-        out_file: "{{ osa_deploy_dir }}/conf.d/{{ (item | basename).split('.')[:-1] | join('.') }}"
+        out_file: "/etc/openstack_deploy/conf.d/{{ (item | basename).split('.')[:-1] | join('.') }}"
       with_items: "{{ onpc_model_confd_templates.get('files', []) | map(attribute='path') | list }}"
 
     - name: Generate openstack_user_config.yml file from template 
       template:
         src: "{{ onpc_model_repo_dir }}/etc/openstack_deploy/templates/openstack_user_config.yml.j2"
-        dest: "{{ osa_deploy_dir }}/openstack_user_config.yml"
+        dest: "/etc/openstack_deploy/openstack_user_config.yml"
         backup: yes
         group: root
         mode: 0644
@@ -162,7 +166,7 @@
     - name: Generate user_variables.yml file from template 
       template:
         src: "{{ onpc_model_repo_dir }}/etc/openstack_deploy/templates/user_variables.yml.j2"
-        dest: "{{ osa_deploy_dir }}/user_variables.yml"
+        dest: "/etc/openstack_deploy/user_variables.yml"
         backup: yes
         group: root
         mode: 0644

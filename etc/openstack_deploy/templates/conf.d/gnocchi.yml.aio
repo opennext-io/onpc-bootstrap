@@ -1,6 +1,5 @@
-# {{ ansible_managed }}
 ---
-# Copyright 2018, OpenNext SAS
+# Copyright 2015, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Logging (Elasticsearch, Rsyslog, ...) hosts
-{% if 'logging' in bootstrap_host_services %}
-elastic_fluentd_hosts: &logging_cluster
-{% for h in logging_hosts_dict %}
-  {{ h.name }}:
-    ip: {{ h.ip_v4 }}
-{% endfor %}
-kibana_hosts: *logging_cluster
-{% endif %}
+metrics_hosts:
+  aio1:
+    ip: 172.29.236.100
+

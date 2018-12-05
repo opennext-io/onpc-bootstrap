@@ -82,7 +82,7 @@ confd_overrides:
     - name: haproxy.yml.aio
     - name: keystone.yml.aio
     - name: barbican.yml.aio
-  onpc_base_kit:
+  onpc:
     - name: cinder.yml
     - name: glance.yml
     - name: haproxy.yml
@@ -90,17 +90,19 @@ confd_overrides:
     - name: keystone.yml
     - name: neutron.yml
     - name: nova.yml
-    - name: swift.yml
-  onpc_ceph_kit:
-    - name: haproxy.yml
-    - name: ceph.yml
+    - name: logging.yml
+    - name: monitoring.yml
+  onpc_ceph:
     - name: cinder.yml
     - name: glance.yml
-    - name: keystone.yml
+    - name: haproxy.yml
     - name: horizon.yml
+    - name: keystone.yml
     - name: neutron.yml
     - name: nova.yml
-  onpc_coe_kit:
+    - name: logging.yml
+    - name: monitoring.yml
+  onpc_coe:
     - name: cinder.yml
     - name: designate.yml
     - name: glance.yml
@@ -111,4 +113,20 @@ confd_overrides:
     - name: magnum.yml
     - name: neutron.yml
     - name: nova.yml
-    - name: ceph.yml
+    - name: octavia.yml
+    - name: logging.yml
+    - name: monitoring.yml
+  onpc_ceph-coe:
+    - name: cinder.yml
+    - name: designate.yml
+    - name: glance.yml
+    - name: haproxy.yml
+    - name: heat.yml
+    - name: horizon.yml
+    - name: keystone.yml
+    - name: magnum.yml
+    - name: neutron.yml
+    - name: nova.yml
+    - name: octavia.yml
+    - name: logging.yml
+    - name: monitoring.yml

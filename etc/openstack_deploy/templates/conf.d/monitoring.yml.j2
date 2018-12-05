@@ -14,9 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{% if monitoring_hosts is defined and monitoring_hosts | length > 0 %}
+{% if 'monitoring' in bootstrap_host_services %}
 influxdb_hosts: &monitoring_cluster
-{% for h in monitoring_hosts %}
+{% for h in monitoring_hosts_dict %}
  {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
@@ -27,14 +27,9 @@ sensu_hosts: *monitoring_cluster
 redis_hosts: *monitoring_cluster
 sentinel_hosts: *monitoring_cluster
 
-collectd_hosts:
-{% for h in monitoring_hosts %}
-{# Leave the next comments lines within the loop so that they are not duplicated #}
-{% if loop.index < 2 %}
 # Temporay workaround until collectd is deployed in HA cluster
 # Currently only the 'first' host with monitoring role is selected
-  {{ h.name }}:
-    ip: {{ h.ip_v4 }}
-{% endif %}
-{% endfor %}
+collectd_hosts:
+  {{ monitoring_hosts_dict[0].name }}:
+    ip: {{ monitoring_hosts_dict[0].ip_v4 }}
 {% endif %}

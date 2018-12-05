@@ -1,0 +1,55 @@
+# {{ ansible_managed }}
+---
+# Copyright 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{% if 'ceph' in bootstrap_host_services %}
+# The infra nodes where the Ceph Mon services will run
+ceph-mon_hosts:
+{% for h in infrastructure_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+{% endfor %}
+
+# The nodes that the Ceph OSD disks will be running on
+ceph-osd_hosts:
+{% for h in ceph_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+    container_vars:
+      cinder_backends:
+      limit_container_types: cinder_volume
+        rbd:
+          volume_driver: cinder.volume.drivers.rbd.RBDDriver
+          volume_backend_name: RBD
+          rbd_pool: cinder_volumes
+          rbd_ceph_conf: /etc/ceph/ceph.conf
+          rbd_max_clone_depth: 5
+          rbd_flatten_volume_from_snapshot: false
+          rbd_store_chunk_size: 8
+          report_discard_supported: true
+          rados_connect_timeout = -1
+{% raw %}
+          rbd_user: "{{ cinder_ceph_client }}"
+          rbd_secret_uuid: "{{ cinder_ceph_client_uuid }}"
+{% endraw %}
+{% endfor %}
+
+# The nodes that the Ceph RadosGW object gateways will be running on
+ceph-rgw_hosts:
+{% for h in infrastructure_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+{% endfor %}
+{% endif %}

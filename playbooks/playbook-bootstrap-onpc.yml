@@ -24,7 +24,7 @@
 
   vars:
     ansible_python_interpreter: "/usr/bin/python"
-    bootstrap_host_scenario: "{{ lookup('env','SCENARIO') | default('onpc_base_kit', true) }}"
+    bootstrap_host_scenario: "{{ lookup('env','SCENARIO') | default('onpc', true) }}"
     install_method: "{{ lookup('env', 'INSTALL_METHOD') | default('source', true)  }}"
     openstack_confd_entries: "{{ confd_overrides[bootstrap_host_scenario] }}"
     pip_install_upper_constraints_proto: "{{ ansible_python_version | version_compare('2.7.9', '>=') | ternary('https','http') }}"

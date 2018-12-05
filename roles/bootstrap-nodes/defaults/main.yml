@@ -15,9 +15,9 @@
 
 ## ONPC user-space configuration options
 # Scenario used to bootstrap the host
-bootstrap_host_scenario: onpc-basic-model
+bootstrap_host_scenario: onpc
 #
-# Boolean option to implement OpenStack-Ansible configuration for an ONPC
+# Boolean option to implement OpenStack-Ansible configuration for AIO
 # Switch to no for a multi-node configuration
 bootstrap_host_aio_config: no
 #

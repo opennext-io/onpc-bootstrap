@@ -1,4 +1,7 @@
 ---
+# Copyright 2015, Rackspace US, Inc.
+# Copyright (c) 2018, OpenNext SAS
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -11,6 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-sahara-infra_hosts:
-  aio1:
-    ip: 172.29.236.100
+- name: Boostrap Ansible for OSA
+  command: "./scripts/bootstrap-ansible.sh"
+  args:
+    chdir: "/opt/openstack-ansible"
+    creates: "/opt/ansible-runtime/bin/ansible-playbook"
+  environment: "{{ proxy_env | default({}) | combine({ 'TMPDIR': '/var/tmp' }) }}"
+  register: bootstrap_ansible_result
+  tags:
+    - bootstrap-osa-ansible

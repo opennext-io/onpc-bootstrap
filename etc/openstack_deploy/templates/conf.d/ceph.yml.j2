@@ -30,7 +30,7 @@ ceph-osd_hosts:
     container_vars:
       cinder_backends:
       limit_container_types: cinder_volume
-        rbd:
+        RBD:
           volume_driver: cinder.volume.drivers.rbd.RBDDriver
           volume_backend_name: RBD
           rbd_pool: cinder_volumes

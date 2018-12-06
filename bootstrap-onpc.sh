@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 
-# Copyright 2018, OpenNext SAS. 
+# Copyright 2018, OpenNext SAS.
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,13 +38,13 @@ export GROUP_VARS_PATH="/dev/null"
 # Run ONPC bootstrap playbook
 pushd playbooks 
   if [ -z "${BOOTSTRAP_OPTS}" ]; then
-    /usr/bin/ansible-playbook bootstrap-onpc.yml
+    /usr/bin/ansible-playbook playbook-bootstrap-onpc.yml
   else  
     export BOOTSTRAP_OPTS_ITEMS=''
     for BOOTSTRAP_OPT in ${BOOTSTRAP_OPTS}; do
       BOOTSTRAP_OPTS_ITEMS=${BOOTSTRAP_OPTS_ITEMS}"-e "${BOOTSTRAP_OPT}" "
     done
-    /usr/bin/ansible-playbook bootstrap-onpc.yml ${BOOTSTRAP_OPTS_ITEMS}
+    /usr/bin/ansible-playbook playbook-bootstrap-onpc.yml ${BOOTSTRAP_OPTS_ITEMS}
   fi    
 popd  
       
@@ -54,3 +54,4 @@ unset ANSIBLE_REMOTE_USER
 unset ANSIBLE_VARS_PLUGINS
 unset HOST_VARS_PATH
 unset GROUP_VARS_PATH
+unset MAAS_INI_PATH

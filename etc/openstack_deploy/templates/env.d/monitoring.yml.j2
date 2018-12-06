@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+{% if 'monitoring' in bootstrap_host_services %}
 component_skel:
   influxdb:
     belongs_to:
@@ -119,3 +120,4 @@ physical_skel:
   sentinel_hosts:
     belongs_to:
       - hosts
+{% endif %}

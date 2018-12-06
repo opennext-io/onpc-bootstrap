@@ -45,8 +45,6 @@
   tags:
     - install-packages
 
-- meta: end_play
-
 # Prepare the data disk, if one is provided
 - import_tasks: prepare_data_disk.yml
   when:
@@ -62,6 +60,8 @@
     - ansible_swaptotal_mb < 1
   tags:
     - prepare-loopback
+
+- meta: end_play
 
 # Prepare the Machines storage loopback disk
 - include_tasks: prepare_loopback_machines.yml

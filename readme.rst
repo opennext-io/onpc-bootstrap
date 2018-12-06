@@ -29,18 +29,18 @@ Former Process
 
 You have to become root to execute the following steps.
 
-Clone the onpc-basic-model repo
+Clone the onpc-bootstrap repo
 
 .. code-block:: bash
 
     cd /opt
-    git clone git@github.com:opennext-io/onpc-basic-model.git
+    git clone git@github.com:opennext-io/onpc-bootstrap.git
 
 Copy everything under ./etc/openstack_deploy into /etc/openstack_deploy
 
 .. code-block:: bash
 
-    cd /opt/onpc-basic-model
+    cd /opt/onpc-bootstrap
     sudo cp -R ./etc/openstack_deploy/* /etc/openstack_deploy/
 
 Generate the password values
@@ -55,7 +55,7 @@ Import the ansible role dependencies
 
     cd /opt/openstack-ansible
     openstack-ansible ./tests/get-ansible-role-requirements.yml \
-        -e role_file=/opt/onpc-basic-model/ansible-role-requirements.yml
+        -e role_file=/opt/onpc-bootstrap/ansible-role-requirements.yml
 
 Regenerate the inventory
 

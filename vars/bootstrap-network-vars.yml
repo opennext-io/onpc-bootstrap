@@ -43,7 +43,7 @@ provider_network: 172.32.0.0/24
 container_network: 172.29.236.0/22
 tunnel_network: 172.29.240.0/22
 storage_network: 172.29.244.0/22
-flat_network: 172.29.248.0/22
+tempest_network: 172.29.248.0/22
 lbaas_network: 172.29.252.0/22
 
 onpc_networks:
@@ -72,8 +72,8 @@ onpc_networks:
     reserved:
       - "172.29.244.1,172.29.244.50"
       - "172.29.244.100"
-  - name: flat
-    cidr: "{{ flat_network }}" 
+  - name: tempest
+    cidr: "{{ tempest_network }}" 
     reserved:
       - "172.29.248.1,172.29.248.50"
       - "172.29.248.100"

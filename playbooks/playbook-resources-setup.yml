@@ -6,14 +6,14 @@
 # left there by the OpenStack-Ansible playbooks to specify the API endpoint and
 # auth parameters to use.
 #
-- name: OpenStack service setup
+- name: OpenStack services setup
   hosts: utility_all[0]
   user: root
   environment: "{{ deployment_environment_variables | default({}) }}"
 
 # All the data is found in this file:
   vars_files:
-    - vars/openstack-service-config.yml
+    - openstack-service-config.yml
 
   tasks:
 

@@ -1,4 +1,5 @@
 ---
+# Copyright 2015, Rackspace US, Inc.
 # Copyright (c) 2018, OpenNext SAS
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,21 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-onpc_release: "18.1.0"
-onpc_deployment_model: "onpc-bootstrap"
-onpc_user_conf_file: "/etc/openstack_deploy/user_onpc_variables.yml"
-onpc_model_repo_dir: "/opt/{{ onpc_deployment_model }}"
-onpc_debug_enabled: false
-onpc_low_end_profile: false
-onpc_cpu_overcommit: 8.0
-onpc_magnum_git_repo: "https://github.com/opennext-io/magnum.git"
-onpc_magnum_git_install_branch: "stable/rocky"
-onpc_dhcp_domain: "opennext.local"
-onpc_region_controller: "maas"
-onpc_run_tempest_tests: no
-onpc_mandatory_roles:
-    - "compute"
-    - "storage"
-    - "network"
-    - "logging"
-    - "monitoring"
+- name: Boostrap Ansible for OSA
+  command: "./scripts/bootstrap-ansible.sh"
+  args:
+    chdir: "/opt/openstack-ansible"
+    creates: "/opt/ansible-runtime/bin/ansible-playbook"
+  register: bootstrap_ansible_result
+  tags:
+    - bootstrap-ansible
+  environment: "{{ onpc_proxy_environment | default({}) | combine({ 'TMPDIR': '/var/tmp' }) }}"
+
+- debug: bootstrap_ansible_result

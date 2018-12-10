@@ -1,0 +1,70 @@
+---
+# Copyright 2015, Rackspace US, Inc.
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Bootstrap ONPC initial setup
+  host: localhost
+
+  vars_files:
+    - bootstrap-scenario-vars.yml
+    - bootstart-global-vars.yml
+    - bootstrap-network-vars.yml
+    - bootstrap-services-vars.yml
+
+- name: Bootstrap the ONPC cluster nodes
+  hosts: all 
+  gather_facts: true
+  become: yes
+  
+  block:
+    vars_files:
+      - bootstrap-scenario-vars.yml
+      - bootstrap-services-vars.ym
+
+    tasks:
+      - include_tasks: set-global-facts.yml
+      - include_tasks: check-local-facts.yml
+      - include_tasks: import-onpc-repos.yml
+      - include_tasks: bootstrap-ansible.yml
+      - include_tasks: bootstrap-deployment-node.yml
+      - include_tasks: check-requirements.yml
+
+    vars:
+      ansible_python_interpreter: "/usr/bin/python"
+      bootstrap_host_scenario: "{{ onpc_bootstrap_scenario }}"
+      install_method: "{{ onpc_install_method }}"
+      openstack_confd_entries: "{{ onpc_confd_overrides[onpc_bootstrap_scenario] }}"
+  when: 
+
+
+    roles:
+      - ../roles/bootstrap-nodes
+
+    vars:
+      ansible_python_interpreter: "/usr/bin/python"
+      bootstrap_host_scenario: "{{ onpc_bootstrap_scenario }}"
+      install_method: "{{ onpc_install_method }}"
+      openstack_confd_entries: "{{ onpc_confd_overrides[onpc_bootstrap_scenario] }}"
+
+  post_tasks:
+    - name: Check that new network interfaces are up
+      assert:
+        that:
+          - ansible_eth12['active'] == true
+          - ansible_eth13['active'] == true
+          - ansible_eth14['active'] == true
+      when:
+        - (container_tech | default('unknown')) != 'nspawn'
+  environment: "{{ deployment_environment_variables | default({}) }}"

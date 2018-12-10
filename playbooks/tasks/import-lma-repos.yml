@@ -13,29 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Get OSA repository from GitHub
-  git:
-    repo: "https://github.com/openstack/openstack-ansible"
-    dest: "/opt/openstack-ansible"
-    accept_hostkey: yes
-    force: no 
-    recursive: no
-    version: "{{ onpc_release | default('stable/rocky') }}"
-  environment: "{{ proxy_env | default('{}') }}"
-  tags:
-    - import-repos
-    - import-osa-repo
-
 - name: Get OpenNext Repositories
   git:
     repo: "https://github.com/opennext-io/{{ item }}"
     dest: "/opt/{{ item }}"
     force: no
     recursive: no
+    version: "{{ onpc_lma_release | default('master') }}"
   with_items:
     - "onpc-logging"
     - "onpc-monitoring"
-  environment: "{{ proxy_env | default('{}') }}"
   tags:
-    - import-repos
-    - import-lma-repo
+    - import-lma-repos
+  environment: "{{ onpc_proxy_environment| default('{}') }}"

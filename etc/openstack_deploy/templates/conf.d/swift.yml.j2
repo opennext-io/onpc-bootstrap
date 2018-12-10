@@ -1,0 +1,42 @@
+# {{ ansible_managed }}
+---
+{% if 'swift' in bootstrap_host_services %}
+global_overrides:
+  swift:
+    part_power: 8
+    storage_network: "{{ (container_tech != 'nspawn') | ternary('br-storage', ansible_default_ipv4['alias']) }}"
+    statsd_host: localhost
+    statsd_port: 8125
+    statsd_metric_prefix: "{{ inventory_hostname }}.swift"
+    storage_policies:
+      - policy:
+          name: default
+          index: 0
+          default: True
+swift-proxy_hosts:
+{% for h in infrastructure_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+    container_vars:
+      swift_proxy_vars:
+        limit_container_types: swift_proxy
+        read_affinity: "r{{ loop.index }}=100"
+        write_affinity: "r{{ loop.index }}"
+        write_affinity_node_count: "2 * replicas"
+{% endfor %}
+
+swift_hosts:
+{% for h in swift_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+    container_vars:
+      swift_vars:
+        limit_container_types: swift
+        zone: {{ loop.index }}
+        region: 1
+        drives:
+        {%- for i in {{ ansible_mounts | selectattr("mount", "search", "^swift$") | map('device') | split('/')[1] | list }} %}
+          - name: {{ i.device }}
+        {% endfor %}
+{% endfor %}
+{% endif %}

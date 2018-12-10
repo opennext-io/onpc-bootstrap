@@ -37,15 +37,6 @@ slack_webhooks_url: ""
 slack_alerts_enabled: false
 {% endif %}
 
-## Name of the environment can be defined in vars section of the top
-# level inventory on infra-master node.
-# The variable onpc_environment_name is used to tag the monitoring metrics
-# and alerts with the name of the environment.
-# [all:vars]
-# environment_name="my_environment_name"
-
-onpc_environment_name: "{{ environment_name | default("") }}"
-
 ## td-agent variables
 # Variable used by 'rsyslog_client' role to define additional rsyslog targets
 fluentd_syslog_port: 5140

@@ -25,12 +25,17 @@
     msg: >
       "You must define at least one node with the 'controller' role (MAAS tag) in your inventory"
 
-- name: Verify that 'storage' and 'ceph' roles are not both specified in the inventory
+- name: Check that the inventory is not set with mutually exclusive labels (roles)
   assert:
-    that: "not ('storage' in groups and 'ceph' in groups)"
-    msg: >
-      "Having both 'storage' (defaults to LVM iSCSI) and 'ceph' roles in the same depoyment is not currently supported"
-
+    that:
+      - not item.conditional
+    msg: "{{ item.msg }}"
+  with_items:
+    - conditional: "{{ ('storage' in groups and 'ceph' in groups) }}"
+      msg: "Node labels 'storage' (which defaults LVM iSCSI) and 'ceph' are currently mutually exclusive."
+    - conditional: "{{ 'swift' in groups and 'ceph' in groups) }}"
+      msg: "Node labels 'swift' and 'ceph' are currently mutually exclusive."
+    
 - name: Verify that the container network is properly defined
   assert:
     that: "container_network is defined and container_network.split('/') | length == 2"

@@ -1,0 +1,23 @@
+# {{ ansible_managed }}
+---
+influxdb_hosts:
+  aio1:
+    ip: 172.29.236.100
+influxdb_hosts:
+  aio1:
+    ip: 172.29.236.100
+grafana_hosts:
+  aio1:
+    ip: 172.29.236.100
+sensu_hosts:
+  aio1:
+    ip: 172.29.236.100
+redis_hosts:
+  aio1:
+    ip: 172.29.236.100
+sentinel_hosts:
+  aio1:
+    ip: 172.29.236.100
+collectd_hosts:
+  aio1:
+    ip: 172.29.236.100

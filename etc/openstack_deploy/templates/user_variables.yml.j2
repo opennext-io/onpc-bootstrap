@@ -133,33 +133,6 @@ swift_proxy_server_conf_overrides:
     log_statsd_port: 8125
 {% endif %}
 
-## Magnum overrides for cinder integration
-{% if 'magnum' in bootstrap_host_services %}
-# Currently using a fork where bug fixes relative to the generation of
-# AUTH_URL for Keystone V3 is fixed. 
-magnum_git_repo: "{{ onpc_magnum_git_repo }}"
-magnum_git_install_branch: "{{ onpc_magnum_git_install_branch }}"
-  
-magnum_glance_images:
-  - name: Fedora-Atomic-28-20180806
-    disk_format: qcow2
-    image_format: bare
-    public: true
-    file: Fedora-AtomicHost-28-20180806.0.x86_64.qcow2
-    distro: fedora-atomic
-    checksum: "sha256:2b74dec845396df2bfae2e9bda0cfd4e6d8ba185cc30f60be7d5131399b9551f"
-magnum_config_overrides:
-  cinder:
-{%- raw %}
-    default_docker_volume_type: "{{ cinder_default_volume_type }}"
-{% endraw %}
-  drivers:
-{%- raw %}
-    verify_ca: "{{ magnum_enable_verify_ca | default(True) }}"
-    openstack_ca_file: "{{ magnum_ca_file_bundle_path | default('/etc/ssl/certs/openstack_root_ca.pem') }}"
-{% endraw %}
-{% endif %}
-
 ## Common Ceph Overrides
 {% if 'ceph' in bootstrap_host_services %}
 ## Custom Ceph Configuration File (ceph.conf)
@@ -221,7 +194,7 @@ rabbitmq_monitoring_userid: monitoring
 ## HAProxy and keepalived
 # All the previous variables are used inside a var, in the group vars.
 # You can override the current keepalived definition (see
-# group_vars/all/keepalived.yml) in your user space if necessary.
+# group_all/keepalived.yml) in your user space if necessary.
 #
 # Uncomment this to disable keepalived installation (cf. documentation)
 # haproxy_use_keepalived: False
@@ -439,7 +412,7 @@ tempest_run: {{ onpc_run_tempest_tests }}
 
 ## Example environment variable setup:
 ## This is used by apt-cacher-ng to download apt packages:
-# proxy_env_url: http://username:pa$$w0rd@10.10.10.9:9000/
+# proxy_env_url: http://username:password@10.10.10.9:9000/
 # This is applied only during deployment, nothing is left after deployment is complete:
 {%- raw %}
 # deployment_environment_variables:

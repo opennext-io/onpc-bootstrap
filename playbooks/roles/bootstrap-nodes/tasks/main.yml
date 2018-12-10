@@ -61,7 +61,7 @@
   tags:
     - prepare-loopback
 
-- meta: end_play
+# - meta: end_play
 
 # Prepare the Machines storage loopback disk
 - include_tasks: prepare_loopback_machines.yml

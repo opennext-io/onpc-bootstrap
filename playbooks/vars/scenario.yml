@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-confd_overrides:
+onpc_confd_overrides:
   aio_lxc:
     - name: cinder.yml.aio
     - name: glance.yml.aio
@@ -23,12 +23,20 @@ confd_overrides:
     - name: keystone.yml.aio
     - name: neutron.yml.aio
     - name: nova.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
   aio_metal:
     - name: cinder.yml.aio
     - name: glance.yml.aio
     - name: keystone.yml.aio
     - name: neutron.yml.aio
     - name: nova.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
   aio_nspawn:
     - name: cinder.yml.aio
     - name: glance.yml.aio
@@ -37,7 +45,11 @@ confd_overrides:
     - name: keystone.yml.aio
     - name: neutron.yml.aio
     - name: nova.yml.aio
-  ceph:
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+  aio_ceph:
     - name: haproxy.yml.aio
     - name: ceph.yml.aio
     - name: cinder.yml.aio
@@ -45,14 +57,22 @@ confd_overrides:
     - name: keystone.yml.aio
     - name: neutron.yml.aio
     - name: nova.yml.aio
-  congress:
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+  aio_congress:
     - name: congress.yml.aio
     - name: haproxy.yml.aio
     - name: glance.yml.aio
     - name: keystone.yml.aio
     - name: nova.yml.aio
     - name: neutron.yml.aio
-  translations:
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+  aio_translations:
     - name: cinder.yml.aio
     - name: designate.yml.aio
     - name: glance.yml.aio
@@ -66,22 +86,38 @@ confd_overrides:
     - name: sahara.yml.aio
     - name: swift.yml.aio
     - name: trove.yml.aio
-  octavia:
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+  aio_octavia:
     - name: glance.yml.aio
     - name: haproxy.yml.aio
     - name: keystone.yml.aio
     - name: neutron.yml.aio
     - name: nova.yml.aio
     - name: octavia.yml.aio
-  tacker:
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+  aio_tacker:
     - name: haproxy.yml.aio
     - name: heat.yml.aio
     - name: keystone.yml.aio
     - name: tacker.yml.aio
-  barbican:
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+  aio_barbican:
     - name: haproxy.yml.aio
     - name: keystone.yml.aio
     - name: barbican.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
   onpc:
     - name: cinder.yml
     - name: glance.yml
@@ -92,6 +128,17 @@ confd_overrides:
     - name: nova.yml
     - name: logging.yml
     - name: monitoring.yml
+  onpc_swift:
+    - name: cinder.yml
+    - name: glance.yml
+    - name: haproxy.yml
+    - name: horizon.yml
+    - name: keystone.yml
+    - name: neutron.yml
+    - name: nova.yml
+    - name: swift.yml
+    - name: logging.yml
+    - name: monitoring.yml
   onpc_ceph:
     - name: cinder.yml
     - name: glance.yml
@@ -100,6 +147,7 @@ confd_overrides:
     - name: keystone.yml
     - name: neutron.yml
     - name: nova.yml
+    - name: ceph.yml
     - name: logging.yml
     - name: monitoring.yml
   onpc_coe:
@@ -116,7 +164,7 @@ confd_overrides:
     - name: octavia.yml
     - name: logging.yml
     - name: monitoring.yml
-  onpc_ceph-coe:
+  onpc_ceph_coe:
     - name: cinder.yml
     - name: designate.yml
     - name: glance.yml
@@ -128,5 +176,6 @@ confd_overrides:
     - name: neutron.yml
     - name: nova.yml
     - name: octavia.yml
+    - name: ceph.yml
     - name: logging.yml
     - name: monitoring.yml

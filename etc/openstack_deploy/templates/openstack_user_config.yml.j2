@@ -45,8 +45,7 @@ global_overrides:
           - nova_compute
 {% if 'swift' in bootstrap_host_services %}
           - swift_proxy
-{% endif %}
-{% if 'ceph' in bootstrap_host_services %}
+{% elif 'ceph' in bootstrap_host_services %}
           - ceph_osd
 {% endif %}
     - network:

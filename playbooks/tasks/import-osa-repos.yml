@@ -13,21 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-onpc_release: "18.1.0"
-onpc_deployment_model: "onpc-bootstrap"
-onpc_user_conf_file: "/etc/openstack_deploy/user_onpc_variables.yml"
-onpc_model_repo_dir: "/opt/{{ onpc_deployment_model }}"
-onpc_debug_enabled: false
-onpc_low_end_profile: false
-onpc_cpu_overcommit: 8.0
-onpc_magnum_git_repo: "https://github.com/opennext-io/magnum.git"
-onpc_magnum_git_install_branch: "stable/rocky"
-onpc_dhcp_domain: "opennext.local"
-onpc_region_controller: "maas"
-onpc_run_tempest_tests: no
-onpc_mandatory_roles:
-    - "compute"
-    - "storage"
-    - "network"
-    - "logging"
-    - "monitoring"
+- name: Get OSA repository from GitHub
+  git:
+    repo: "https://github.com/openstack/openstack-ansible"
+    dest: "/opt/openstack-ansible"
+    accept_hostkey: yes
+    force: no 
+    recursive: no
+    version: "{{ onpc_openstack_release | default('stable/rocky') }}"
+  tags:
+    - import-repos
+    - import-osa-repo
+  environment: "{{ onpc_proxy_environment | default('{}') }}"

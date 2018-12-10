@@ -17,7 +17,7 @@
   become: yes
 
   vars_files:
-    - ../vars/vpn-setup.yml
+    - vpn-setup.yml
 
   pre-tasks: 
     - name: Setting some interesting facts to keep
@@ -52,7 +52,7 @@
     - fail: msg="Some networks are badly expressed {{ routed_networks }} vs {{ openvpn_client_routes }}"
       when: routed_networks_list | length != openvpn_client_routes | length
 
-    - include_tasks: ../tasks/store_facts.yml facts_file="opennext_infra_master_opennext_post_osa_deploy"
+    - include_tasks: store_facts.yml facts_file="opennext_infra_master_opennext_post_osa_deploy"
       vars:
         keys_to_store:
           - "^osa_infos$"

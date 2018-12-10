@@ -207,12 +207,12 @@
     line:  "{{ item.line }}"
     create: yes
   with_items:
-    - path: /etc/openstack_deploy/group_vars/hosts.yml
+    - path: /etc/openstack_deploy/group_hosts.yml
       line: 'babar: "elephant"'
-    - path: /etc/openstack_deploy/group_vars/hosts.yml
+    - path: /etc/openstack_deploy/group_hosts.yml
       line: 'lxc_hosts_package_state: "present"'
-    - path: /etc/openstack_deploy/host_vars/localhost.yml
+    - path: /etc/openstack_deploy/host_localhost.yml
       line: 'security_package_state: "present"'
-    - path: /etc/openstack_deploy/host_vars/localhost.yml
+    - path: /etc/openstack_deploy/host_localhost.yml
       line: 'tintin: "milou"'
   when: "(lookup('env','ACTION') | default(false,true)) == 'varstest'"

@@ -1,5 +1,6 @@
 ---
-# Copyright (c) 2018, OpenNext SAS
+# Copyright 2015, Rackspace US, Inc.
+# Copyright 2017, SUSE LINUX GmbH.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,9 +14,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+packages_install:
+  - bridge-utils
+  - btrfsprogs
+  - curl
+  - dbus-1
+  - ethtool
+  - git-core
+  - lvm2
+  - python
+  - python-devel
+  - vim
+  - vlan
+  - xfsprogs
 
-- name: "Verify that one of the mandatory roles defined for {{ inventory_hostname }}"
-  assert:
-    that: "{{ onpc_mandatory_roles | intersect(group_names) | lenght > 0}}"
-    msg: >
-      "None of the mandatory roles is defined for '{{ inventory_hostname }}'"
+packages_remove: []
+
+rc_local: /etc/rc.d/boot.local
+rc_local_insert_before: EOF

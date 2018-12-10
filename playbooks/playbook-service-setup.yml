@@ -13,7 +13,7 @@
 
 # All the data is found in this file:
   vars_files:
-    - vars/openstack-service-config.yml
+    - openstack-service-config.yml
 
   tasks:
 

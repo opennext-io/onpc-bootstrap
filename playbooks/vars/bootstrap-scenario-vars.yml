@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-confd_overrides:
+onpc_confd_overrides:
   aio_lxc:
     - name: cinder.yml.aio
     - name: glance.yml.aio
@@ -23,12 +23,20 @@ confd_overrides:
     - name: keystone.yml.aio
     - name: neutron.yml.aio
     - name: nova.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
   aio_metal:
     - name: cinder.yml.aio
     - name: glance.yml.aio
     - name: keystone.yml.aio
     - name: neutron.yml.aio
     - name: nova.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
   aio_nspawn:
     - name: cinder.yml.aio
     - name: glance.yml.aio
@@ -37,6 +45,10 @@ confd_overrides:
     - name: keystone.yml.aio
     - name: neutron.yml.aio
     - name: nova.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
   ceph:
     - name: haproxy.yml.aio
     - name: ceph.yml.aio
@@ -45,6 +57,10 @@ confd_overrides:
     - name: keystone.yml.aio
     - name: neutron.yml.aio
     - name: nova.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
   congress:
     - name: congress.yml.aio
     - name: haproxy.yml.aio
@@ -52,6 +68,10 @@ confd_overrides:
     - name: keystone.yml.aio
     - name: nova.yml.aio
     - name: neutron.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
   translations:
     - name: cinder.yml.aio
     - name: designate.yml.aio
@@ -66,6 +86,10 @@ confd_overrides:
     - name: sahara.yml.aio
     - name: swift.yml.aio
     - name: trove.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
   octavia:
     - name: glance.yml.aio
     - name: haproxy.yml.aio
@@ -73,15 +97,27 @@ confd_overrides:
     - name: neutron.yml.aio
     - name: nova.yml.aio
     - name: octavia.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
   tacker:
     - name: haproxy.yml.aio
     - name: heat.yml.aio
     - name: keystone.yml.aio
     - name: tacker.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
   barbican:
     - name: haproxy.yml.aio
     - name: keystone.yml.aio
     - name: barbican.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
   onpc:
     - name: cinder.yml
     - name: glance.yml
@@ -92,6 +128,17 @@ confd_overrides:
     - name: nova.yml
     - name: logging.yml
     - name: monitoring.yml
+  onpc_swift:
+    - name: cinder.yml
+    - name: glance.yml
+    - name: haproxy.yml
+    - name: horizon.yml
+    - name: keystone.yml
+    - name: neutron.yml
+    - name: nova.yml
+    - name: swift.yml
+    - name: logging.yml
+    - name: monitoring.yml
   onpc_ceph:
     - name: cinder.yml
     - name: glance.yml
@@ -100,6 +147,7 @@ confd_overrides:
     - name: keystone.yml
     - name: neutron.yml
     - name: nova.yml
+    - name: ceph.yml
     - name: logging.yml
     - name: monitoring.yml
   onpc_coe:
@@ -128,5 +176,6 @@ confd_overrides:
     - name: neutron.yml
     - name: nova.yml
     - name: octavia.yml
+    - name: ceph.yml
     - name: logging.yml
     - name: monitoring.yml

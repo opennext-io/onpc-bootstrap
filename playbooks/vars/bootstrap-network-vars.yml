@@ -13,24 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# The proxy is the deployment host when it is configured as the default
-# gateway for the machines it manages. The proxy should work transparently
-# on TCP port (default 3128). Otherwise machines will need to access the
-# proxy on a specific host and port.
-#
-# proxy_host: "{{ onpc_region_controller }}.{{ onpc_dhcp_domaine }}"
-# proxy_port: "3128"
 
-# proxy_env: {
-#   'http_proxy': "http://{{ proxy_host }}:{{ proxy_port }}",
-#   'https_proxy': "http://{{ proxy_host }}:{{ proxy_port }}",
-#   'ftp_proxy': "http://{{ proxy_host }}:{{ proxy_port }}",
-#   'no_proxy': 'localhost,127.0.0.1',
-# }
-
-#
-# This a temporary workaround. The below should be extracted dynamically from
-# querying the MAAS API using subnet tagging.
+# This a temporary workaround. The below network variables assignement
+# should be perfoemed extracting the information dynamically from MAAS.
 #
 # external_network: used to provide access to external services and floating IPs
 # provider_network: used to provides access to the Internet 

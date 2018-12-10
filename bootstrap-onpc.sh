@@ -30,6 +30,7 @@ export ONPC_CLONE_DIR="${ONPC_CLONE_DIR:-$(readlink -f $(dirname $0)/..)}"
 # to prevent interference with the OSA bootstrap.
 export ANSIBLE_INVENTORY="/etc/ansible/maas.py"
 export ANSIBLE_REMOTE_USER="ubuntu"
+export ANSIBLE_ROLE_FETCH_MODE=git-clone
 export MAAS_INI_PATH="/etc/ansible/maas.ini"
 export ANSIBLE_VARS_PLUGINS="/dev/null"
 export HOST_VARS_PATH="/dev/null"
@@ -52,6 +53,7 @@ popd
 unset ANSIBLE_INVENTORY
 unset ANSIBLE_REMOTE_USER
 unset ANSIBLE_VARS_PLUGINS
+unset ANSIBLE_ROLE_FETCH_MODE
 unset HOST_VARS_PATH
 unset GROUP_VARS_PATH
 unset MAAS_INI_PATH

@@ -1,6 +1,5 @@
 ---
-# Copyright 2015, Rackspace US, Inc.
-# Copyright (c) 2018, OpenNext SAS
+# Copyright 2017, Rackspace US, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,12 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Boostrap Ansible for OSA
-  command: "./scripts/bootstrap-ansible.sh"
-  args:
-    chdir: "/opt/openstack-ansible"
-    creates: "/opt/ansible-runtime/bin/ansible-playbook"
-  environment: "{{ proxy_env | default({}) | combine({ 'TMPDIR': '/var/tmp' }) }}"
-  register: bootstrap_ansible_result
-  tags:
-    - bootstrap-osa-ansible
+packages_install:
+  - bridge-utils
+  - btrfs-progs
+  - curl
+  - dbus
+  - ethtool
+  - git
+  - iputils
+  - lvm2
+  - python
+  - python-devel
+  - sshpass
+  - systemd-networkd
+  - vim
+  - xfsprogs
+
+packages_remove: []
+
+rc_local: /etc/rc.d/rc.local
+rc_local_insert_before: "^touch /var/lock/subsys/local$"

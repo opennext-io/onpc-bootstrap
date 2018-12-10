@@ -221,7 +221,7 @@ rabbitmq_monitoring_userid: monitoring
 ## HAProxy and keepalived
 # All the previous variables are used inside a var, in the group vars.
 # You can override the current keepalived definition (see
-# group_vars/all/keepalived.yml) in your user space if necessary.
+# group_all/keepalived.yml) in your user space if necessary.
 #
 # Uncomment this to disable keepalived installation (cf. documentation)
 # haproxy_use_keepalived: False
@@ -439,7 +439,7 @@ tempest_run: {{ onpc_run_tempest_tests }}
 
 ## Example environment variable setup:
 ## This is used by apt-cacher-ng to download apt packages:
-# proxy_env_url: http://username:pa$$w0rd@10.10.10.9:9000/
+# proxy_env_url: http://username:password@10.10.10.9:9000/
 # This is applied only during deployment, nothing is left after deployment is complete:
 {%- raw %}
 # deployment_environment_variables:

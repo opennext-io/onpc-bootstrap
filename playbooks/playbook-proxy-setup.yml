@@ -17,7 +17,7 @@
   become: yes
 
   vars_files:
-       - ../vars/nginx-setup.yml
+       - nginx-setup.yml
 
   pre_tasks:
 
@@ -27,7 +27,7 @@
         state: latest
       when: reverse_nginx_enabled
 
-    - import_tasks: ../tasks/ssl_certs.yml
+    - import_tasks: ssl_certs.yml
       vars:
         dhparam_file: /etc/ssl/certs/dhparam.pem
         key_file: /etc/ssl/private/nginx-selfsigned.key

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Create OSA directories
+- name: Create the required directories
   file:
     path: "{{ item }}"
     state: directory
@@ -23,6 +23,7 @@
     - "/etc/openstack_deploy/env.d"
   tags:
     - setup-onpc-deployment
+    - create-directories
 
 - name: Check the existence of user_secrets.yml
   stat:
@@ -57,7 +58,7 @@
 
 - name: Copy template for user_onpc_secrets.yml
   copy:
-    src: "{{ onpc_model_repo_dir }}/etc/openstack_deploy/user_onpc_secrets.yml"
+    src: "/opt/onpc_deploy/etc/openstack_deploy/user_onpc_secrets.yml"
     dest: "/etc/openstack_deploy/user_onpc_secrets.yml"
   when: not user_onpc_secrets_info.stat.exists
   tags:
@@ -79,7 +80,7 @@
   tags:
     - setup-onpc-deployment
 
-- name: Generate env.d config files from templates 
+- name: Create env.d config files from templates 
   template:
     src: "{{ item }}"
     dest: "{{ out_file }}"
@@ -114,9 +115,9 @@
   tags:
     - setup-onpc-deployment
 
-- name: Generate openstack_user_config.yml file from template 
+- name: Generate openstack_user_config.yml from template 
   template:
-    src: "{{ onpc_model_repo_dir }}/etc/openstack_deploy/templates/openstack_user_config.yml.j2"
+    src: "/opt/onpc_bootstrap/etc/openstack_deploy/templates/openstack_user_config.yml.j2"
     dest: "/etc/openstack_deploy/openstack_user_config.yml"
     backup: yes
     group: root
@@ -124,10 +125,30 @@
   tags:
     - setup-onpc-deployment
 
-- name: Generate user_variables.yml file from template 
+- name: Generate user_variables.yml from template 
   template:
-    src: "{{ onpc_model_repo_dir }}/etc/openstack_deploy/templates/user_variables.yml.j2"
+    src: "/opt/onpc_bootstrap/etc/openstack_deploy/templates/user_variables.yml.j2"
     dest: "/etc/openstack_deploy/user_variables.yml"
+    backup: yes
+    group: root
+    mode: 0644
+  tags:
+    - setup-onpc-deployment
+
+- name: Generate user_onpc_variables.yml from template 
+  template:
+    src: "/opt/onpc_bootstrap/etc/openstack_deploy/templates/user_onpc_variables.yml.j2"
+    dest: "/etc/openstack_deploy/user_onpc_variables.yml"
+    backup: yes
+    group: root
+    mode: 0644
+  tags:
+    - setup-onpc-deployment
+
+- name: Generate user_lowend_variables.yml from template 
+  template:
+    src: "/opt/onpc_bootstrap/etc/openstack_deploy/templates/user_lowend_variables.yml.j2"
+    dest: "/etc/openstack_deploy/user_lowend_variables.yml"
     backup: yes
     group: root
     mode: 0644

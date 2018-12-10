@@ -13,13 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-## ONPC user-space configuration options
+## AIO user-space configuration options
 # Scenario used to bootstrap the host
-bootstrap_host_scenario: onpc
+bootstrap_host_scenario: "{{ lookup('env','SCENARIO') | default('aio_lxc', true) }}"
 #
-# Boolean option to implement OpenStack-Ansible configuration for AIO
+# Boolean option to implement OpenStack-Ansible configuration for an AIO
 # Switch to no for a multi-node configuration
-bootstrap_host_aio_config: no
+bootstrap_host_aio_config: yes
 #
 # Path to the location of the bootstrapping configuration files
 bootstrap_host_aio_config_path: "{{ playbook_dir }}/../etc/openstack_deploy"
@@ -38,31 +38,7 @@ bootstrap_host_target_config_paths:
   - /etc/openstack_deploy/env.d
 
 # The user variables template to use
-bootstrap_user_variables_template: user_variables.yml.j2
-
-# Extra user variables files can be loaded into /etc/openstack_deploy by
-# test scenarios. The dict uses scenario as the key to load a list of extra
-# templates if necessary.
-bootstrap_user_variables_extra_templates:
-  ceph:
-    - src: user_variables_ceph.aio.yml.j2
-      dest: user_variables_ceph.yml
-  congress:
-    - src: user_variables_congress.aio.yml.j2
-      dest: user_variables_congress.yml
-  translations:
-    - src: user_variables_translations.aio.yml.j2
-      dest: user_variables_translations.yml
-  octavia:
-    - src: user_variables_octavia.aio.yml.j2
-      dest: user_variables_octavia.yml
-  barbican:
-    - src: user_variables_barbican.aio.yml.j2
-      dest: user_variables_barbican.yml
-  oncp_ceph_kit:
-    - src: user_variables_ceph.yml.j2
-      dest: user_variables_ceph.yml
-  onpc_magnum_kit:
+bootstrap_user_variables_template: user_variables.aio.yml.j2
 
 ## Loopback volumes
 # Sparse loopback disks are used for the containers if there is no secondary
@@ -71,7 +47,7 @@ bootstrap_user_variables_extra_templates:
 # The size of the loopback volumes can be customized here (in gigabytes).
 #
 # Boolean option to deploy the loopback disk for Swap
-bootstrap_host_loopback_swap: yes
+bootstrap_host_loopback_swap: no
 # Size of the Swap loopback disk in gigabytes (GB).
 bootstrap_host_loopback_swap_size: 4096
 #
@@ -106,10 +82,10 @@ bootstrap_host_loopback_zfs: yes
 bootstrap_host_loopback_zfs_size: 1024
 #
 # Boolean option to deploy the OSD loopback disks and cluster UUID for Ceph
-bootstrap_host_ceph: "{{ (bootstrap_host_scenario == 'ceph') | bool }}"
+bootstrap_host_ceph: "{{ 'ceph' in bootstrap_host_services }}"
 # Size of the Ceph OSD loopbacks
 bootstrap_host_loopback_ceph_size: 1024
-# Ceph OSDs to create on the ONPC host
+# Ceph OSDs to create on the AIO host
 ceph_osd_images:
   - 'ceph1'
   - 'ceph2'
@@ -146,8 +122,8 @@ bootstrap_host_ethtool_path: "{{ bootstrap_host_network_utils[ansible_pkg_mgr]['
 bootstrap_host_ip_path: "{{ bootstrap_host_network_utils[ansible_pkg_mgr]['ip'] }}"
 
 ## Extra storage
-# An ONPC may optionally be built using a second storage device. If a
-# secondary disk device to use is not specified, then the ONPC will be
+# An AIO may optionally be built using a second storage device. If a
+# secondary disk device to use is not specified, then the AIO will be
 # built on any existing disk partitions.
 #
 # WARNING: The data on a secondary storage device specified here will
@@ -195,12 +171,9 @@ bootstrap_host_data_mount_options:
   lvm: "defaults"
   swap: "%%"
 
-bootstrap_host_data_disk2_fs: "{{ bootstrap_host_data_disk2_formats[((container_tech == 'nspawn') | ternary('btrfs', lxc_container_backing_store))] }}"
-bootstrap_host_data_disk2_fs_mount_options: "{{ bootstrap_host_data_mount_options[((container_tech == 'nspawn') | ternary('btrfs', lxc_container_backing_store))] }}"
-bootstrap_host_data_disk2_path: "{{ (lxc_container_backing_store == 'machinectl' or container_tech == 'nspawn') | ternary('/var/lib/machines', '/var/lib/lxc') }}"
-
-# Boolean option to build Amphora image and certs
-bootstrap_host_octavia: "{{ (bootstrap_host_scenario in ['octavia']) | bool }}"
+bootstrap_host_data_disk2_fs: "{{ bootstrap_host_data_disk2_formats[((bootstrap_host_container_tech == 'nspawn') | ternary('btrfs', lxc_container_backing_store))] }}"
+bootstrap_host_data_disk2_fs_mount_options: "{{ bootstrap_host_data_mount_options[((bootstrap_host_container_tech == 'nspawn') | ternary('btrfs', lxc_container_backing_store))] }}"
+bootstrap_host_data_disk2_path: "{{ (lxc_container_backing_store == 'machinectl' or bootstrap_host_container_tech == 'nspawn') | ternary('/var/lib/machines', '/var/lib/lxc') }}"
 
 ### Optional Settings ###
 
@@ -209,8 +182,11 @@ bootstrap_host_octavia: "{{ (bootstrap_host_scenario in ['octavia']) | bool }}"
 # host's network interface that has the default route on it.
 #bootstrap_host_public_address: 0.0.0.0
 
+# Set the install method for the deployment. Options are ['source', 'distro']
+bootstrap_host_install_method: "{{ lookup('env', 'INSTALL_METHOD') | default('source', true)  }}"
+
 # Set the container technology in service. Options are nspawn and lxc.
-container_tech: "{{ ('nspawn' in bootstrap_host_scenario) | ternary('nspawn', 'lxc') }}"
+bootstrap_host_container_tech: "{{ (bootstrap_host_scenario is search('nspawn')) | ternary('nspawn', 'lxc') }}"
 
 # Set the lxc backing store for the job
 lxc_container_backing_store: dir

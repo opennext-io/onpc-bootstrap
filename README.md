@@ -1,3 +1,3 @@
 ##
-## OpenNext Private Cloud Basic Model
+## OpenNext Private Cloud Bootstrap
 ##

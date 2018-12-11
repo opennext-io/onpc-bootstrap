@@ -1,0 +1,181 @@
+---
+# Copyright 2017, Rackspace US, Inc.
+# Cpyright 2018, OpenNext SAS.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+onpc_confd_overrides:
+  aio_lxc:
+    - name: cinder.yml.aio
+    - name: glance.yml.aio
+    - name: haproxy.yml.aio
+    - name: horizon.yml.aio
+    - name: keystone.yml.aio
+    - name: neutron.yml.aio
+    - name: nova.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+  aio_metal:
+    - name: cinder.yml.aio
+    - name: glance.yml.aio
+    - name: keystone.yml.aio
+    - name: neutron.yml.aio
+    - name: nova.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+  aio_nspawn:
+    - name: cinder.yml.aio
+    - name: glance.yml.aio
+    - name: haproxy.yml.aio
+    - name: horizon.yml.aio
+    - name: keystone.yml.aio
+    - name: neutron.yml.aio
+    - name: nova.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+  ceph:
+    - name: haproxy.yml.aio
+    - name: ceph.yml.aio
+    - name: cinder.yml.aio
+    - name: glance.yml.aio
+    - name: keystone.yml.aio
+    - name: neutron.yml.aio
+    - name: nova.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+  congress:
+    - name: congress.yml.aio
+    - name: haproxy.yml.aio
+    - name: glance.yml.aio
+    - name: keystone.yml.aio
+    - name: nova.yml.aio
+    - name: neutron.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+  translations:
+    - name: cinder.yml.aio
+    - name: designate.yml.aio
+    - name: glance.yml.aio
+    - name: haproxy.yml.aio
+    - name: heat.yml.aio
+    - name: horizon.yml.aio
+    - name: keystone.yml.aio
+    - name: magnum.yml.aio
+    - name: neutron.yml.aio
+    - name: nova.yml.aio
+    - name: sahara.yml.aio
+    - name: swift.yml.aio
+    - name: trove.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+  octavia:
+    - name: glance.yml.aio
+    - name: haproxy.yml.aio
+    - name: keystone.yml.aio
+    - name: neutron.yml.aio
+    - name: nova.yml.aio
+    - name: octavia.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+  tacker:
+    - name: haproxy.yml.aio
+    - name: heat.yml.aio
+    - name: keystone.yml.aio
+    - name: tacker.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+  barbican:
+    - name: haproxy.yml.aio
+    - name: keystone.yml.aio
+    - name: barbican.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_conf_aio_config_path }}"
+  onpc:
+    - name: cinder.yml
+    - name: glance.yml
+    - name: haproxy.yml
+    - name: horizon.yml
+    - name: keystone.yml
+    - name: neutron.yml
+    - name: nova.yml
+    - name: logging.yml
+    - name: monitoring.yml
+  onpc_swift:
+    - name: cinder.yml
+    - name: glance.yml
+    - name: haproxy.yml
+    - name: horizon.yml
+    - name: keystone.yml
+    - name: neutron.yml
+    - name: nova.yml
+    - name: swift.yml
+    - name: logging.yml
+    - name: monitoring.yml
+  onpc_ceph:
+    - name: cinder.yml
+    - name: glance.yml
+    - name: haproxy.yml
+    - name: horizon.yml
+    - name: keystone.yml
+    - name: neutron.yml
+    - name: nova.yml
+    - name: ceph.yml
+    - name: logging.yml
+    - name: monitoring.yml
+  onpc_coe:
+    - name: cinder.yml
+    - name: designate.yml
+    - name: glance.yml
+    - name: haproxy.yml
+    - name: heat.yml
+    - name: horizon.yml
+    - name: keystone.yml
+    - name: magnum.yml
+    - name: neutron.yml
+    - name: nova.yml
+    - name: octavia.yml
+    - name: logging.yml
+    - name: monitoring.yml
+  onpc_ceph-coe:
+    - name: cinder.yml
+    - name: designate.yml
+    - name: glance.yml
+    - name: haproxy.yml
+    - name: heat.yml
+    - name: horizon.yml
+    - name: keystone.yml
+    - name: magnum.yml
+    - name: neutron.yml
+    - name: nova.yml
+    - name: octavia.yml
+    - name: ceph.yml
+    - name: logging.yml
+    - name: monitoring.yml

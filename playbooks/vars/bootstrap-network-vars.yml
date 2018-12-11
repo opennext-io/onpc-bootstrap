@@ -1,0 +1,69 @@
+---
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+# This a temporary workaround. The below network variables assignement
+# should be perfoemed extracting the information dynamically from MAAS.
+#
+# external_network: used to provide access to external services and floating IPs
+# provider_network: used to provides access to the Internet 
+# container_network: used to provide access the internal services and containers
+# tunnel_network: used by tenants private networks 
+# storage_network: used by the storage services (optional) 
+
+external_network: 172.31.0.0/24
+provider_network: 172.32.0.0/24
+container_network: 172.29.236.0/22
+tunnel_network: 172.29.240.0/22
+storage_network: 172.29.244.0/22
+tempest_network: 172.29.248.0/22
+lbaas_network: 172.29.252.0/22
+
+onpc_networks:
+  - name: external
+    cidr: "{{ external_network }}" 
+    reserved:
+      - "172.31.0.1,172.31.0.50"
+      - "172.31.0.100"
+  - name: provider
+    cidr: "{{ provider_network }}" 
+    reserved:
+      - "172.32.0.1,172.32.0.50"
+      - "172.32.0.100"
+  - name: management
+    cidr: "{{ container_network }}" 
+    reserved:
+      - "172.29.236.1,172.29.236.50"
+      - "172.29.236.100"
+  - name: tunnel
+    cidr: "{{ tunnel_network }}"
+    reserved:
+      - "172.29.240.1,172.29.240.50"
+      - "172.29.240.100"
+  - name: storage
+    cidr: "{{ storage_network }}" 
+    reserved:
+      - "172.29.244.1,172.29.244.50"
+      - "172.29.244.100"
+  - name: tempest
+    cidr: "{{ tempest_network }}" 
+    reserved:
+      - "172.29.248.1,172.29.248.50"
+      - "172.29.248.100"
+  - name: lbaas
+    cidr: "{{ lbaas_network }}" 
+    reserved:
+      - "172.29.252.1,172.29.252.50"
+      - "172.29.252.100"

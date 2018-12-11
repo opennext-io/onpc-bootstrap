@@ -21,7 +21,12 @@
     creates: "/opt/ansible-runtime/bin/ansible-playbook"
   register: bootstrap_ansible_result
   tags:
+<<<<<<< HEAD:playbooks/tasks/bootstrap-ansible.yml
     - bootstrap-ansible
   environment: "{{ onpc_proxy_environment | default({}) | combine({ 'TMPDIR': '/var/tmp' }) }}"
 
 - debug: bootstrap_ansible_result
+=======
+    - bootstrap-osa-ansible
+  environment: "{{ onpc_proxy_environment | default({}) | combine({ 'TMPDIR': '/var/tmp' }) }}"
+>>>>>>> a7627ce0b97415cbfb5892996ad54676e432bb04:playbooks/tasks/bootstrap-ansible.yml

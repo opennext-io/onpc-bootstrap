@@ -36,7 +36,7 @@ bootstrap_host_services: >-
   {%-     set _ = service_list.append('horizon') %}
   {%-   endif %}
   {%- endif %}
-  %- if 'coe' in scenario_list %}
+  {%- if 'coe' in scenario_list %}
   {%-   set _ = service_list.extend(['heat', 'magnum', 'octavia', 'designate']) %}
   {%- endif %}
   {%- set _ = service_list.extend(service_list_extra) %}

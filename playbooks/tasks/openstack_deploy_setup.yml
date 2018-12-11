@@ -55,7 +55,7 @@
 
 - name: Copy user_onpc_secrets.yml file
   copy:
-    src: "/opt/onpc_bootstrap/etc/openstack_deploy/user_onpc_secrets.yml"
+    src: "/opt/onpc-bootstrap/etc/openstack_deploy/user_onpc_secrets.yml"
     dest: "/etc/openstack_deploy/user_onpc_secrets.yml"
   when: not onpc_secrets_info.stat.exists
   tags:
@@ -131,7 +131,7 @@
 
 - name: Generate openstack_user_config.yml from template 
   template:
-    src: "/opt/onpc_bootstrap/etc/openstack_deploy/templates/openstack_user_config.yml.j2"
+    src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/openstack_user_config.yml.j2"
     dest: "/etc/openstack_deploy/openstack_user_config.yml"
     backup: yes
     group: root
@@ -141,7 +141,7 @@
 
 - name: Generate user_variables.yml from template 
   template:
-    src: "/opt/onpc_bootstrap/etc/openstack_deploy/templates/user_variables.yml.j2"
+    src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables.yml.j2"
     dest: "/etc/openstack_deploy/user_variables.yml"
     backup: yes
     group: root
@@ -151,7 +151,7 @@
 
 - name: Generate user_onpc_variables.yml from template 
   template:
-    src: "/opt/onpc_bootstrap/etc/openstack_deploy/templates/user_onpc_variables.yml.j2"
+    src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_onpc_variables.yml.j2"
     dest: "/etc/openstack_deploy/user_onpc_variables.yml"
     backup: yes
     group: root
@@ -161,7 +161,7 @@
 
 - name: Generate user_lowend_variables.yml from template 
   template:
-    src: "/opt/onpc_bootstrap/etc/openstack_deploy/templates/user_lowend_variables.yml.j2"
+    src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_lowend_variables.yml.j2"
     dest: "/etc/openstack_deploy/user_lowend_variables.yml"
     backup: yes
     group: root

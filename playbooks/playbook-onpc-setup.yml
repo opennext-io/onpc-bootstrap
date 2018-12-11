@@ -1,5 +1,4 @@
 ---
-# Copyright 2015, Rackspace US, Inc.
 # Copyright (c) 2018, OpenNext SAS
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,16 +14,17 @@
 # limitations under the License.
 
 - name: ONPC environment setup
-  host: localhost
-  user: root
-
+  hosts: localhost
+  become: yes
+  vars:
+     ansible_connection: local
+     ansible_python_interpreter: "{{ansible_playbook_python}}"
   vars_files:
-    - main.yml
-    - scenario.yml
-    - services.yml
-
+    - vars/main.yml
+    - vars/scenario.yml
+    - vars/services.yml
   tasks:
-    - include_tasks: import-osa-repos.yml
-    - include_tasks: import-lma-repos.yml
-    - include_tasks: openstack_deploy_setup.yml
-    - include_tasks: bootstrap-ansible.yml
+    - include_tasks: tasks/import-osa-repos.yml
+    - include_tasks: tasks/import-lma-repos.yml
+    - include_tasks: tasks/bootstrap-ansible.yml
+    - include_tasks: tasks/openstack_deploy_setup.yml

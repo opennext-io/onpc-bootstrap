@@ -16,14 +16,17 @@
 onpc_openstack_release: 18.1.0
 onpc_openstack_branch: "stable/rocky"
 onpc_lma_release: master
-onpc_bootstrap_scenario: "{{ lookup('env','SCENARIO') | default('onpc', true) }}"
+onpc_bootstrap_scenario: "{{ lookup('env','SCENARIO') | default('starter_aio', true) }}"
 onpc_bootstrap_config_path: /opt/onpc-bootstrap/etc/openstack_deploy
 onpc_install_method: "{{ lookup('env', 'INSTALL_METHOD') | default('source', true)  }}"
 onpc_debug_enabled: false
 onpc_low_end_profile: false
 onpc_cpu_overcommit: 8.0
+onpc_openstack_domain: opennextlocal
 onpc_dhcp_domain: opennext.local
 onpc_region_controller: maas
+onpc_region_name: RegionOne
+onpc_haproxy_ssl_enabled: True
 # The variable onpc_environment_name is used to tag the monitoring metrics
 # and alerts.
 onpc_environment_name: "{{ environment_name | default(onpc_dhcp_domain, true) }}"
@@ -37,22 +40,11 @@ onpc_mandatory_roles:
 
 onpc_host_data_disk_device: sda2
 
-# The proxy is the deployment host when it is configured as the default
-# gateway for the machines it manages. The proxy should work transparently
-# on TCP port (default 3128). Otherwise machines will need to access the
-# proxy on a specific host and port.
+# The proxy (Squid) is the deployment host where MAAS is configured as the
+# default gateway for the machines it manages.  If the region controller is
+# configured in MAAS as the default gateway for the machines it manages, then
+# the proxy will work transparently (on TCP port 3128). Otherwise machines
+# will need to access it on TCP port 8000.
 #
 # proxy_host: "{{ onpc_region_controller }}.{{ onpc_dhcp_domaine }}"
 # proxy_port: "3128"
-
-# Note: MAAS provides an internal proxy server.
-# The proxy is the deployment host where MAAS is configured as the default
-# gateway for the machines it manages.  If the region controller is configured in MAAS as
-# the default gateway for the machines it manages then the proxy will work transparently
-# (on TCP port 3128). Otherwise machines will need to access it on TCP port 8000.
-#
-# proxy_env_url: "http:/{{ onpc_region_controller }}.{{ onpc_dhcp_domain }}:8000/"
-# onpc_proxy_environment:
-#   http_proxy: "{{ proxy_env_url }}"
-#   https_proxy: "{{ proxy_env_url }}"
-#   no_proxy: "localhost,127.0.0.1"

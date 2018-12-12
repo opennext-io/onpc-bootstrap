@@ -14,30 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-bootstrap_host_services: >-
-  {%- set scenario_list = (bootstrap_host_scenario.split('_') | reject('equalto', '')) | list %}
-  {%- set service_list = ['keystone'] %}
-  {%- set service_list_extra = scenario_list | difference(['aio', 'distro', 'lxc', 'nspawn', 'metal', 'source', 'translations']) %}
+onpc_scenario_list: "{{ (onpc_bootstrap_scenario.split('_') | reject('equalto', '')) | list }}"
+onpc_services_list: >-
+  {%- set scenario_list = onpc_scenario_list %}
+  {%- set service_list = ['keystone', 'cinder', 'glance', 'neutron', 'nova'] %}
+  {%- set service_list_extra = scenario_list | difference(['aio', 'distro', 'lxc', 'nspawn', 'metal', 'source', 'starter', 'standard', 'coe']) %}
   {%- if 'metal' not in scenario_list %}
   {%-   set _ = service_list.append('haproxy') %}
   {%- endif %}
-  {%- if 'aio' in scenario_list or 'translations' in scenario_list %}
-  {%-   set _ = service_list.extend(['cinder', 'glance', 'neutron', 'nova']) %}
-  {%-   if 'metal' not in scenario_list %}
-  {%-     set _ = service_list.append('horizon') %}
-  {%-   endif %}
+  {%- if 'starter' in scenario_list %}
+  {%-   set _ = service_list.extend(['logging', 'monitoring']) %}
   {%- endif %}
-  {%- if 'translations' in scenario_list %}
-  {%-   set _ = service_list.extend(['designate', 'heat', 'magnum', 'sahara', 'swift', 'trove']) %}
+  {%- if 'standard' in scenario_list %}
+  {%-   set _ = service_list.extend(['ceilometer', 'aodh', 'gnocchi', 'logging', 'monitoring']) %}
   {%- endif %}
-  {%- if 'onpc' in scenario_list %}
-  {%-   set _ = service_list.extend(['cinder', 'glance', 'neutron', 'nova']) %}
-  {%-   if 'metal' not in scenario_list %}
-  {%-     set _ = service_list.append('horizon') %}
-  {%-   endif %}
+  {%- if 'extended' in scenario_list %}
+  {%-   set _ = service_list.extend(['ceilometer', 'aodh', 'gnocchi', 'barbican', 'designate', 'logging', 'monitoring']) %}
   {%- endif %}
   {%- if 'coe' in scenario_list %}
-  {%-   set _ = service_list.extend(['heat', 'magnum', 'octavia', 'designate']) %}
+  {%-   set _ = service_list.extend(['heat', 'magnum', 'octavia', 'logging', 'monitoring']) %}
   {%- endif %}
   {%- set _ = service_list.extend(service_list_extra) %}
   {{- (service_list | unique) | sort }}

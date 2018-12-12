@@ -1,19 +1,4 @@
 # {{ ansible_managed }}
----
-# Copyright 2018, OpenNext SAS
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 {% if 'logging' in bootstrap_host_services %}
 component_skel:
   elasticsearch:
@@ -26,11 +11,17 @@ component_skel:
     belongs_to:
       - logging_all
 container_skel:
-  elastic-fluentd_container:
+  elastic_container:
     belongs_to:
-      - elastic-fluentd_containers
+      - elastic_containers
     contains:
       - elasticsearch
+    properties:
+      container_fs_size: {{ elastic_fluentd_container_fs_size | default('8G') }}
+  fluentd_container:
+    belongs_to:
+      - fluentd_containers
+    contains:
       - fluentd
     properties:
       container_fs_size: {{ elastic_fluentd_container_fs_size | default('8G') }}
@@ -39,16 +30,22 @@ container_skel:
       - kibana_containers
     contains:
       - kibana
-    properties:
-      container_fs_size: {{ kibana_container_fs_size | default('4G') }}
+   properties:
+      container_fs_size: 8G
 physical_skel:
-  elastic-fluentd_containers:
+  elastic_containers:
+    belongs_to:
+      - all_containers
+  fluentd_containers:
     belongs_to:
       - all_containers
   kibana_containers:
     belongs_to:
       - all_containers
-  elastic-fluentd_hosts:
+  elastic_hosts:
+    belongs_to:
+      - hosts
+  fluentd_hosts:
     belongs_to:
       - hosts
   kibana_hosts:

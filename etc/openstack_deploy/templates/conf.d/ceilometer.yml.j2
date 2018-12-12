@@ -1,5 +1,6 @@
 # {{ ansible_managed }}
 ---
+# Ceilometer services hosts
 {% if 'ceilometer' in bootstrap_host_services %}
 # The compute host that the ceilometer compute agent will be running on
 metering-compute_hosts:

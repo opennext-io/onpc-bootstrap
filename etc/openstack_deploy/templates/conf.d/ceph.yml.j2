@@ -1,5 +1,6 @@
 # {{ ansible_managed }}
 ---
+# Ceph services hosts
 {% if 'ceph' in bootstrap_host_services %}
 # The infra nodes where the Ceph Mon services will run
 ceph-mon_hosts:
@@ -18,7 +19,7 @@ ceph-osd_hosts:
       limit_container_types: cinder_volume
         RBD:
           volume_driver: cinder.volume.drivers.rbd.RBDDriver
-          volume_backend_name: RBD
+          volume_backend_name: rbddriver
           rbd_pool: cinder_volumes
           rbd_ceph_conf: /etc/ceph/ceph.conf
           rbd_max_clone_depth: 5

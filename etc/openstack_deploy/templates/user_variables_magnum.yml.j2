@@ -16,7 +16,6 @@
 # limitations under the License.
 
 ## Magnum overrides for cinder integration
-{% if 'magnum' in bootstrap_host_services %}
 # Currently using a fork where bug fixes relative to the generation of
 # AUTH_URL for Keystone V3 is fixed. 
 magnum_git_repo: "https://github.com/opennext-io/magnum.git"
@@ -40,4 +39,3 @@ magnum_config_overrides:
     verify_ca: "{{ magnum_enable_verify_ca | default(True) }}"
     openstack_ca_file: "{{ magnum_ca_file_bundle_path | default('/etc/ssl/certs/openstack_root_ca.pem') }}"
 {% endraw %}
-{% endif %}

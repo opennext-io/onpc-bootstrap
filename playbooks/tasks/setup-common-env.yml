@@ -1,0 +1,90 @@
+---
+# Copyright 2015, Rackspace US, Inc.
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Create the required directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "/etc/openstack_deploy"
+    - "/etc/openstack_deploy/conf.d"
+    - "/etc/openstack_deploy/env.d"
+  tags:
+    - create-osa-directories 
+
+- name: Check the existence of user_onpc_secrets.yml
+  stat:
+    path: "/etc/openstack_deploy/user_onpc_secrets.yml"
+  register: onpc_secrets_info
+
+- name: Copy user_onpc_secrets.yml file
+  copy:
+    src: "/opt/onpc-bootstrap/etc/openstack_deploy/user_onpc_secrets.yml"
+    dest: "/etc/openstack_deploy/user_onpc_secrets.yml"
+  when:
+    - not onpc_secrets_info.stat.exists
+  tags:
+    - copy-onpc-secrets
+
+- name: Generate the user_onpc_secrets passwords
+  command: "/opt/ansible-runtime/bin/python /opt/openstack-ansible/scripts/pw-token-gen.py --file /etc/openstack_deploy/user_onpc_secrets.yml"
+  changed_when: false
+  when:
+    - not onpc_secrets_info.stat.exists
+  tags:
+    - generate-onpc-secrets
+
+- name: Find the env.d templates
+  find:
+    paths: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/env.d"
+    patterns: '^.*\.j2$'
+    use_regex: yes
+  register: onpc_envd_templates
+  tags:
+    - find-envd-templates
+    
+- name: Drop then env.d config files
+  template:
+    src: "{{ item }}"
+    dest: "/etc/openstack_deploy/env.d/{{ (item | basename).split('.')[:-1] | join('.') }}"
+    backup: yes
+    group: root
+    mode: 0644
+  with_items: "{{ onpc_envd_templates.get('files', []) | map(attribute='path') | list }}"
+  tags:
+    - drop-envd-files
+
+- name: Drop the logging user_variables file
+  template:
+    src: "/opt/onpc_logging/templates/user_variables_logging.yml.j2"
+    dest: "/etc/openstack_deploy/user_variables_logging.yml"
+    backup: yes
+    group: root
+    mode: 0644
+  when: "'logging' in onpc_services_list"
+  tags:
+    - drop-user-logging-variables
+
+- name: Drop the monitoring user_variables file
+  template:
+    src: "/opt/onpc_monitoring/templates/user_variables_monitoring.yml.j2"
+    dest: "/etc/openstack_deploy/user_variables_monitoring.yml"
+    backup: yes
+    group: root
+    mode: 0644
+  when: "'monitoring' in onpc_services_list"
+  tags:
+    - drop-user-monitoring-variables

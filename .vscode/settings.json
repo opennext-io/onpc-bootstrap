@@ -27,5 +27,6 @@
         "typescript",
         "typescriptreact",
         "yml"
-    ]
+    ],
+    "breadcrumbs.enabled": true
 }

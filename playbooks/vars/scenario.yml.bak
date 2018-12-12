@@ -118,6 +118,18 @@ onpc_confd_overrides:
       path: "{{ onpc_bootstrap_config_path }}"
     - name: monitoring.yml.aio
       path: "{{ onpc_bootstrap_config_path }}"
+  onpc_aio:
+    - name: cinder.yml.aio
+    - name: glance.yml.aio
+    - name: haproxy.yml.aio
+    - name: horizon.yml.aio
+    - name: keystone.yml.aio
+    - name: neutron.yml.aio
+    - name: nova.yml.aio
+    - name: logging.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
+    - name: monitoring.yml.aio
+      path: "{{ onpc_bootstrap_config_path }}"
   onpc:
     - name: cinder.yml
     - name: glance.yml

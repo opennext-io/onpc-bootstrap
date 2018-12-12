@@ -1,5 +1,6 @@
 # {{ ansible_managed }}
 ---
+# Monitoring (InfluxDB, Sensu, Grafana, Collectd, ...) serices hosts
 {% if 'monitoring' in bootstrap_host_services %}
 influxdb_hosts: &monitoring_cluster
 {% for h in monitoring_hosts_dict %}
@@ -7,7 +8,6 @@ influxdb_hosts: &monitoring_cluster
     ip: {{ h.ip_v4 }}
 {% endfor %}
 
-influxdb_hosts: *monitoring_cluster
 grafana_hosts: *monitoring_cluster
 sensu_hosts: *monitoring_cluster
 redis_hosts: *monitoring_cluster

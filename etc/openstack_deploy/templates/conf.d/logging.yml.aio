@@ -1,6 +1,9 @@
 # {{ ansible_managed }}
 ---
-elastic_fluentd_hosts:
+elastic_hosts:
+  aio1:
+    ip: 172.29.236.100
+fluentd_hosts:
   aio1:
     ip: 172.29.236.100
 kibana_hosts:

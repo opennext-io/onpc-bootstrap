@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 ---
-# The controller host that the octavia control plane will be run on
+# The infra nodes that will be running the octavia services
 {% if 'octavia' in bootstrap_host_services %}
 octavia-infra_hosts:
 {% for h in infrastructure_hosts_dict %}

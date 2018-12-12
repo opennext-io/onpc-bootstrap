@@ -21,7 +21,11 @@
 ###
 
 ## Debug and Verbose options (pay attention to high log verbosity when debug set to true).
-debug: {{ onpc_debug_enabled | default(false) }} 
+debug: "{{ onpc_debug_enabled | default(false) }}"
+dhcp_domain: "{{ onpc_dhcp_domain }}"
+service_region: "{{ onpc_region_name }}"
+openstack_domain: "{{ onpc_openstack_domain }}"
+haproxy_ssl: "{{ onpc_haproxy_ssl_enabled }}"
 
 ## Installation method for OpenStack services
 # Default option (source) is to install the OpenStack services using PIP
@@ -31,8 +35,8 @@ install_method: "{{ lookup('env','INSTALL_METHOD') | default('source', true) }}"
 
 # The container backing store is set to 'lvm' with 'copy-on-write' method
 # Options are: [machinectl, overlayfs, btrfs, zfs, dir, lvm]
-lxc_container_backing_store: lvm
-lxc_container_backing_method: copy-on-write
+lxc_container_backing_store: "{{ onpc_container_backing_store | default('lvm') }}"
+lxc_container_backing_method: "{{ onpc_container_backing_method | default('copy-on-write') }}"
 
 {% if repo_build_pip_extra_indexes is defined and repo_build_pip_extra_indexes|length > 0 %}
 ## Wheel mirrors for the repo_build to use
@@ -49,15 +53,39 @@ repo_build_pip_extra_indexes:
 # Note that "swift" is automatically set as the default back-end if there
 # are any swift hosts in the environment. Use this setting to override
 # this automation if you wish for a different default back-end.
-# glance_default_store: file
+#glance_default_store: file
 
 ## Ceph pool name for Glance to use
 {% if 'ceph' in bootstrap_host_services%}
+glance_default_store: rbd
 glance_rbd_store_pool: images
 glance_rbd_store_chunk_size: 8
 glance_ceph_client: glance
-glance_default_store: rbd
 glance_rbd_store_pool: images
+{% endif %}
+
+## Common Glance Overrides when using a Swift back-end
+# By default when 'glance_default_store' is set to 'swift' the playbooks will
+# expect to use the Swift back-end that is configured in the same inventory.
+# If the Swift back-end is not in the same inventory (ie it is already setup
+# through some other means) then these settings should be used.
+#
+# NOTE: Ensure that the auth version matches your authentication endpoint.
+#
+# NOTE: If the password for glance_swift_store_key contains a dollar sign ($),
+# it must be escaped with an additional dollar sign ($$), not a backslash. For
+# example, a password of "super$ecure" would need to be entered as
+# "super$$ecure" below.  See Launchpad Bug #1259729 for more details.
+
+{% if 'swift' in bootstrap_host_services %}
+glance_default_store: swift
+glance_swift_store_auth_version: 3
+glance_swift_store_auth_address: "{{ keystone_service_internalurl }}"
+glance_swift_store_container: glance_images
+glance_swift_store_endpoint_type: internalURL
+glance_swift_store_key: "{{ glance_service_password }}"
+glance_swift_store_region: "{{ onpc_region_name }}"
+glance_swift_store_user: 'service:glance'
 {% endif %}
 
 ## Common Neutron Overrides
@@ -91,92 +119,9 @@ cinder_cinder_conf_overrides:
 {% endif %}
 
 {% if 'ceph' in bootstrap_host_services %}
-cinder_default_volume_type: RBD
+cinder_default_volume_type: rbddriver
 {% else %}
-cinder_default_volume_type: LVM
-{% endif %}
-
-# DHCP domain configured for both nova and neutron
-{%- raw %}
-dhcp_domain: "{{ onpc_dhcp_domain }} | default ("openstack.local") }}
-{% endraw %}
-
-## Common Glance Overrides when using a Swift back-end
-# By default when 'glance_default_store' is set to 'swift' the playbooks will
-# expect to use the Swift back-end that is configured in the same inventory.
-# If the Swift back-end is not in the same inventory (ie it is already setup
-# through some other means) then these settings should be used.
-#
-# NOTE: Ensure that the auth version matches your authentication endpoint.
-#
-# NOTE: If the password for glance_swift_store_key contains a dollar sign ($),
-# it must be escaped with an additional dollar sign ($$), not a backslash. For
-# example, a password of "super$ecure" would need to be entered as
-# "super$$ecure" below.  See Launchpad Bug #1259729 for more details.
-#
-# glance_swift_store_auth_version: 3
-# glance_swift_store_auth_address: "https://some.auth.url.com"
-# glance_swift_store_user: "OPENSTACK_TENANT_ID:OPENSTACK_USER_NAME"
-# glance_swift_store_key: "OPENSTACK_USER_PASSWORD"
-# glance_swift_store_container: "NAME_OF_SWIFT_CONTAINER"
-# glance_swift_store_region: "NAME_OF_REGION"
-
-## Common Swift Overrides
-{% if 'swift' in bootstrap_host_services %}
-swift_proxy_server_conf_overrides:
-  DEFAULT:
-    log_statsd_default_sample_rate: 10
-{%- raw %}
-    log_statsd_metric_prefix: "{{ inventory_hostname }}.swift"
-{% endraw %}
-    log_statsd_host: localhost
-    log_statsd_port: 8125
-{% endif %}
-
-## Common Ceph Overrides
-{% if 'ceph' in bootstrap_host_services %}
-## Custom Ceph Configuration File (ceph.conf)
-# By default, your deployment host will connect to one of the mons defined above to
-# obtain a copy of your cluster's ceph.conf.  If you prefer, uncomment ceph_conf_file
-# and customise to avoid ceph.conf being copied from a mon.
-#ceph_conf_file: |
-#  [global]
-#  fsid = 00000000-1111-2222-3333-444444444444
-#  mon_initial_members = mon1.example.local,mon2.example.local,mon3.example.local
-#  mon_host = 10.16.5.40,10.16.5.41,10.16.5.42
-#  # optionally, you can use this construct to avoid defining this list twice:
-{%- raw %}
-#  # mon_host = {{ ceph-mon | join(',') }}
-{% endraw %}
-#  auth_cluster_required = cephx
-#  auth_service_required = cephx
-
-## Ceph cluster fsid (must be generated before first run)
-## Generate a uuid using: python -c 'import uuid; print(str(uuid.uuid4()))'
-generate_fsid: false
-fsid: {{ ceph_uuid_seed | default('ceph_uuid') | to_uuid }}
-
-## ceph-ansible settings
-## See https://github.com/ceph/ceph-ansible/tree/master/group_vars for
-## additional configuration options availble.
-{%- raw %}
-monitor_address_block: "{{ cidr_networks.container }}"
-public_network: "{{ cidr_networks.container }}"
-cluster_network: "{{ cidr_networks.storage }}"
-{% endraw %}
-osd_objectstore: filestore
-osd_scenario: lvm
-lvm_volumes:
-  - data: data
-    data_vg: ceph-data
-    journal: journal
-    journal_vg: ceph-journal
-dmcrypt: false
-# Set a default 10G journal size (size in MB)
-journal_size: {{ ceph_journal_partition_size | default(10240) }} 
-# ceph-ansible automatically creates pools & keys for OpenStack services
-openstack_config: true
-cinder_ceph_client: cinder
+cinder_default_volume_type: LVM_iSCSI
 {% endif %}
 
 # By default, openstack-ansible configures all OpenStack services to talk to
@@ -412,16 +357,17 @@ tempest_run: {{ onpc_run_tempest_tests }}
 
 ## Example environment variable setup:
 ## This is used by apt-cacher-ng to download apt packages:
-# proxy_env_url: http://username:password@10.10.10.9:9000/
 # This is applied only during deployment, nothing is left after deployment is complete:
+{% if proxy_host is defined and proxy_host | length > 0 %}
 {%- raw %}
-# deployment_environment_variables:
-#   http_proxy: "{{ proxy_env_url }}"
-#   https_proxy: "{{ proxy_env_url }}"
-#   no_proxy: "localhost,127.0.0.1,{{ internal_lb_vip_address }},{{ external_lb_vip_address }},{% for host in groups['keystone_all'] %}{{ hostvars[host]['container_address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
+proxy_env_url: "http://{{ proxy_host }}:{{ proxy_port | default(8000) }}/"
+deployment_environment_variables:
+  http_proxy: "{{ proxy_host }}"
+  https_proxy: "{{ proxy_host }}"
+  no_proxy: "localhost,127.0.0.1,{{ internal_lb_vip_address }},{{ external_lb_vip_address }},{% for host in groups['keystone_all'] %}{{ hostvars[host]['container_address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
 {% endraw %}
+{% endif %}
 
 ## SSH connection wait time
-# If an increased delay for the ssh connection check is desired,
-# uncomment this variable and set it appropriately.
-#ssh_delay: 5
+# Increase delay for the ssh connection check if desired.
+ssh_delay: "{{ onpc_ssh_delay | default(5) }}"

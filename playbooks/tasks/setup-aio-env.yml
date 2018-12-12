@@ -13,18 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: ONPC environment setup
-  hosts: localhost
-  become: yes
-  vars:
-     ansible_connection: local
-     ansible_python_interpreter: "{{ansible_playbook_python}}"
-  vars_files:
-    - vars/main.yml
-    - vars/scenario.yml
-    - vars/services.yml
-  tasks:
-    - include_tasks: tasks/import-osa-repos.yml
-    - include_tasks: tasks/import-lma-repos.yml
-    - include_tasks: tasks/bootstrap-ansible.yml
-    - include_tasks: tasks/openstack_deploy_setup.yml
+- name: Find the conf.d templates for aio
+  find:
+    paths: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/conf.d"
+    patterns: '^.*\.aio$'
+    use_regex: yes
+  register: onpc_confd_templates
+  tags:
+    - find-confd-files
+
+- name: Drop the conf.d config files for aio
+  copy:
+    src: "{{ item}}"
+    dest: "/etc/openstack_deploy/conf.d/{{ (item | basename).split('.')[:-1] | join('.') }}"
+    backup: yes
+    group: root
+    mode: 0644
+  with_items: "{{ onpc_confd_templates.get('files', []) | map(attribute='path') | list }}"
+  tags:
+    - drop-confd-files

@@ -1,5 +1,7 @@
+# {{ ansible_managed }}
 ---
-# Copyright 2015, Rackspace US, Inc.
+# Copyright 2014, Rackspace US, Inc.
+# Copyright 2018, OpenNext SAS. 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,18 +15,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Remove known problem packages
-  package:
-    name: "{{ packages_remove }}"
-    state: absent
-  tags:
-    - remove-packages
-
-- name: Install packages
-  package:
-    name: "{{ packages_install }}"
-    state: present
-    update_cache: "{{ (ansible_pkg_mgr in ['apt', 'zypper']) | ternary('yes', omit) }}"
-  tags:
-    - install-packages
-
+## Common Swift Overrides
+swift_proxy_server_conf_overrides:
+  DEFAULT:
+    log_statsd_default_sample_rate: 10
+{%- raw %}
+    log_statsd_metric_prefix: "{{ inventory_hostname }}.swift"
+{% endraw %}
+    log_statsd_host: localhost
+    log_statsd_port: 8125

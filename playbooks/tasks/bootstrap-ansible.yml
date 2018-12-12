@@ -22,6 +22,3 @@
   register: bootstrap_ansible_result
   tags:
     - bootstrap-ansible
-  environment: "{{ onpc_proxy_environment | default({}) | combine({ 'TMPDIR': '/var/tmp' }) }}"
-
-- debug: var=bootstrap_ansible_result

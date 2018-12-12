@@ -1,5 +1,6 @@
 # {{ ansible_managed }}
 ---
+# The nodes that will be running the Swift services
 {% if 'swift' in bootstrap_host_services %}
 global_overrides:
   swift:

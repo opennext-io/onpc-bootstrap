@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 ---
-# Key manager services
+# Barbican (key manager) hosts
 {% if 'barbican' in bootstrap_host_services %}
 key-manager_hosts:
 {% for h in infrastructure_hosts_dict %}

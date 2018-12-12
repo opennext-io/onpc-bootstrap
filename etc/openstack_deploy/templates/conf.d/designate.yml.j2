@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 ---
-# The infra nodes that will be running the dnsaas services
+# Designate (DNS services) hossts
 {% if 'designate' in bootstrap_host_services %}
 dnsaas_hosts:
 {% for h in infrastructure_hosts_dict %}

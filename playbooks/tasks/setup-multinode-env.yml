@@ -1,0 +1,119 @@
+---
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Check the existence of user_secrets.yml
+  stat:
+    path: "/etc/openstack_deploy/user_secrets.yml"
+  register: user_secrets_info
+  tags:
+    - always
+
+- name: Drop user_secrets.yml file
+  copy:
+    src: "/opt/openstack-ansible/etc/openstack_deploy/user_secrets.yml"
+    dest: "/etc/openstack_deploy/user_secrets.yml"
+    backup: yes
+    group: root
+    mode: 0600
+  when: not user_secrets_info.stat.exists
+  tags:
+    - drop-user-secrets
+
+- name: Generate user_secrets password
+  command: "/opt/ansible-runtime/bin/python /opt/openstack-ansible/scripts/pw-token-gen.py --file /etc/openstack_deploy/user_secrets.yml"
+  changed_when: false
+  when: not user_secrets_info.stat.exists
+  tags:
+    - generate-passwords
+
+- name: Find conf.d templates for multinode
+  find:
+    paths: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/conf.d"
+    patterns: '^.*\.j2$'
+    use_regex: yes
+  register: onpc_confd_templates
+  tags:
+    - find-confd-files
+
+- name: Drop conf.d config files for multinode 
+  template:
+    src: "{{ item }}"
+    dest: "/etc/openstack_deploy/conf.d/{{ (item | basename).split('.')[:-1] | join('.') }}"
+    backup: yes
+    group: root
+    mode: 0644
+  with_items: "{{ onpc_confd_templates.get('files', []) | map(attribute='path') | list }}"
+  tags:
+    - drop-confd-files
+
+- name: Drop the openstack_user_config.yml for multinode 
+  template:
+    src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/openstack_user_config.yml.j2"
+    dest: "/etc/openstack_deploy/openstack_user_config.yml"
+    backup: yes
+    group: root
+    mode: 0644
+  tags:
+    - drop-openstack-user-config 
+
+- name: Drop the user_variables.yml for multinode 
+  template:
+    src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables.yml.j2"
+    dest: "/etc/openstack_deploy/user_variables.yml"
+    backup: yes
+    group: root
+    mode: 0644
+  tags:
+    - drop-user-variables 
+
+- name: Drop the extra user_variables files for the scenario 
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/openstack_deploy/{{ item.dest }}"
+    backup: yes
+    group: root
+    mode: 0644
+  when:
+    - "item.condition | bool"
+  with_items:
+    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_ceph.yml.j2"
+      dest: user_variables_ceph.yml
+      condition: '"ceph" in onpc_scenario_list'
+    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_swift.yml.j2"
+      dest: user_variables_swift.yml
+      condition: '"swift" in onpc_scenario_list'
+    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_designate.yml.j2"
+      dest: user_variables_designate.yml
+      condition: "{{ 'designate' in onpc_services_list }}"
+    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_ceilometer.yml.j2"
+      dest: user_variables_ceilometer.yml
+      condition: "{{ 'ceilometer' in onpc_services_list }}"
+    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_aodh.yml.j2"
+      dest: user_variables_aodh.yml
+      condition: "{{ 'aodh' in onpc_services_list }}"
+    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_gnocchi.yml.j2"
+      dest: user_variables_gnocchi.yml
+      condition: "{{ 'gnocchi' in onpc_services_list }}"
+    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_octavia.yml.j2"
+      dest: user_variables_octavia.yml
+      condition: "{{ 'octavia' in onpc_services_list }}"
+    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_magnum.yml.j2"
+      dest: user_variables_magnum.yml
+      condition: "{{ 'magnum' in onpc_services_list }}"
+    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_heat.yml.j2"
+      dest: user_variables_heat.yml
+      condition: "{{ 'heat' in onpc_services_list }}"
+  tags:
+    - drop-extra-variables-files

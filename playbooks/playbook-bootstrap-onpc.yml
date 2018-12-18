@@ -23,9 +23,6 @@
     - vars/scenario.yml
     - vars/services.yml
   tasks:
-    - debug: var=onpc_scenario_list
-    - debug: var=onpc_services_list
-    
     - include_tasks: tasks/import-osa-repos.yml
     - include_tasks: tasks/import-lma-repos.yml
     - include_tasks: tasks/bootstrap-ansible.yml

@@ -1,0 +1,35 @@
+---
+#
+# Playbook to populate a newly deployed OpenStack cloud with some flavors, images, etc.
+#
+# Runs against the Utility container on infra1, relying on the clouds.yaml file
+# left there by the OpenStack-Ansible playbooks to specify the API endpoint and
+# auth parameters to use.
+#
+- name: OpenStack services setup
+  hosts: utility_all[0]
+  user: root
+  environment: "{{ onpc_proxy_environment | default({}) }}"
+
+  vars_files:
+    - vars/openstack-services-config.yml
+
+  tasks:
+  - name: Ensure python-shade library is present to run ansible os_xxx modules
+    apt:
+      name: python-shade
+      state: present
+    tags:
+      - always
+  - include_tasks: tasks/setup-flavors.yml
+    with_items: "{{ vm_flavors }}"
+    tags:
+      - create_flavors
+  - include_tasks: tasks/setup-images.yml
+    with_items: "{{ images }}"
+    tags:
+      - create_images
+  - include_tasks: tasks/setup-networks.yml
+    tags:
+      - create_networks
+

@@ -1,7 +1,4 @@
 ---
-# These tasks are included in openstack-service-setup.yml playbook and
-# are repeated for each required image file.
-
 - name: Download system image file
   get_url:
     url: "{{ item.url }}"

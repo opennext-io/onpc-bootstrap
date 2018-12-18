@@ -56,7 +56,7 @@ vm_flavors:
 # Create shared networks and subnets:
 provider_net_name: PROVIDER_NET
 provider_net_cidr: "{{ provider_network }}"
-provider_dns_servers: "{{ provider_network_dns_servers | default(['8.8.8.8', '8.8.4.4') }}"
+provider_dns_servers: "{{ provider_network_dns_servers | default(['8.8.8.8', '8.8.4.4']) }}"
 provider_subnet_name: "{{ provider_net_name }}_SUBNET"
 
 private_net_name: PRIVATE_NET

@@ -48,3 +48,6 @@ onpc_host_data_disk_device: sda2
 #
 # proxy_host: "{{ onpc_region_controller }}.{{ onpc_dhcp_domaine }}"
 # proxy_port: "3128"
+
+# Use a Slack channel for sending alerts.
+# onpc_slack_alert={ 'alert-channel': '<channel_name>', 'uuid': 'channel_uuid' }

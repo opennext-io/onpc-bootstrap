@@ -9,19 +9,20 @@
 - name: OpenStack services setup
   hosts: utility_all[0]
   user: root
-  environment: "{{ deployment_environment_variables | default({}) }}"
+  environment: "{{ onpc_proxy_environment | default({}) }}"
 
 # All the data is found in this file:
   vars_files:
-    - openstack-service-config.yml
+    - vars/openstack-services-config.yml
 
   tasks:
-
   - name: Ensure python-shade library is present to run ansible os_xxx modules
     apt:
       name: python-shade
       state: present
-
+    tags:
+      - always
+  - debug: var=provider_dns_servers
   - name: Create flavors of nova VMs
     os_nova_flavor:
       endpoint_type: internal
@@ -108,7 +109,7 @@
       - create_networks
 
 # Install some Linux system images
-  - include: ./openstack-image-setup.yml
+  - include_tasks: tasks/setup-images.yml
     with_items: "{{ images }}"
     tags:
       - create_images

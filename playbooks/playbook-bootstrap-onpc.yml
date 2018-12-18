@@ -17,6 +17,7 @@
 - name: ONPC environment setup
   hosts: localhost
   become: yes
+  environment: "{{ onpc_proxy_environment | default({}) }}"
   vars_files:
     - vars/main.yml
     - vars/scenario.yml
@@ -39,7 +40,3 @@
      ansible_connection: local
      ansible_python_interpreter: "{{ ansible_playbook_python }}"
      bootstrap_host_services: "{{ onpc_services_list }}"
-
-dhcp_domain: openstacklocal
-
-  environment: "{{ onpc_proxy_environment | default({}) }}"

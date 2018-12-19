@@ -47,6 +47,14 @@
   tags:
     - generate-onpc-secrets
 
+- name: Drop the ONPC Ansible roles
+  shell: /opt/onpc_bootstrap/onpc_get_roles.sh
+  args:
+    executable: /bin/bash
+  environment: "{{ proxy_env | default('{}') }}"
+  tags:
+    - drop-onpc-roles
+
 - name: Find the env.d templates
   find:
     paths: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/env.d"

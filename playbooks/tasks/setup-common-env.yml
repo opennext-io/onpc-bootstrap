@@ -48,7 +48,7 @@
     - generate-onpc-secrets
 
 - name: Drop the ONPC Ansible roles
-  shell: /opt/onpc-bootstrap/scripts/onpc_get_roles.sh
+  shell: /opt/onpc-bootstrap/scripts/get-onpc-roles.sh
   args:
     executable: /bin/bash
   environment: "{{ proxy_env | default('{}') }}"

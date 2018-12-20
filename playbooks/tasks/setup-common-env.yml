@@ -75,6 +75,17 @@
   tags:
     - drop-envd-files
 
+- name: Drop the HAproxy user_variables file
+  template:
+    src: "/opt/onpc-bootstrap/templates/user_variables_haproxy.yml.j2"
+    dest: "/etc/openstack_deploy/user_variables_haproxy.yml"
+    backup: yes
+    group: root
+    mode: 0644
+  when: "'logging' in onpc_services_list or 'monitoring' in onpc_services_list "
+  tags:
+    - drop-user-haproxy-variables
+
 - name: Drop the logging user_variables file
   template:
     src: "/opt/onpc-logging/templates/user_variables_logging.yml.j2"

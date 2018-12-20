@@ -44,6 +44,49 @@ repo_build_pip_extra_indexes:
 {{ repo_build_pip_extra_indexes | to_nice_yaml }}
 {% endif %}
 
+## RabbitMQ Overrides
+# By default, openstack-ansible configures all OpenStack services to talk to
+# RabbitMQ over encrypted connections on port 5671. To opt-out of this default,
+# set the rabbitmq_use_ssl variable to 'false'. The default setting of 'true'
+# is highly recommended for securing the contents of RabbitMQ messages.
+# rabbitmq_use_ssl: false
+
+## HAProxy and keepalived
+# All the previous variables are used inside a var, in the group vars.
+# You can override the current keepalived definition (see
+# group_all/keepalived.yml) in your user space if necessary.
+#
+# Uncomment this to disable keepalived installation (cf. documentation)
+# haproxy_use_keepalived: False
+#
+# HAProxy Keepalived configuration (cf. documentation)
+# Make sure that this is set correctly according to the CIDR used for your
+# internal and external addresses.
+
+## Load Balancer Configuration (haproxy/keepalived)
+haproxy_keepalived_external_vip_cidr: "{{ external_vip_cidr }}"
+haproxy_keepalived_internal_vip_cidr: "{{ internal_vip_cidr }}"
+haproxy_keepalived_external_interface: "{{ external_vip_interface }}"
+haproxy_keepalived_internal_interface: "{{ internal_vip_interface }}"
+
+## HAProxy SSL certificates, keys, and CA certificates from your own trusted certificate authority.
+{% if haproxy_ssl is defined and haproxy_ssl | bool %}
+haproxy_user_ssl_cert: {{ haproxy_ssl_cert_path | default('/etc/openstack_deploy/ssl/openstack_cert.crt') }}
+haproxy_user_ssl_key: {{ haproxy_ssl_key_path | default('/etc/openstack_deploy/ssl/openstack_key.key') }}
+haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | default('/etc/openstack_deploy/ssl/openstack_ca.pem') }}
+{% endif %}
+
+# Defines the default VRRP id used for keepalived with haproxy.
+# Overwrite it to your value to make sure you don't overlap
+# with existing VRRPs id on your network. Default is 10 for the external and 11 for the
+# internal VRRPs
+# haproxy_keepalived_external_virtual_router_id:
+# haproxy_keepalived_internal_virtual_router_id:
+
+# Defines the VRRP master/backup priority. Defaults respectively to 100 and 20
+# haproxy_keepalived_priority_master:
+# haproxy_keepalived_priority_backup:
+
 ## Common Glance Overrides
 # Set glance_default_store to "swift" if using Cloud Files backend
 # or "rbd" if using ceph backend; the latter will trigger ceph to get
@@ -123,207 +166,6 @@ cinder_default_volume_type: rbddriver
 {% else %}
 cinder_default_volume_type: LVM_iSCSI
 {% endif %}
-
-# By default, openstack-ansible configures all OpenStack services to talk to
-# RabbitMQ over encrypted connections on port 5671. To opt-out of this default,
-# set the rabbitmq_use_ssl variable to 'false'. The default setting of 'true'
-# is highly recommended for securing the contents of RabbitMQ messages.
-# rabbitmq_use_ssl: false
-
-# RabbitMQ management plugin is enabled by default, the guest user has been
-# removed for security reasons and a new userid 'monitoring' has been created
-# with the 'monitoring' user tag. In order to modify the userid, uncomment the
-# following and change 'monitoring' to your userid of choice.
-rabbitmq_monitoring_userid: monitoring
-
-## HAProxy and keepalived
-# All the previous variables are used inside a var, in the group vars.
-# You can override the current keepalived definition (see
-# group_all/keepalived.yml) in your user space if necessary.
-#
-# Uncomment this to disable keepalived installation (cf. documentation)
-# haproxy_use_keepalived: False
-#
-# HAProxy Keepalived configuration (cf. documentation)
-# Make sure that this is set correctly according to the CIDR used for your
-# internal and external addresses.
-
-## Load Balancer Configuration (haproxy/keepalived)
-haproxy_keepalived_external_vip_cidr: "{{ external_vip_cidr }}"
-haproxy_keepalived_internal_vip_cidr: "{{ internal_vip_cidr }}"
-haproxy_keepalived_external_interface: "{{ external_vip_interface }}"
-haproxy_keepalived_internal_interface: "{{ internal_vip_interface }}"
-
-# Defines the default VRRP id used for keepalived with haproxy.
-# Overwrite it to your value to make sure you don't overlap
-# with existing VRRPs id on your network. Default is 10 for the external and 11 for the
-# internal VRRPs
-# haproxy_keepalived_external_virtual_router_id:
-# haproxy_keepalived_internal_virtual_router_id:
-
-# Defines the VRRP master/backup priority. Defaults respectively to 100 and 20
-# haproxy_keepalived_priority_master:
-# haproxy_keepalived_priority_backup:
-
-haproxy_stats_enabled: True
-haproxy_stats_bind_address: 127.0.0.1
-haproxy_stats_port: 1936
-haproxy_username: admin
-{% if proxy_host is defined and proxy_host | length > 0 %}
-keepalived_ping_address: "{{ proxy_host }}"
-{% endif %}
-
-## HAProxy SSL certificates, keys, and CA certificates from your own trusted certificate authority.
-{% if haproxy_ssl is defined and haproxy_ssl | bool %}
-haproxy_user_ssl_cert: {{ haproxy_ssl_cert_path | default('/etc/openstack_deploy/ssl/openstack_cert.crt') }}
-haproxy_user_ssl_key: {{ haproxy_ssl_key_path | default('/etc/openstack_deploy/ssl/openstack_key.key') }}
-haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | default('/etc/openstack_deploy/ssl/openstack_ca.pem') }}
-{% endif %}
-
-## HAProxy load-balancing extra congig for the monitoring and logging services
-haproxy_extra_services:
-  - service:
-      haproxy_service_name: influxdb_admin
-      haproxy_ssl: False
-{%- raw %}
-      haproxy_backend_nodes: "{{ groups['influxdb'] | default([]) }}"
-      haproxy_port: "{{ influxdb_port }}"
-{% endraw %}
-      haproxy_balance_type: tcp
-  - service:
-      haproxy_service_name: influxdb
-      haproxy_ssl: False
-{%- raw %}
-      haproxy_backend_nodes: "{{ groups['influxdb'] | default([]) }}"
-      haproxy_port: "{{ influxdb_port }}"
-      haproxy_backend_port: "{{ influxdb_port }}"
-{% endraw %}
-      haproxy_balance_type: http
-      haproxy_backend_options:
-        - "httpchk HEAD /ping"
-      haproxy_acls:
-        read_queries:
-          rule: "path_sub -i query"
-        write_queries:
-          rule: "path_sub -i write"
-          backend_name: "influxdb_relay"
-  - service:
-      haproxy_service_name: influxdb_relay
-      haproxy_ssl: False
-{%- raw %}    
-      haproxy_backend_nodes: "{{ groups['influxdb_relay'] | default([]) }}"
-      haproxy_port: "{{ influxdb_relay_port }}"
-      haproxy_backend_port: "{{ influxdb_relay_port }}"
-{% endraw %}
-      haproxy_balance_type: http
-      haproxy_balance_alg: roundrobin
-      haproxy_acls:
-        write_queries:
-          rule: "path_sub -i write"
-        read_queries:
-          rule: "path_sub -i query"
-          backend_name: "influxdb"
-  - service:
-      haproxy_service_name: grafana
-{%- raw %}    
-      haproxy_backend_nodes: "{{ groups['grafana'] | default([]) }}"
-      haproxy_ssl: "{{ haproxy_ssl }}"
-      haproxy_port: "{{ grafana_port }}"
-{% endraw %}    
-      haproxy_balance_type: http
-      haproxy_balance_alg: source
-      haproxy_backend_options:
-        - "httpchk GET /"
-      haproxy_backend_reqrep: '^([^\ ]*\ /)grafana[/]?(.*) \1\2'
-# No need for Redis load-balacing anymore because it's proxied by Sentinel
-# and Sensu uses an array of Sentinel endpoints as defined in redis_sentinels
-#  - service:
-#      haproxy_service_name: redis
-#      haproxy_ssl: False
-#{%- raw %}
-#      haproxy_backend_nodes: "{{ groups['redis'] | default([]) }}"
-#      haproxy_port: "{{ redis_port }}"
-#      haproxy_backend_port: "{{ redis_port }}"
-#{% endraw %}
-#      haproxy_balance_type: tcp
-#      haproxy_balance_alg: roundrobin
-#      haproxy_timeout_server: "6s"
-#      haproxy_backend_options:
-#        - "tcp-check"
-#      haproxy_backend_arguments:
-#        - "tcp-check connect"
-#        - 'tcp-check send PING\r\n'
-#        - "tcp-check expect string +PONG"
-#        - 'tcp-check send QUIT\r\n'
-#        - "tcp-check expect string +OK"
-# No need for Elasticsearch load-balacing anymore for two reasons
-# 1 - Kibana is connected to a local Elasticsearch clients_keystone
-# 2 - Fluentd is co-located with the Elasticsearch servers in the cluster
-#  - service:
-#      haproxy_service_name: elasticsearch
-#{%- raw %}
-#      haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
-#      haproxy_ssl: "{{ haproxy_ssl }}"
-#      haproxy_port: "{{ elastic_port }}"
-#      haproxy_backend_port: "{{ elastic_port }}"
-#{% endraw %}    
-#      haproxy_balance_type: tcp
-#      haproxy_backend_options:
-#        - "tcpka"
-#        - "httpchk GET /_cat/health"
-  - service:
-      haproxy_service_name: kibana
-{%- raw %}    
-      haproxy_backend_nodes: "{{ groups['kibana'] | default([]) }}"
-      haproxy_ssl: "{{ haproxy_ssl }}"
-      haproxy_port: "{{ kibana_server_port }}"
-      haproxy_backend_port: "{{ kibana_server_port }}"
-{% endraw %}
-      haproxy_balance_type: http
-      haproxy_balance_alg: source
-      haproxy_backend_options:
-        - "httpchk GET /"
-      haproxy_backend_reqrep: '^([^\ :]*)\ /kibana/(.*) \1\ /\2'
-      haproxy_acls:
-        acl_kibana:
-          rule: "path_beg /kibana"
-          backend_name: "kibana"
-  - service:
-      haproxy_service_name: fluentd
-      haproxy_ssl: False
-{%- raw %}
-      haproxy_backend_nodes: "{{ groups['fluentd'] | default([]) }}"
-      haproxy_port: "{{ tdagent_syslog_port }}"
-{% endraw %}
-      haproxy_balance_type: tcp
-      haproxy_balance_alg: roundrobin
-      haproxy_backend_options:
-        - "tcpka"
-  - service:
-      haproxy_service_name: uchiwa
-{%- raw %}    
-      haproxy_backend_nodes: "{{ groups['uchiwa'] | default([]) }}"
-      haproxy_ssl: "{{ haproxy_ssl }}"
-      haproxy_port: "{{ uchiwa_port }}"
-      haproxy_backend_port: "{{ uchiwa_port }}"
-{% endraw %}
-      haproxy_balance_type: http
-      haproxy_balance_alg: source
-      haproxy_backend_options:
-        - "httpchk GET /"
-  - service:
-      haproxy_service_name: sensu
-      haproxy_ssl: False
-{%- raw %}
-      haproxy_backend_nodes: "{{ groups['sensu'] | default([]) }}"
-      haproxy_port: "{{ sensu_api_port }}"
-{% endraw %}
-      haproxy_balance_type: http
-      haproxy_balance_alg: roundrobin
-      haproxy_backend_options:
-{%- raw %}
-        - "httpchk GET /health HTTP/1.1\\r\\nAuthorization:\\ Basic\\ {{ [sensu_api_user_name, ':', sensu_api_password] | join | b64encode }}"
-{% endraw %}
 
 ## Tempest settings
 {% if container_tech == 'nspawn' %}

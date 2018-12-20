@@ -48,7 +48,7 @@
     - generate-onpc-secrets
 
 - name: Drop the ONPC Ansible roles
-  shell: /opt/onpc_bootstrap/onpc_get_roles.sh
+  shell: /opt/onpc-bootstrap/scripts/onpc_get_roles.sh
   args:
     executable: /bin/bash
   environment: "{{ proxy_env | default('{}') }}"
@@ -77,7 +77,7 @@
 
 - name: Drop the logging user_variables file
   template:
-    src: "/opt/onpc_logging/templates/user_variables_logging.yml.j2"
+    src: "/opt/onpc-logging/templates/user_variables_logging.yml.j2"
     dest: "/etc/openstack_deploy/user_variables_logging.yml"
     backup: yes
     group: root
@@ -88,7 +88,7 @@
 
 - name: Drop the monitoring user_variables file
   template:
-    src: "/opt/onpc_monitoring/templates/user_variables_monitoring.yml.j2"
+    src: "/opt/onpc-monitoring/templates/user_variables_monitoring.yml.j2"
     dest: "/etc/openstack_deploy/user_variables_monitoring.yml"
     backup: yes
     group: root

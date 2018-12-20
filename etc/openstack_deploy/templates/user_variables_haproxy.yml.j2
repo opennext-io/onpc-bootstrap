@@ -1,0 +1,169 @@
+# {{ ansible_managed }}
+---
+# Copyright 2014, Rackspace US, Inc.
+# Copyright 2018, OpenNext SAS. 
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+haproxy_stats_enabled: True
+haproxy_stats_bind_address: 127.0.0.1
+haproxy_stats_port: 1936
+haproxy_username: admin
+{% if proxy_host is defined and proxy_host | length > 0 %}
+keepalived_ping_address: "{{ proxy_host }}"
+{% endif %}
+
+## HAProxy load-balancing extra congig for the monitoring and logging services
+haproxy_extra_services:
+  - service:
+      haproxy_service_name: influxdb_admin
+      haproxy_ssl: False
+{%- raw %}
+      haproxy_backend_nodes: "{{ groups['influxdb'] | default([]) }}"
+      haproxy_port: "{{ influxdb_port }}"
+{% endraw %}
+      haproxy_balance_type: tcp
+  - service:
+      haproxy_service_name: influxdb
+      haproxy_ssl: False
+{%- raw %}
+      haproxy_backend_nodes: "{{ groups['influxdb'] | default([]) }}"
+      haproxy_port: "{{ influxdb_port }}"
+      haproxy_backend_port: "{{ influxdb_port }}"
+{% endraw %}
+      haproxy_balance_type: http
+      haproxy_backend_options:
+        - "httpchk HEAD /ping"
+      haproxy_acls:
+        read_queries:
+          rule: "path_sub -i query"
+        write_queries:
+          rule: "path_sub -i write"
+          backend_name: "influxdb_relay"
+  - service:
+      haproxy_service_name: influxdb_relay
+      haproxy_ssl: False
+{%- raw %}    
+      haproxy_backend_nodes: "{{ groups['influxdb_relay'] | default([]) }}"
+      haproxy_port: "{{ influxdb_relay_port }}"
+      haproxy_backend_port: "{{ influxdb_relay_port }}"
+{% endraw %}
+      haproxy_balance_type: http
+      haproxy_balance_alg: roundrobin
+      haproxy_acls:
+        write_queries:
+          rule: "path_sub -i write"
+        read_queries:
+          rule: "path_sub -i query"
+          backend_name: "influxdb"
+  - service:
+      haproxy_service_name: grafana
+{%- raw %}    
+      haproxy_backend_nodes: "{{ groups['grafana'] | default([]) }}"
+      haproxy_ssl: "{{ haproxy_ssl }}"
+      haproxy_port: "{{ grafana_port }}"
+{% endraw %}    
+      haproxy_balance_type: http
+      haproxy_balance_alg: source
+      haproxy_backend_options:
+        - "httpchk GET /"
+      haproxy_backend_reqrep: '^([^\ ]*\ /)grafana[/]?(.*) \1\2'
+# No need for Redis load-balacing anymore because it's proxied by Sentinel
+# and Sensu uses an array of Sentinel endpoints as defined in redis_sentinels
+#  - service:
+#      haproxy_service_name: redis
+#      haproxy_ssl: False
+#{%- raw %}
+#      haproxy_backend_nodes: "{{ groups['redis'] | default([]) }}"
+#      haproxy_port: "{{ redis_port }}"
+#      haproxy_backend_port: "{{ redis_port }}"
+#{% endraw %}
+#      haproxy_balance_type: tcp
+#      haproxy_balance_alg: roundrobin
+#      haproxy_timeout_server: "6s"
+#      haproxy_backend_options:
+#        - "tcp-check"
+#      haproxy_backend_arguments:
+#        - "tcp-check connect"
+#        - 'tcp-check send PING\r\n'
+#        - "tcp-check expect string +PONG"
+#        - 'tcp-check send QUIT\r\n'
+#        - "tcp-check expect string +OK"
+# No need for Elasticsearch load-balacing anymore for two reasons
+# 1 - Kibana is connected to a local Elasticsearch clients_keystone
+# 2 - Fluentd is co-located with the Elasticsearch servers in the cluster
+#  - service:
+#      haproxy_service_name: elasticsearch
+#{%- raw %}
+#      haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
+#      haproxy_ssl: "{{ haproxy_ssl }}"
+#      haproxy_port: "{{ elastic_port }}"
+#      haproxy_backend_port: "{{ elastic_port }}"
+#{% endraw %}    
+#      haproxy_balance_type: tcp
+#      haproxy_backend_options:
+#        - "tcpka"
+#        - "httpchk GET /_cat/health"
+  - service:
+      haproxy_service_name: kibana
+{%- raw %}    
+      haproxy_backend_nodes: "{{ groups['kibana'] | default([]) }}"
+      haproxy_ssl: "{{ haproxy_ssl }}"
+      haproxy_port: "{{ kibana_server_port }}"
+      haproxy_backend_port: "{{ kibana_server_port }}"
+{% endraw %}
+      haproxy_balance_type: http
+      haproxy_balance_alg: source
+      haproxy_backend_options:
+        - "httpchk GET /"
+      haproxy_backend_reqrep: '^([^\ :]*)\ /kibana/(.*) \1\ /\2'
+      haproxy_acls:
+        acl_kibana:
+          rule: "path_beg /kibana"
+          backend_name: "kibana"
+  - service:
+      haproxy_service_name: fluentd
+      haproxy_ssl: False
+{%- raw %}
+      haproxy_backend_nodes: "{{ groups['fluentd'] | default([]) }}"
+      haproxy_port: "{{ tdagent_syslog_port }}"
+{% endraw %}
+      haproxy_balance_type: tcp
+      haproxy_balance_alg: roundrobin
+      haproxy_backend_options:
+        - "tcpka"
+  - service:
+      haproxy_service_name: uchiwa
+{%- raw %}    
+      haproxy_backend_nodes: "{{ groups['uchiwa'] | default([]) }}"
+      haproxy_ssl: "{{ haproxy_ssl }}"
+      haproxy_port: "{{ uchiwa_port }}"
+      haproxy_backend_port: "{{ uchiwa_port }}"
+{% endraw %}
+      haproxy_balance_type: http
+      haproxy_balance_alg: source
+      haproxy_backend_options:
+        - "httpchk GET /"
+  - service:
+      haproxy_service_name: sensu
+      haproxy_ssl: False
+{%- raw %}
+      haproxy_backend_nodes: "{{ groups['sensu'] | default([]) }}"
+      haproxy_port: "{{ sensu_api_port }}"
+{% endraw %}
+      haproxy_balance_type: http
+      haproxy_balance_alg: roundrobin
+      haproxy_backend_options:
+{%- raw %}
+        - "httpchk GET /health HTTP/1.1\\r\\nAuthorization:\\ Basic\\ {{ [sensu_api_user_name, ':', sensu_api_password] | join | b64encode }}"
+{% endraw %}

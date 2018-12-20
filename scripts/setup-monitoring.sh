@@ -14,7 +14,7 @@ export grafana_url=${grafana_url:-''}
 # Move to proper dir
 pushd /opt/onpc-monitoring
 # Create the monitoring container(s)
-openstack-ansible /opt/openstack-ansible/playbooks/lxc-containers-create.yml -e 'container_group=influx_containers:collectd_containers:grafana_containers'
+#openstack-ansible /opt/openstack-ansible/playbooks/lxc-containers-create.yml -e #'container_group=influx_containers:collectd_containers:grafana_containers'
 openstack-ansible setup-everything.yml
 popd
 

@@ -14,15 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Bootstrap ONPC initial setup
-  host: localhost
-
-  vars_files:
-    - bootstrap-scenario-vars.yml
-    - bootstart-global-vars.yml
-    - bootstrap-network-vars.yml
-    - bootstrap-services-vars.yml
-
 - name: Bootstrap the ONPC cluster nodes
   hosts: all 
   gather_facts: true
@@ -45,7 +36,6 @@
       ansible_python_interpreter: "/usr/bin/python"
       bootstrap_host_scenario: "{{ onpc_bootstrap_scenario }}"
       install_method: "{{ onpc_install_method }}"
-      openstack_confd_entries: "{{ onpc_confd_overrides[onpc_bootstrap_scenario] }}"
   when: 
 
 
@@ -58,13 +48,5 @@
       install_method: "{{ onpc_install_method }}"
       openstack_confd_entries: "{{ onpc_confd_overrides[onpc_bootstrap_scenario] }}"
 
-  post_tasks:
-    - name: Check that new network interfaces are up
-      assert:
-        that:
-          - ansible_eth12['active'] == true
-          - ansible_eth13['active'] == true
-          - ansible_eth14['active'] == true
-      when:
-        - (container_tech | default('unknown')) != 'nspawn'
+  
   environment: "{{ deployment_environment_variables | default({}) }}"

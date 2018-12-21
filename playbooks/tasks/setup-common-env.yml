@@ -77,7 +77,7 @@
 
 - name: Drop the HAproxy user_variables file
   template:
-    src: "/opt/onpc-bootstrap/templates/user_variables_haproxy.yml.j2"
+    src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_haproxy.yml.j2"
     dest: "/etc/openstack_deploy/user_variables_haproxy.yml"
     backup: yes
     group: root

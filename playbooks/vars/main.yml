@@ -29,7 +29,7 @@ onpc_region_name: RegionOne
 onpc_haproxy_ssl_enabled: True
 # The variable onpc_environment_name is used to tag the monitoring metrics
 # and alerts.
-onpc_environment_name: "{{ environment_name | default(onpc_dhcp_domain, true) }}"
+# Remove: onpc_environment_name: "{{ environment_name | default(onpc_dhcp_domain, true) }}"
 onpc_run_tempest_tests: no
 onpc_mandatory_roles:
     - compute

@@ -50,4 +50,11 @@ onpc_host_data_disk_device: sda2
 # proxy_port: "3128"
 
 # Use a Slack channel for sending alerts.
-# onpc_slack_alert={ 'alert-channel': '<channel_name>', 'uuid': 'channel_uuid' }
+onpc_slack_alerts:
+  alert-channel: ''
+  uuid: ''
+
+# Sensu Alert handlers
+onpc_sensu_alerts:
+  handlers:
+    - 'default'

@@ -13,16 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Fail if none of the mandatory roles is defined for {{ inventory_hostname }}
+- name: Fail if none of the known roles is assigned to node {{ inventory_hostname }}
   fail:
     msg: |
-      None of the mandatory roles is defined for '{{ inventory_hostname }}'.
-      Mandatory roles include {{ onpc_mandatory_roles }}.
+      None of the known roles is defined for '{{ inventory_hostname }}'.
+      Mandatory roles include {{ onpc_known_roles }}.
       Found {{ group_names }}.
   when:
-    - onpc_mandatory_roles | intersect(group_names) | lenght == 0
+    - onpc_known_roles | intersect(group_names) | lenght == 0
   tags:
-    - check-mandatory-roles
+    - check-known-roles
     
 - name: Check for a supported Operating System
   assert:
@@ -38,7 +38,7 @@
 
 - name: Identify the space available in /
   # NOTE(hwoarang): df does not work reliably on btrfs filesystems
-  # https://btrfs.wiki.kernel.org/index.php/FAQ#How_much_free_space_do_I_have.3F
+  # https://btrfs.wiki.kernel.org/index.php/FAQ#How_much_free_space_do_I_have.
   # As such, use the btrfs tools to determine the real available size on the
   # disk
   shell: |
@@ -59,51 +59,16 @@
   tags:
     - check-disk-size
 
-- name: Fail when disk can not be found
-  fail:
-    msg: |
-      Can not find disk {{ onpc_host_data_disk_device }}
-  when:
-    - ansible_devices.get(onpc_host_data_disk_device) == None
-  tags:
-    - check-disk-size
-
-- name: Set data disk facts
-  set_fact:
-    host_data_disk_sectors: "{{ (ansible_devices[onpc_host_data_disk_device]['sectors'] | int) }}"
-    host_data_disk_sectorsize: "{{ (ansible_devices[onpc_host_data_disk_device]['sectorsize'] | int) }}"
-  when:
-    - onpc_host_data_disk_device != None
-  tags:
-    - check-disk-size
-
-# Calculate the size of the onpc_host_data_disk_device by muliplying sectors with sectorsize.
-- name: Calculate data disk size
-  set_fact:
-    host_data_disk_size_bytes: "{{ ((host_data_disk_sectors | int) * (host_data_disk_sectorsize | int)) | int }}"
-  when:
-    - onpc_host_data_disk_device != None
-  tags:
-    - check-disk-size
-
-# Convert bootstrap_host_data_disk_min_size to bytes.
+# Convert onpc_root_filesystem_min_size to bytes.
 - name: Set min size fact
   set_fact:
-    host_data_disk_min_size_bytes: "{{ ((bootstrap_host_data_disk_min_size | int) * 1024**3) | int }}"
+    host_data_disk_min_size_bytes: "{{ ((onpc_root_filesystem_min_size | int) * 1024**3) | int }}"
   tags:
     - check-disk-size
 
 - name: Set size facts
   set_fact:
     root_gb_available: "{{ ((host_root_space_available_bytes | int ) / 1024**3) | round(2, 'floor') }}"
-  when: onpc_host_data_disk_device == None
-  tags:
-    - check-disk-size
-
-- name: Set disk size facts
-  set_fact:
-    disk_gb_available: "{{ ((host_data_disk_size_bytes | int ) / 1024**3) | round(2, 'floor') }}"
-  when: onpc_host_data_disk_device != None
   tags:
     - check-disk-size
 
@@ -113,19 +78,7 @@
       Not enough space available in /.
       Found {{ root_gb_available }} GB, required {{ bootstrap_host_data_disk_min_size }} GB)
   when:
-    - onpc_host_data_disk_device == None
     - (host_root_space_available_bytes | int) < (host_data_disk_min_size_bytes | int)
-  tags:
-    - check-disk-size
-
-- name: Fail if there is not enough disk space available (disk specified)
-  fail:
-    msg: |
-      Not enough disk space available.
-      Found {{ disk_gb_available }} GB, required {{ bootstrap_host_data_disk_min_size }} GB)
-  when:
-    - onpc_host_data_disk_device != None
-    - (host_data_disk_size_bytes | int) < (host_data_disk_min_size_bytes | int)
   tags:
     - check-disk-size
 

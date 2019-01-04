@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Set OSA nodes inventory facts
+- name: Set hosts list facts by role
   set_fact:
     infra_hosts_list: "{% set sel = [] %}{% if 'controller' in groups %}{% for host in groups['controller'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
     compute_hosts_list: "{% set sel = [] %}{% if 'compute' in groups %}{% for host in groups['compute'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
@@ -24,23 +24,23 @@
     logging_hosts_list: "{% set sel = [] %}{% if 'logging' in groups %}{% for host in groups['logging'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
     swift_hosts_list: "{% set sel = [] %}{% if 'swift' in groups %}{% for host in groups['swift'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
 
-- name: Set OSA first controller node fact
+- name: Set first controller node fact
   set_fact:
     first_controller_node_name:  "{{ infra_hosts_list | sort | first }}"
 
-# Not sure about this one (commented for now...)
+# Not sure about this  (commented for now...)
 #- name: Set Swift facts
 #  set_fact:
 #    swift: "{% if swift_hosts_list | length > 0 %}True{% else %}False{% endif %}"
 
-- name: Set hosts lists by role facts 
+- name: Set hosts list facts by default
   set_fact:
     network_hosts_list: "{% if network_hosts_list | length == 0  %}{{ infra_hosts_list}}{% endif %}"
     monitoring_hosts_list: "{% if monitoring_hosts_list | length == 0  %}{{ infra_hosts_list}}{% else %}{{ monitoring_hosts_list }}{% endif %}"
     logging_hosts_list: "{% if logging_hosts_list | length == 0  %}{{ infra_hosts_list}}{% else %}{{ logging_hosts_list }}{% endif %}"
     image_hosts_list: "{% if image_hosts_list | length == 0  %}{{ infra_hosts_list}}{% else %}{{ image_hosts_list }}{% endif %}"
 
-- name: Set deployment hosts facts
+- name: Set hosts list name and IP address parameters facts
   set_fact:
     infrastructure_hosts_dict: "{% set sel = [] %}{% for host in infra_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     storage_hosts_dict: "{% set sel = [] %}{% for host in storage_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
@@ -58,7 +58,7 @@
     internal_vip_address: "{% set sel = container_network.split('.')[:-1] + ['100'] %}{{ sel | join('.') }}"
     external_vip_address: "{% set sel = external_network.split('.')[:-1] + ['100'] %}{{ sel | join('.') }}"
 
-- name: Set HAProxy / Keepalive facts
+- name: Set HAProxy - Keepalive facts
   set_fact:
     internal_vip_cidr: "{{ internal_vip_address }}/{{ container_network.split('/')[1] }}"
     external_vip_cidr: "{{ external_vip_address }}/{{ external_network.split('/')[1] }}"

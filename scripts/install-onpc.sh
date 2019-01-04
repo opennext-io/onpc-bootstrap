@@ -45,7 +45,7 @@ pushd playbooks
     for BOOTSTRAP_OPT in ${BOOTSTRAP_OPTS}; do
       BOOTSTRAP_OPTS_ITEMS=${BOOTSTRAP_OPTS_ITEMS}"-e "${BOOTSTRAP_OPT}" "
     done
-    /usr/bin/ansible-playbook playbook-install-onpc.yml ${BOOTSTRAP_OPTS_ITEMS}
+    /usr/bin/ansible-playbook playbook-setup-onpc.yml ${BOOTSTRAP_OPTS_ITEMS}
   fi    
 popd  
       

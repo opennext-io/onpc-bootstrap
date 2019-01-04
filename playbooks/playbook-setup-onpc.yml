@@ -14,7 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: ONPC environment bootstrap
+- name: Setup the ONPC cluster nodes
+  hosts: osa_nodes
+  become: true
+  become_user: root
+  environment: "{{ onpc_proxy_environment | default({}) }}"
+  vars_files:
+    - vars/main.yml
+    - vars/services.yml
+    - vars/partitions.yml
+  
+  pre_tasks:
+    - include_tasks: tasks/check-env-readiness.yml
+    - include_tasks: tasks/install-packages.yml
+    - include_tasks: tasks/configure-kernel.yml
+
+  roles:
+    - configure-ntp
+
+- name: Setup the ONPC deployment environment
   hosts: localhost
   become: true
   become_user: root
@@ -35,25 +53,12 @@
     - include_tasks: tasks/setup-aio-env.yml
       when:
         - '"aio" in onpc_scenario_list'
+    - include_tasks: tasks/setup-multinode-facts.yml
+      when:
+        - '"aio" not in onpc_scenario_list'
+    - include_tasks: tasks/check-multinode-facts.yml
+      when:
+        - '"aio" not in onpc_scenario_list'
     - include_tasks: tasks/setup-multinode-env.yml
       when:
         - '"aio" not in onpc_scenario_list'
-
-- name: ONPC environment deploy
-  block:
-    become: true
-    become_user: root
-  when:
-    - '"aio" in onpc_scenario_list'
-  host: all
-  become: yes
-  environment: "{{ deployment_environment_variables | default({}) }}"
-  vars_files:
-    - vars/main.yml
-    - vars/services.yml
-  vars:
-    ansible_connection: local
-    ansible_python_interpreter: "{{ ansible_playbook_python }}"
-    bootstrap_host_services: "{{ onpc_services_list }}"
-    bootstrap_host_scenario: "{{ onpc_bootstrap_scenario }}"
-    install_method: "{{ onpc_install_method }}"

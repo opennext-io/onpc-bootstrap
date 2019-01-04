@@ -90,10 +90,10 @@
   with_items:
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_ceph.yml.j2"
       dest: user_variables_ceph.yml
-      condition: '"ceph" in onpc_scenario_list'
+      condition: '"ceph" in onpc_services_list'
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_swift.yml.j2"
       dest: user_variables_swift.yml
-      condition: '"swift" in onpc_scenario_list'
+      condition: '"swift" in onpc_services_list'
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_designate.yml.j2"
       dest: user_variables_designate.yml
       condition: "{{ 'designate' in onpc_services_list }}"

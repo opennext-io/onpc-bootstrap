@@ -31,14 +31,20 @@ onpc_haproxy_ssl_enabled: True
 # and alerts.
 # Remove: onpc_environment_name: "{{ environment_name | default(onpc_dhcp_domain, true) }}"
 onpc_run_tempest_tests: no
-onpc_mandatory_roles:
-    - compute
+onpc_known_roles:
+    - controller
     - storage
+    - ceph
+    - compute
     - network
     - logging
     - monitoring
+    - swift
 
 onpc_host_data_disk_device: sda2
+
+# Minimum storage capacity on root filesystem (in GB) for nodes
+onpc_root_filesystem_min_size: 50
 
 # The proxy (Squid) is the deployment host where MAAS is configured as the
 # default gateway for the machines it manages.  If the region controller is
@@ -46,8 +52,8 @@ onpc_host_data_disk_device: sda2
 # the proxy will work transparently (on TCP port 3128). Otherwise machines
 # will need to access it on TCP port 8000.
 #
-# proxy_host: "{{ onpc_region_controller }}.{{ onpc_dhcp_domaine }}"
-# proxy_port: "3128"
+proxy_host: "{{ onpc_region_controller }}.{{ onpc_dhcp_domaine }}"
+proxy_port: "3128"
 
 # Use a Slack channel for sending alerts.
 onpc_slack_alerts:

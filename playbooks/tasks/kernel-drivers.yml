@@ -1,0 +1,51 @@
+# Linux kernel drivers/modules configuration task
+---
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Setting fact (Ubuntu)
+  set_fact:
+    modules_file: /etc/modules
+  when: ansible_distribution | lower == 'ubuntu'
+
+- name: Setting fact (CentOS)
+  set_fact:
+    modules_file: /etc/modules-load.d/bridges.conf
+  when: ansible_distribution | lower == 'centos'
+
+- name: Ensure that {{ modules_file }} exists (CentOS)
+  file:
+    path: "{{ modules_file }}"
+    state: touch
+    owner: root
+    group: root
+    mode: 0644
+  changed_when: false
+  when: ansible_distribution | lower == 'centos'
+
+# Add the specified module into configuration
+- name: Configuring system module {{ module }}
+  lineinfile:
+    path: "{{ modules_file }}"
+    line: "{{ module }}"
+    state: present
+    owner: root
+    group: root
+    mode: 0644
+
+# Add the specified module into running system
+- name: Loading system module {{ module }}
+  modprobe:
+    name: "{{ module }}"
+    state: present

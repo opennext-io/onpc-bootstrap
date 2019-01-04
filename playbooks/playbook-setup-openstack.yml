@@ -21,15 +21,15 @@
       state: present
     tags:
       - always
-  - include_tasks: tasks/setup-flavors.yml
+  - include_tasks: tasks/setup-user-flavors.yml
     with_items: "{{ vm_flavors }}"
     tags:
       - create_flavors
-  - include_tasks: tasks/setup-images.yml
+  - include_tasks: tasks/setup-user-images.yml
     with_items: "{{ images }}"
     tags:
       - create_images
-  - include_tasks: tasks/setup-networks.yml
+  - include_tasks: tasks/setup-user-networks.yml
     tags:
       - create_networks
 

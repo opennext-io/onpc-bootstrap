@@ -20,12 +20,54 @@ packages_install:
   - ifenslave-2.6
   - lsof
   - lvm2
-  - ntp
+  - chrony
   - ntpdate
   - openssh-server
   - sudo
   - tcpdump
   - vlan
+  - ethtool
+  - ifstat
+  - iputils-tracepath
+  - netcat
+  - openssh-server
+  - linux-image-extra-{{ ansible_kernel }}
+
+package_install_monitoring:
+  - arpwatch
+  - atop
+  - bwm-ng
+  - cbm
+  - ctop
+  - dstat
+  - htop
+  - iftop
+  - ioping
+  - iotop
+  - iptraf
+  - itop
+  - netdiag
+  - nethogs
+  - nload
+  - nmap
+  - nmon
+  - pktstat
+  - saidar
+  - slurm
+  - speedometer
+  - sysstat
+  - tcptrack
+  - tshark
+
+package_install_user:
+  - byobu
+  - gawk
+  - pastebinit
+  - screen
+  - tmate
+  - tmux
+  - tree
+  - vim
 
 packages_install_zfs:
   - zfsutils-linux

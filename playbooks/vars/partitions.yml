@@ -1,0 +1,94 @@
+---
+# OSA disks and partitions configuration
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+osa_disks: [
+    {
+      device_path: "{{ base_system_disk_device | default('/dev/sda') }}",
+      # The min size should be at least the sum of all partitions
+      # defined hereafter
+      minsize: "{{ base_system_disk_space | default(720.0) | float }}",
+      partitions: [
+          {
+            name: "openstack-core",
+            vg: "os-",
+            lv: "core",
+            size: "{{ osa_partition_size | default(100.0) | float }}",
+            mountpoint: "/openstack",
+          },
+          {
+            name: "openstack-logs",
+            vg: "os-",
+            lv: "logs",
+            size: "{{ osa_logs_partition_size | default(100.0) | float }}",
+            mountpoint: "/openstack/log",
+          },
+          {
+            name: "openstack-varliblxc",
+            vg: "os-",
+            lv: "lxc",
+            size: "{{ lxc_partition_size | default(100.0) | float }}",
+            mountpoint: "/var/lib/lxc",
+          },
+          {
+            name: "swap",
+            vg: "os-",
+            lv: "swap",
+            size: "{{ swap_partition_size | default(16.0) | float }}",
+            type: "swap",
+            fstype: "ext4",
+          },
+          {
+            name: "cinder-volumes",
+            vg: "cinder-volumes",
+            size: "{{ storage_partition_size | default(128.0) | float }}",
+            type: "vgonly",
+            roles: [
+              { "name": "storage" },
+            ],
+          },
+          {
+            name: "ceph-data",
+            vg: "ceph-",
+            lv: "data",
+            size: "{{ ceph_data_partition_size | default(1024.0) | float }}",
+            type: "vgonly",
+            roles: [
+              { "name": "ceph" },
+            ],
+          },
+          {
+            name: "ceph-journal",
+            vg: "ceph-",
+            lv: "journal",
+            size: "{{ ceph_journal_partition_size | default(10.0) | float }}",
+            type: "vgonly",
+            roles: [
+              { "name": "ceph" },
+            ],
+          },
+          {
+            name: "openstack-novainstances",
+            vg: "os-",
+            lv: "nova",
+            size: "{{ compute_partition_size | default(128.0) | float }}",
+            mountpoint: "/var/lib/nova/instances",
+            roles: [
+              { "name": "compute" },
+            ],
+          },
+       ],
+    },
+]

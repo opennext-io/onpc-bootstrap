@@ -19,12 +19,13 @@ haproxy_stats_enabled: True
 haproxy_stats_bind_address: 127.0.0.1
 haproxy_stats_port: 1936
 haproxy_username: admin
-{% if proxy_host is defined and proxy_host | length > 0 %}
-keepalived_ping_address: "{{ proxy_host }}"
+{% if onpc_proxy_host is defined and onpc_proxy_host | length > 0 %}
+keepalived_ping_address: "{{ onpc_proxy_host }}"
 {% endif %}
 
 ## HAProxy load-balancing extra congig for the monitoring and logging services
 haproxy_extra_services:
+{% if 'monitoring' in bootstrap_host_services %}
   - service:
       haproxy_service_name: influxdb_admin
       haproxy_ssl: False
@@ -99,21 +100,46 @@ haproxy_extra_services:
 #        - "tcp-check expect string +PONG"
 #        - 'tcp-check send QUIT\r\n'
 #        - "tcp-check expect string +OK"
-# No need for Elasticsearch load-balacing anymore for two reasons
-# 1 - Kibana is connected to a local Elasticsearch clients_keystone
-# 2 - Fluentd is co-located with the Elasticsearch servers in the cluster
-#  - service:
-#      haproxy_service_name: elasticsearch
-#{%- raw %}
-#      haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
-#      haproxy_ssl: "{{ haproxy_ssl }}"
-#      haproxy_port: "{{ elastic_port }}"
-#      haproxy_backend_port: "{{ elastic_port }}"
-#{% endraw %}    
-#      haproxy_balance_type: tcp
-#      haproxy_backend_options:
-#        - "tcpka"
-#        - "httpchk GET /_cat/health"
+#
+  - service:
+      haproxy_service_name: uchiwa
+{%- raw %}    
+      haproxy_backend_nodes: "{{ groups['uchiwa'] | default([]) }}"
+      haproxy_ssl: "{{ haproxy_ssl }}"
+      haproxy_port: "{{ uchiwa_port }}"
+      haproxy_backend_port: "{{ uchiwa_port }}"
+{% endraw %}
+      haproxy_balance_type: http
+      haproxy_balance_alg: source
+      haproxy_backend_options:
+        - "httpchk GET /"
+  - service:
+      haproxy_service_name: sensu
+      haproxy_ssl: False
+{%- raw %}
+      haproxy_backend_nodes: "{{ groups['sensu'] | default([]) }}"
+      haproxy_port: "{{ sensu_api_port }}"
+{% endraw %}
+      haproxy_balance_type: http
+      haproxy_balance_alg: roundrobin
+      haproxy_backend_options:
+{%- raw %}
+        - "httpchk GET /health HTTP/1.1\\r\\nAuthorization:\\ Basic\\ {{ [sensu_api_user_name, ':', sensu_api_password] | join | b64encode }}"
+{% endraw %}
+{% endif %}
+{% if 'logging' in bootstrap_host_services %}
+  - service:
+      haproxy_service_name: elasticsearch
+{%- raw %}
+      haproxy_backend_nodes: "{{ groups['elasticsearch'] | default([]) }}"
+      haproxy_ssl: "{{ haproxy_ssl }}"
+      haproxy_port: "{{ elastic_port }}"
+      haproxy_backend_port: "{{ elastic_port }}"
+{% endraw %}    
+      haproxy_balance_type: tcp
+      haproxy_backend_options:
+        - "tcpka"
+        - "httpchk GET /_cat/health"
   - service:
       haproxy_service_name: kibana
 {%- raw %}    
@@ -142,28 +168,4 @@ haproxy_extra_services:
       haproxy_balance_alg: roundrobin
       haproxy_backend_options:
         - "tcpka"
-  - service:
-      haproxy_service_name: uchiwa
-{%- raw %}    
-      haproxy_backend_nodes: "{{ groups['uchiwa'] | default([]) }}"
-      haproxy_ssl: "{{ haproxy_ssl }}"
-      haproxy_port: "{{ uchiwa_port }}"
-      haproxy_backend_port: "{{ uchiwa_port }}"
-{% endraw %}
-      haproxy_balance_type: http
-      haproxy_balance_alg: source
-      haproxy_backend_options:
-        - "httpchk GET /"
-  - service:
-      haproxy_service_name: sensu
-      haproxy_ssl: False
-{%- raw %}
-      haproxy_backend_nodes: "{{ groups['sensu'] | default([]) }}"
-      haproxy_port: "{{ sensu_api_port }}"
-{% endraw %}
-      haproxy_balance_type: http
-      haproxy_balance_alg: roundrobin
-      haproxy_backend_options:
-{%- raw %}
-        - "httpchk GET /health HTTP/1.1\\r\\nAuthorization:\\ Basic\\ {{ [sensu_api_user_name, ':', sensu_api_password] | join | b64encode }}"
-{% endraw %}
+{% endif %}

@@ -19,19 +19,18 @@ onpc_lma_release: master
 onpc_bootstrap_scenario: "{{ lookup('env','SCENARIO') | default('starter_aio', true) }}"
 onpc_bootstrap_config_path: /opt/onpc-bootstrap/etc/openstack_deploy
 onpc_install_method: "{{ lookup('env', 'INSTALL_METHOD') | default('source', true)  }}"
-onpc_debug_enabled: false
-onpc_low_end_profile: false
+onpc_debug_enabled: False
+onpc_low_end_profile: False
 onpc_cpu_overcommit: 8.0
-onpc_openstack_domain: opennextlocal
-onpc_dhcp_domain: opennext.local
-onpc_region_controller: maas
+onpc_nova_domain: "openstacklocal"
+onpc_infra_domain: "{{ ansible_domain }} | default('opennext.local') }}"
 onpc_region_name: RegionOne
 onpc_haproxy_ssl_enabled: True
 # The variable onpc_environment_name is used to tag the monitoring metrics
 # and alerts.
-# Remove: onpc_environment_name: "{{ environment_name | default(onpc_dhcp_domain, true) }}"
-onpc_run_tempest_tests: no
-onpc_known_roles:
+# Remove: onpc_environment_name: "{{ environment_name | default(onpc_infra_domain, true) }}"
+onpc_run_tempest_tests: No
+onpc_valid_roles:
     - controller
     - storage
     - ceph
@@ -41,7 +40,23 @@ onpc_known_roles:
     - monitoring
     - swift
 
-onpc_host_data_disk_device: sda2
+## Extra storage
+# The node bootstrap process may optionally use a second storage device.
+# If a secondary disk device to use is not specified, then existing
+# disk partitions will be used.
+#
+# WARNING: The data on the secondary storage device specified here will
+# be destroyed and repartitioned.
+#
+# Specify the secondary disk device to use. When the data disk is in use.
+# Do not set the full path to the device. IE: "/dev/sda2" should be "sda2".
+onpc_host_data_disk_device: "{{ bootstrap_host_data_disk_device | default('sda') }}"
+#
+# If the storage capacity on this device is greater than or equal to this
+# size (in GB), the bootstrap process will use it.
+onpc_host_data_disk_min_size: "{{ bootstrap_host_data_disk_min_size | default(100) }}"
+
+#onpc_host_root_disk_device: sda2
 
 # Minimum storage capacity on root filesystem (in GB) for nodes
 onpc_root_filesystem_min_size: 50
@@ -52,8 +67,9 @@ onpc_root_filesystem_min_size: 50
 # the proxy will work transparently (on TCP port 3128). Otherwise machines
 # will need to access it on TCP port 8000.
 #
-proxy_host: "{{ onpc_region_controller }}.{{ onpc_dhcp_domaine }}"
-proxy_port: "3128"
+onpc_proxy_host: "172.31.0.48"
+onpc_proxy_port: "3128"
+onpc_ntp_host: "{{ onpc_proxy_host | default('') }}"
 
 # Use a Slack channel for sending alerts.
 onpc_slack_alerts:

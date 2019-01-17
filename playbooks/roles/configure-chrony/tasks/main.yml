@@ -1,0 +1,92 @@
+# Tasks for configuring chrony
+---
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Setting fact for package query command (Ubuntu)
+  set_fact:
+    package_query_cmd: "dpkg -l"
+    package_query_match: "^ii *{{ chrony_package_name }} *"
+  when: ansible_distribution | lower == 'ubuntu'
+
+- name: Setting fact for package query command (CentOS)
+  set_fact:
+    package_query_cmd: "rpm -q"
+    package_query_match: "^{{ chrony_package_name }} *"
+  when: ansible_distribution | lower == 'centos'
+
+- name: Checking if chrony is installed
+  shell: "{{ package_query_cmd }} {{ chrony_package_name }}"
+  args:
+    warn: false
+  register: check_chrony_package
+  ignore_errors: true
+  changed_when: false
+
+- name: Abort if chrony is not installed
+  fail: msg='Chrony is not installed, aborting...'
+  when: check_chrony_package.failed == True or  check_chrony_package.stdout_lines | select('match', package_query_match) | list | length = 0
+
+- name: Setting facts for chrony daemon configuration (Ubuntu)
+  set_fact:
+    chrony_daemon_conf_line: "server {{ chrony_time_server }} .*"
+    chrony_anchor_patterns:
+      - { regexp: '^pool (\S*) (.*)$', line: '# Custom ntp server list\nserver {{ chrony_time_server }} iburst\nmakestep 1 -1\n\n#pool \1 \2' }
+    chrony_service_handler: "restart chrony and stop systemd-timesyncd"
+  when:
+    - ansible_distribution | lower == 'ubuntu'
+
+- name: Setting facts for chrony daemon configuration (CentOS)
+  set_fact:
+    chrony_patterns_to_comment:
+      - { regexp: '^server (.*.centos.pool.ntp.org.*)', line: '#server \1' }
+    chrony_daemon_conf_line: "server {{ chrony_time_server }} .*"
+    chrony_anchor_patterns:
+      - { regexp: '^# Use public servers (.*)$', line: 'server {{ chrony_time_server }} iburst\n\n# Use public servers \1' }
+    chrony_service_handler: "restart chrony"
+  when:
+    - ansible_distribution | lower == 'centos'
+
+- name: Configuring chrony daemon (removing default pools and servers)
+  replace:
+    path: "{{ chrony_conf_file }}"
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.line }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ chrony_patterns_to_comment }}"
+  notify:
+    - "{{ chrony_service_handler }}"
+
+- name: Retrieving remote chrony daemon configuration
+  slurp:
+    src: "{{ chrony_conf_file }}"
+  register:
+    chrony_daemon_info
+
+- include_tasks: insert_line_in_file.yml
+  vars:
+    name: Configuring chrony daemon
+    conf_file: "{{ chrony_conf_file }}"
+    regexp: "{{ item.regexp }}"
+    line:  "{{ item.line }}"
+    conf_line: "{{ item.conf_line }}"
+    conf_info: "{{ chrony_daemon_info }}"
+  with_items: "{{ chrony_anchor_patterns }}"
+
+- name: Restarting chrony Service
+  service: name="{{ chrony_service_name }}" enabled=yes state=restarted
+  notify:
+    - "{{ chrony_service_handler }}"

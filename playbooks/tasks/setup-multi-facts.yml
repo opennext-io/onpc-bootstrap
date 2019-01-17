@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+   
 - name: Set hosts list facts by role
   set_fact:
     infra_hosts_list: "{% set sel = [] %}{% if 'controller' in groups %}{% for host in groups['controller'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
@@ -73,3 +73,5 @@
 - debug: var=internal_vip_interface
 - debug: var=external_vip_interface
 - debug: var=reserved_ips
+- debug: var=onpc_node_roles
+- debug: var=onpc_managed_node

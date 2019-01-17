@@ -1,0 +1,78 @@
+---
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Setup the ONPC deployment files
+  hosts: localhost
+  become: true
+  become_user: root
+  environment: "{{ onpc_proxy_environment | default({}) }}"
+  vars_files:
+    - vars/main.yml
+    - vars/services.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    bootstrap_host_services: "{{ onpc_services_list }}"
+  
+  tasks:
+    - name: Verify Ansible version meets requirements
+      assert:
+        that: "ansible_version.full is version_compare('2.5', '>=')"
+      msg: >
+        "You must upgrade Ansible version to 2.5 or greater (current version is {{ ansible_version.full }})"
+    - include_tasks: tasks/check_requirements.yml
+    - include_tasks: tasks/import-osa-repos.yml
+    - include_tasks: tasks/import-lma-repos.yml
+    - include_tasks: tasks/bootstrap-ansible.yml
+    - include_tasks: tasks/setup-common-files.yml
+    - include_tasks: tasks/setup-multi-facts.yml
+    - include_tasks: tasks/setup-multi-files.yml
+    - include_tasks: tasks/check-deploy-params.yml
+    
+- name: Setup the ONPC deployment nodes
+  hosts: all
+  become: true
+  become_user: root
+  environment: "{{ onpc_proxy_environment | default({}) }}"
+  vars_files:
+    - vars/main.yml
+  
+  pre_tasks:
+    - include_tasks: tasks/setup_node_facts.yml
+    - include_tasks: tasks/check-system-requirements.yml
+      when: onpc_managed_node | bool == True
+    - include_tasks: tasks/check-node-partitions.yml
+      vars:
+        partition_setup: "{{ item }}"
+      with_items: "{{ onpc_required_partitions }}"
+      when:
+        - onpc_partitions_check is defined and onpc_partitions_check | bool == True
+        - onpc_managed_node | bool == True
+    - include_tasks: tasks/install-packages.yml
+      when: onpc_managed_node | bool == True
+    - include_tasks: tasks/configure-kernel.yml
+      when: onpc_managed_node | bool == True
+    
+  roles:
+    - role: configure-chrony
+      vars:
+        chrony_time_server: onpc_ntp_host
+      when:
+        - onpc_ntp_host is defined and onpc_ntp_host | length > 0
+        - onpc_managed_node | bool == True
+#    - role: configure-network-interfaces
+#      vars:
+#        primary_itf_prefix: "{{ onpc_proxy_host.split('.')[:-1] | join('.') }}"
+#      when: onpc_managed_node | bool == True
+    

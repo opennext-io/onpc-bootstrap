@@ -31,12 +31,6 @@
     msg: >
       "The variable 'storage_network' is not properly defined"
 
-- name: Verify that the external network is properly defined
-  assert:
-    that: "external_network is defined and external_network.split('/') | length == 2"
-    msg: >
-      "The variable 'storage_network' is not properly defined"
-
 - name: Verify that the infrastructure hosts list is defined
   assert:
     that: "infra_hosts_list is defined and infra_hosts_list | length > 0"

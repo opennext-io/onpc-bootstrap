@@ -7,7 +7,7 @@
     name: "{{ item[0].name }}"
     shared: "{{ item[0].shared }}"
     external: "{{ item[0].external }}"
-    provider_network_type: "{{ item[0].network_type }}"
+    onpc_external_network_type: "{{ item[0].network_type }}"
     provider_physical_network: "{{ item[0]].physical_network | default ('') }}"
   with_items: "{{ networks }}"
 

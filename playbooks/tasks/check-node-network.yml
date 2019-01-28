@@ -1,0 +1,66 @@
+---
+# Copyright 2015, Rackspace US, Inc.
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- fail:
+    msg: "Wrong network specification"
+  when: (network_setup is not defined
+         or not network_setup.get('name')
+         or not network_setup.get('cidr')
+         or not network_setup.get('interface'))
+
+- name: Set network roles fact
+  set_fact:
+    network_roles: "{{ network_setup.get('roles', []) }}"
+
+- name: "Set interface '{{ network_setup.get('interface') }}' IP V4 facts"
+  set_fact:
+    network_interface: "{{ hostvars.get(inventory_hostname, {}).get('ansible_' + network_setup.get('interface') | replace('-', '_'), {}) }}"
+
+- debug: var=network_interface
+
+- name: "Check that interface '{{ network_setup.get('interface') }}' is defined"
+  assert:
+    that:
+      - network_interface is defined
+    msg: "Interface '{{ network_setup.get('interface') }}' is undefined"
+
+- name: "Set interface '{{ network_setup.get('interface') }}' state fact"
+  set_fact:
+    network_state: "{{ network_interface.get('active', false) }}" 
+
+- name: "Check interface '{{ network_setup.get('interface') }}' state"
+  assert:
+    that:
+      - network_state is defined
+      - network_state == True
+    msg: "Interface '{{ network_setup.get('interface') }}' is not active"
+
+- name: "Set interface '{{ network_setup.get('interface') }}' IP address"
+  set_fact:
+    network_address: "{{ network_interface.get('ipv4', {}).get('address', {}) }}" 
+
+- name: "Check that interface '{{ network_setup.get('interface') }}' matches requirements"
+  assert:
+    that:
+      - condition_item.conditional
+    msg: "{{ condition_item.msg }}"
+  with_items:
+    - conditional: "{{ network_address | ipaddr(network_setup.get('cidr')) | length > 0 }}" 
+      msg: "The address '{{ network_address }}' must be  within range '{{ network_setup.get('cidr') }}'"
+  loop_control:
+    loop_var: condition_item 
+  when:
+    - (network_roles | length == 0) or (network_roles | intersect(onpc_node_roles) | length > 0)

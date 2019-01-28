@@ -16,8 +16,8 @@
 
 - name: Set onpc_node_roles fact
   set_fact:
-    onpc_node_roles: onpc_valid_roles | intersect(group_names) | unique | list
+    onpc_node_roles: "{{ onpc_valid_roles | intersect(group_names) | unique | list }}"
 
 - name: Set onpc_managed_node fact
   set_fact:
-    onpc_managed_node: "{{ onpc_nodes_roles | length > 0 | ternary (True, False) }}"
+    onpc_managed_node: "{{ onpc_node_roles | length > 0 | ternary (True, False) }}"

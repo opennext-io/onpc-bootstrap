@@ -31,7 +31,7 @@
         that: "ansible_version.full is version_compare('2.5', '>=')"
       msg: >
         "You must upgrade Ansible version to 2.5 or greater (current version is {{ ansible_version.full }})"
-    - include_tasks: tasks/check_requirements.yml
+    - include_tasks: tasks/check-deploy-requirements.yml
     - include_tasks: tasks/import-osa-repos.yml
     - include_tasks: tasks/import-lma-repos.yml
     - include_tasks: tasks/bootstrap-ansible.yml
@@ -47,17 +47,26 @@
   environment: "{{ onpc_proxy_environment | default({}) }}"
   vars_files:
     - vars/main.yml
+    - vars/partitions.yml
+    - vars/networks.yml
   
   pre_tasks:
-    - include_tasks: tasks/setup_node_facts.yml
-    - include_tasks: tasks/check-system-requirements.yml
+    - include_tasks: tasks/setup-node-facts.yml
+    - include_tasks: tasks/check-node-requirements.yml
       when: onpc_managed_node | bool == True
-    - include_tasks: tasks/check-node-partitions.yml
+    - include_tasks: tasks/check-node-partition.yml
       vars:
         partition_setup: "{{ item }}"
-      with_items: "{{ onpc_required_partitions }}"
+      with_items: "{{ onpc_osa_partitions }}"
       when:
-        - onpc_partitions_check is defined and onpc_partitions_check | bool == True
+        - onpc_osa_partitions_check is defined and onpc_osa_partitions_check | bool == True
+        - onpc_managed_node | bool == True
+    - include_tasks: tasks/check-node-network.yml
+      vars:
+        network_setup: "{{ item }}"
+      with_items: "{{ onpc_osa_networks }}"
+      when:
+        - onpc_osa_networks_check is defined and onpc_osa_networks_check | bool == True
         - onpc_managed_node | bool == True
     - include_tasks: tasks/install-packages.yml
       when: onpc_managed_node | bool == True
@@ -71,8 +80,4 @@
       when:
         - onpc_ntp_host is defined and onpc_ntp_host | length > 0
         - onpc_managed_node | bool == True
-#    - role: configure-network-interfaces
-#      vars:
-#        primary_itf_prefix: "{{ onpc_proxy_host.split('.')[:-1] | join('.') }}"
-#      when: onpc_managed_node | bool == True
     

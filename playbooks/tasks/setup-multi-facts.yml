@@ -53,19 +53,17 @@
 
 - name: Set networking facts
   set_fact:
-    primary_net_itf: "{% set sel = [] %}{% for itf in hostvars.get(first_controller_node_name, {}).get('ansible_interfaces', []) %}{% set l = sel.append(itf) %}{% endfor %}{{ sel }}"
-    reserved_ips: "{% set sel = [] %}{% for net in onpc_networks %}{% for rsv in net['reserved'] %}{% set l = sel.append(rsv) %}{% endfor %}{% endfor %}{{ sel }}"
+    reserved_ips: "{% set sel = [] %}{% for net in onpc_required_networks %}{% for rsv in net['reserved'] %}{% set l = sel.append(rsv) %}{% endfor %}{% endfor %}{{ sel }}"
     internal_vip_address: "{% set sel = container_network.split('.')[:-1] + ['100'] %}{{ sel | join('.') }}"
-    external_vip_address: "{% set sel = external_network.split('.')[:-1] + ['100'] %}{{ sel | join('.') }}"
+    external_vip_address: "{% set sel = onpc_external_network.split('.')[:-1] + ['100'] %}{{ sel | join('.') }}"
 
 - name: Set HAProxy - Keepalive facts
   set_fact:
     internal_vip_cidr: "{{ internal_vip_address }}/{{ container_network.split('/')[1] }}"
-    external_vip_cidr: "{{ external_vip_address }}/{{ external_network.split('/')[1] }}"
+    external_vip_cidr: "{{ external_vip_address }}/{{ onpc_external_network.split('/')[1] }}"
     internal_vip_interface: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['device'] }}"
     external_vip_interface: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['interface'] }}"
  
-- debug: var=primary_net_itf
 - debug: var=internal_vip_address
 - debug: var=external_vip_address
 - debug: var=internal_vip_cidr

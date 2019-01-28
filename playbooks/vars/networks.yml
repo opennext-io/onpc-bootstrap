@@ -14,56 +14,50 @@
 # limitations under the License.
 
 
-# This a temporary workaround. The below network variables assignement
-# should be perfoemed extracting the information dynamically from MAAS.
-#
-# external_network: used to provide access to external services and floating IPs
-# provider_network: used to provides access to the Internet 
 # container_network: used to provide access the internal services and containers
 # tunnel_network: used by tenants private networks 
-# storage_network: used by the storage services (optional) 
+# storage_network: used by the storage services (optional)
+# external_network: used to provide access to the Internet
+# lbaas_network: used by tenants for load balacing (octavia)
 
-external_network: 172.31.0.0/24
-provider_network: 172.32.0.0/24
 container_network: 172.29.236.0/22
 tunnel_network: 172.29.240.0/22
 storage_network: 172.29.244.0/22
-tempest_network: 172.29.248.0/22
+external_network: 172.29.248.0/22
 lbaas_network: 172.29.252.0/22
 
-onpc_networks:
-  - name: external
-    cidr: "{{ external_network }}" 
-    reserved:
-      - "172.31.0.1,172.31.0.50"
-      - "172.31.0.100"
-  - name: provider
-    cidr: "{{ provider_network }}" 
-    reserved:
-      - "172.32.0.1,172.32.0.50"
-      - "172.32.0.100"
-  - name: management
-    cidr: "{{ container_network }}" 
+onpc_osa_networks:
+  - name: container
+    cidr: "{{ container_network }}"
+    interface: br-mgmt
     reserved:
       - "172.29.236.1,172.29.236.50"
       - "172.29.236.100"
   - name: tunnel
     cidr: "{{ tunnel_network }}"
+    interface: br-vxlan
     reserved:
       - "172.29.240.1,172.29.240.50"
       - "172.29.240.100"
+    roles: ['network', 'compute']
   - name: storage
-    cidr: "{{ storage_network }}" 
+    cidr: "{{ storage_network }}"
+    interface: br-storage
     reserved:
       - "172.29.244.1,172.29.244.50"
       - "172.29.244.100"
-  - name: tempest
-    cidr: "{{ tempest_network }}" 
+    roles: ['storage', 'compute', 'ceph']
+  - name: provider
+    cidr: "{{ external_network }}"
+    interface: br-vlan
     reserved:
       - "172.29.248.1,172.29.248.50"
       - "172.29.248.100"
+    roles: ['network', 'compute']
   - name: lbaas
-    cidr: "{{ lbaas_network }}" 
+    cidr: "{{ lbaas_network }}"
+    interface: br-lbaas
     reserved:
       - "172.29.252.1,172.29.252.50"
       - "172.29.252.100"
+    roles: ['network', 'compute']

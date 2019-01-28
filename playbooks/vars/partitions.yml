@@ -14,53 +14,53 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-onpc_required_partitions: [
+onpc_osa_partitions: [
     {
-      name: "/",
-      min_size: "{{ root_partition_size | default(8) | float }}",
+      name: "root",
+      min_size: "{{ root_partition_size | default(8) }}",
       fstype: "ext4",
       mountpoint: "/"
     },
     {
       name: "openstack-core",
-      min_size: "{{ openstack_core_partition_size | default(4) | float }}",
+      min_size: "{{ openstack_core_partition_size | default(4) }}",
       fstype: "xfs",
       mountpoint: "/openstack"
     },
     {
       name: "openstack-logs",
-      min_size: "{{ openstack_logs_partition_size | default(16) | float }}",
+      min_size: "{{ openstack_logs_partition_size | default(16) }}",
       fstype: "xfs",
-      mountpoint: "/openstack/log"
+      mountpoint: "/openstack/logs"
     },
     {
       name: "openstack-lxc",
-      min_size: "{{ lxc_partition_size | default(32) | float }}",
+      min_size: "{{ lxc_partition_size | default(32) }}",
       fstype: "xfs",
       mountpoint: "/var/lib/lxc"
     },
     {
       name: "openstack-instances",
-      min_size: "{{ compute_partition_size | default(64) | float }}",
+      min_size: "{{ compute_partition_size | default(64) }}",
       fstype: "xfs",
       mountpoint: "/var/lib/nova/instances",
       roles: ['compute']
     },
     {
       name: "cinder-volumes",
-      min_size: "{{ storage_partition_size | default(128) | float }}",
+      min_size: "{{ storage_partition_size | default(128) }}",
       type: "vgonly",
       roles: ['storage']
     },
     {
       name: "ceph-data",
-      min_size: "{{ ceph_data_partition_size | default(128) | float }}",
+      min_size: "{{ ceph_data_partition_size | default(128) }}",
       type: "vgonly",
       roles: ['ceph']
     },
     {
       name: "ceph-journal",
-      min_size: "{{ ceph_journal_partition_size | default(16) | float }}",
+      min_size: "{{ ceph_journal_partition_size | default(16) }}",
       type: "vgonly",
       roles: ['ceph']
     }

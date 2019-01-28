@@ -28,5 +28,6 @@
         "typescriptreact",
         "yml"
     ],
-    "breadcrumbs.enabled": true
+    "breadcrumbs.enabled": true,
+    "python.pythonPath": "/Library/Frameworks/Python.framework/Versions/2.7/bin/python"
 }

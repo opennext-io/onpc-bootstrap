@@ -26,10 +26,14 @@ onpc_nova_domain: "openstacklocal"
 onpc_infra_domain: "{{ ansible_domain }} | default('opennext.local') }}"
 onpc_region_name: RegionOne
 onpc_haproxy_ssl_enabled: True
+onpc_osa_partitions_check: True
+onpc_osa_networks_check: True
+onpc_external_network: 172.32.0.0/24
+
 # The variable onpc_environment_name is used to tag the monitoring metrics
 # and alerts.
 # Remove: onpc_environment_name: "{{ environment_name | default(onpc_infra_domain, true) }}"
-onpc_run_tempest_tests: No
+onpc_run_tempest_tests: False
 onpc_valid_roles:
     - controller
     - storage

@@ -1,0 +1,78 @@
+---
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- fail:
+    msg: "Wrong partition specification"
+  when: (partition_setup is not defined
+         or not partition_setup.get('name')
+         or not partition_setup.get('min_size')
+         or (
+           not partition_setup.get('mountpoint')
+           and (partition_setup.get('type') != 'vgonly'
+           and partition_setup.get('type') != 'swap')))
+
+- name: Set partition mountpoint fact
+  set_fact:
+    partition_mountpoint: "{{ partition_setup.get('mountpoint', '') }}"
+
+- name: Set partition name fact
+  set_fact:
+    partition_name: "{{ partition_setup.get('name') }}"
+
+- name: Set partition roles fact
+  set_fact:
+    partition_roles: "{{ partition_setup.get('roles', []) }}"
+
+- name: Set partition min_size bytes fact
+  set_fact:
+    partition_min_size: "{{ ((partition_setup.get('min_size') | int) * 1024**3) | int }}"
+
+- name: Set partition fstype fact
+  set_fact:
+    partition_fstype: "{{ partition_setup.get('fstype', '') }}"
+
+- name: Set the actual partition mountpoint fact 
+  set_fact:
+    actual_partition_mountpoint: "{{ ansible_mounts | selectattr('mount', 'equalto', partition_mountpoint) | map(attribute='mount') | join }}"
+
+- name: Set the actual partition fstype fact 
+  set_fact:
+    actual_partition_fstype: "{{ ansible_mounts | selectattr('mount', 'equalto', partition_mountpoint) | map(attribute='fstype') | join }}"
+
+- name: Set the actual partition size fact
+  set_fact:
+    actual_partition_size: "{{ ansible_mounts | selectattr('mount', 'equalto', partition_mountpoint) | map(attribute='size_total') | join }}"
+
+- name: "Check that partition '{{ partition_name }}' matches requirements"
+  assert:
+    that:
+      - condition_item.conditional
+    msg: "{{ condition_item.msg }}"
+  with_items:
+    - conditional: "{{ actual_partition_mountpoint | length > 0 }}"
+      msg: "Check that partition '{{ partition_mountpoint }}' is mounted on {{ ansible_hostname }}"
+    - conditional: "{{ (actual_partition_size | int) >= (partition_min_size | int) }}"
+      msg: "Check that partition '{{ partition_mountpoint }}' size ({{ actual_partition_size }} bytes) is >= {{ partition_min_size }} bytes"
+    - conditional: "{{ actual_partition_fstype ==  partition_fstype }}"
+      msg: "Check that partition '{{ partition_mountpoint }}' fstype '{{ actual_partition_fstype }}'  matches '{{ partition_fstype }}'" 
+  loop_control:
+    loop_var: condition_item 
+  when:
+    - partition_mountpoint | length > 0 
+    - partition_fstype | length > 0
+    - (partition_roles | length == 0) or (partition_roles | intersect(onpc_node_roles) | length > 0)
+#
+# TODO: Same checks should be performed for volume groups
+#

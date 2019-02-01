@@ -73,7 +73,7 @@ onpc_root_filesystem_min_size: 50
 #
 onpc_proxy_host: "172.31.0.48"
 onpc_proxy_port: "3128"
-onpc_ntp_host: "{{ onpc_proxy_host | default('') }}"
+onpc_time_server: "{{ onpc_proxy_host }}"
 
 # Use a Slack channel for sending alerts.
 onpc_slack_alerts:

@@ -25,9 +25,11 @@
     - vars/networks.yml
 
   pre_tasks:
-    - include_tasks: tasks/setup-node-facts.yml
-    - include_tasks: tasks/check-node-requirements.yml
+    - import_tasks: tasks/setup-node-facts.yml
+      tags: always
+    - import_tasks: tasks/check-node-requirements.yml
       when: onpc_managed_node | bool == True
+      tags: check-node-requirements
     - include_tasks: tasks/check-node-partition.yml
       vars:
         partition_setup: "{{ item }}"
@@ -35,6 +37,7 @@
       when:
         - onpc_osa_partitions_check is defined and onpc_osa_partitions_check | bool == True
         - onpc_managed_node | bool == True
+      tags: check-node-partition
     - include_tasks: tasks/check-node-network.yml
       vars:
         network_setup: "{{ item }}"
@@ -42,44 +45,18 @@
       when:
         - onpc_osa_networks_check is defined and onpc_osa_networks_check | bool == True
         - onpc_managed_node | bool == True
-    - include_tasks: tasks/install-packages.yml
+      tags: check-node-interfaces
+    - import_tasks: tasks/install-packages.yml
       when: onpc_managed_node | bool == True
-    - include_tasks: tasks/configure-kernel.yml
+      tags: install-node-packages
+    - import_tasks: tasks/configure-kernel.yml
       when: onpc_managed_node | bool == True
+      tags: configure-node-kernel
 
   roles:
-    - role: configure-chrony
+    - role: chrony
       vars:
-        chrony_time_server: onpc_ntp_host
+        chrony_server: "{{ onpc_time_server | default('pool.ntp.org') }} prefer iburst"
       when:
-        - onpc_ntp_host is defined and onpc_ntp_host | length > 0
         - onpc_managed_node | bool == True
-
-
-- name: Setup the ONPC deployment files
-  hosts: localhost
-  become: true
-  become_user: root
-  environment: "{{ onpc_proxy_environment | default({}) }}"
-  vars_files:
-    - vars/main.yml
-    - vars/services.yml
-  vars:
-    ansible_python_interpreter: "{{ ansible_playbook_python }}"
-    bootstrap_host_services: "{{ onpc_services_list }}"
-  
-  tasks:
-    - name: Verify Ansible version meets requirements
-      assert:
-        that: "ansible_version.full is version_compare('2.5', '>=')"
-      msg: >
-        "You must upgrade Ansible version to 2.5 or greater (current version is {{ ansible_version.full }})"
-    - include_tasks: tasks/check-deploy-requirements.yml
-    - include_tasks: tasks/import-osa-repos.yml
-    - include_tasks: tasks/import-lma-repos.yml
-    - include_tasks: tasks/bootstrap-ansible.yml
-    - include_tasks: tasks/setup-multi-facts.yml
-    - include_tasks: tasks/setup-common-files.yml
-    - include_tasks: tasks/setup-multi-files.yml
-    - include_tasks: tasks/check-deploy-params.yml
-    
+      tags: configure-node-chrony

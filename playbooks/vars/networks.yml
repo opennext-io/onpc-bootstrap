@@ -47,17 +47,17 @@ onpc_osa_networks:
       - "172.29.244.1,172.29.244.50"
       - "172.29.244.100"
     roles: ['storage', 'compute', 'ceph']
-  - name: provider
+  - name: external
     cidr: "{{ external_network }}"
     interface: br-vlan
     reserved:
       - "172.29.248.1,172.29.248.50"
       - "172.29.248.100"
     roles: ['network', 'compute']
-  - name: lbaas
-    cidr: "{{ lbaas_network }}"
-    interface: br-lbaas
-    reserved:
-      - "172.29.252.1,172.29.252.50"
-      - "172.29.252.100"
-    roles: ['network', 'compute']
+#  - name: lbaas
+#    cidr: "{{ lbaas_network }}"
+#    interface: br-lbaas
+#    reserved:
+#      - "172.29.252.1,172.29.252.50"
+#      - "172.29.252.100"
+#    roles: ['network', 'compute']

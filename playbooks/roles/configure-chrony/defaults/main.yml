@@ -1,6 +1,5 @@
 ---
-# Copyright 2015, Rackspace US, Inc.
-# Copyright 2017, SUSE LINUX GmbH.
+# Copyright (c) 2018, OpenNext SAS
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,22 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-packages_install:
-  - bridge-utils
-  - btrfsprogs
-  - curl
-  - dbus-1
-  - ethtool
-  - git-core
-  - lvm2
-  - python
-  - python-devel
-  - vim
-  - vlan
-  - xfsprogs
-
-packages_remove: []
-
-rc_local: /etc/rc.d/boot.local
-rc_local_insert_before: EOF
+chrony_service_name: 'chronyd'
+chrony_package_name: 'chrony'
+chrony_conf_file: '/etc/chrony/chrony.conf'
+chrony_time_server: 'pool.ntp.org'

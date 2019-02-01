@@ -28,7 +28,6 @@ packages_install:
   - systemd-networkd
   - vim
   - xfsprogs
-  - chrony
   - lsof
   - openssh-server
   - sudo

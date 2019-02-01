@@ -23,6 +23,7 @@
     monitoring_hosts_list: "{% set sel = [] %}{% if 'monitoring' in groups %}{% for host in groups['monitoring'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
     logging_hosts_list: "{% set sel = [] %}{% if 'logging' in groups %}{% for host in groups['logging'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
     swift_hosts_list: "{% set sel = [] %}{% if 'swift' in groups %}{% for host in groups['swift'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
+    image_hosts_list: "{% set sel = [] %}{% if 'image' in groups %}{% for host in groups['image'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
 
 - name: Set first controller node fact
   set_fact:
@@ -71,5 +72,3 @@
 - debug: var=internal_vip_interface
 - debug: var=external_vip_interface
 - debug: var=reserved_ips
-- debug: var=onpc_node_roles
-- debug: var=onpc_managed_node

@@ -20,9 +20,6 @@ packages_install:
   - ifenslave-2.6
   - lsof
   - lvm2
-  - chrony
-  - ntpdate
-  - openssh-server
   - sudo
   - tcpdump
   - vlan
@@ -30,7 +27,6 @@ packages_install:
   - ifstat
   - iputils-tracepath
   - netcat
-  - openssh-server
   - linux-image-extra-{{ ansible_kernel }}
 
 package_install_monitoring:

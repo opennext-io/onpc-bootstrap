@@ -1,5 +1,4 @@
 ---
-# Copyright 2015, Rackspace US, Inc.
 # Copyright (c) 2018, OpenNext SAS
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,7 +54,8 @@
   with_items:
     - conditional: "{{ ('storage' in groups and 'ceph' in groups) }}"
       msg: "Node role 'storage' (which defaults LVM iSCSI storage) and 'ceph' role are currently mutually exclusive."
-    - conditional: "{{ 'swift' in groups and 'ceph' in groups) }}"
+    - conditional: "{{ 'swift' in groups and 'ceph' in groups }}"
       msg: "Node role 'swift' and 'ceph' role are currently mutually exclusive."
   tags: check-bootstrap-inventory
+
     

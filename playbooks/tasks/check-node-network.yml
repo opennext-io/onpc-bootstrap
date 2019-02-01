@@ -25,42 +25,64 @@
   set_fact:
     network_roles: "{{ network_setup.get('roles', []) }}"
 
-- name: "Set interface '{{ network_setup.get('interface') }}' IP V4 facts"
+- name: Set interface name
   set_fact:
-    network_interface: "{{ hostvars.get(inventory_hostname, {}).get('ansible_' + network_setup.get('interface') | replace('-', '_'), {}) }}"
+    interface_name: "{{ network_setup.get('interface') }}"
 
-- debug: var=network_interface
+- name: "Set network interface '{{ interface_name }}' fact"
+  set_fact:
+    network_interface: "{{ hostvars.get(inventory_hostname, {}).get('ansible_' + interface_name | replace('-', '_'), {}) }}"
 
-- name: "Check that interface '{{ network_setup.get('interface') }}' is defined"
+- name: "Check that interface '{{ interface_name }}' exists"
   assert:
     that:
       - network_interface is defined
-    msg: "Interface '{{ network_setup.get('interface') }}' is undefined"
+    msg: "Interface '{{ interface_name }}' doesn't exists"
 
-- name: "Set interface '{{ network_setup.get('interface') }}' state fact"
+- name: "Set interface '{{ interface_name }}' state fact"
   set_fact:
-    network_state: "{{ network_interface.get('active', false) }}" 
+    active_state: "{{ network_interface.get('active', False) }}" 
 
-- name: "Check interface '{{ network_setup.get('interface') }}' state"
+- name: "Check interface '{{ interface_name }}' state"
   assert:
-    that:
-      - network_state is defined
-      - network_state == True
-    msg: "Interface '{{ network_setup.get('interface') }}' is not active"
-
-- name: "Set interface '{{ network_setup.get('interface') }}' IP address"
-  set_fact:
-    network_address: "{{ network_interface.get('ipv4', {}).get('address', {}) }}" 
-
-- name: "Check that interface '{{ network_setup.get('interface') }}' matches requirements"
-  assert:
-    that:
-      - condition_item.conditional
-    msg: "{{ condition_item.msg }}"
-  with_items:
-    - conditional: "{{ network_address | ipaddr(network_setup.get('cidr')) | length > 0 }}" 
-      msg: "The address '{{ network_address }}' must be  within range '{{ network_setup.get('cidr') }}'"
-  loop_control:
-    loop_var: condition_item 
+    that: active_state == True
+    msg: "Interface '{{ interface_name }}' is not active"
   when:
     - (network_roles | length == 0) or (network_roles | intersect(onpc_node_roles) | length > 0)
+
+- name: "Set interface '{{ interface_name }}' IP address fact"
+  set_fact:
+    interface_address: "{{ network_interface.get('ipv4', {}).get('address', '') }}" 
+
+- debug: var=interface_address
+
+- name: "Check that interface 'br-vlan' is not assigned an IP address"
+  assert:
+    that: interface_address | length == 0
+    msg: "Interface 'br-vlan' must not have '{{ interface_address }}' IP address assigned"
+  when: interface_name == 'br-vlan'
+
+- name: "Set interface '{{ interface_name }}' type"
+  set_fact:
+    interface_type: "{{ network_interface.get('type', {}) }}" 
+
+- debug: var=network_interface
+- debug: var=network_roles
+- debug: var=interface_type
+
+- name: "Check that interface '{{ interface_name }}' is a bridge"
+  assert:
+    that:
+    - interface_type == 'bridge'
+    msg: "The interface type'{{ interface_type }}' must be 'bridge' }}'"
+  when:
+    - (network_roles | length == 0) or (network_roles | intersect(onpc_node_roles) | length > 0)
+
+- name: "Check that interface '{{ interface_name }}' has a valid IP address"
+  assert:
+    that:
+      - interface_address | ipaddr(network_setup.get('cidr')) | length > 0
+    msg: "The address '{{ interface_address }}' must be  within range '{{ network_setup.get('cidr') }}'"
+  when:
+    - (network_roles | length == 0) or (network_roles | intersect(onpc_node_roles) | length > 0)
+    - interface_name != "br-vlan"

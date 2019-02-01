@@ -47,14 +47,6 @@
   tags:
     - generate-onpc-secrets
 
-- name: Drop the ONPC Ansible roles
-  shell: /opt/onpc-bootstrap/scripts/get-onpc-roles.sh
-  args:
-    executable: /bin/bash
-  environment: "{{ proxy_env | default('{}') }}"
-  tags:
-    - drop-onpc-roles
-
 - name: Find the env.d templates
   find:
     paths: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/env.d"
@@ -107,3 +99,11 @@
   when: "'monitoring' in onpc_services_list"
   tags:
     - drop-user-monitoring-variables
+
+- name: Drop the ONPC Ansible roles
+  shell: /opt/onpc-bootstrap/scripts/get-onpc-roles.sh
+  args:
+    executable: /bin/bash
+  environment: "{{ proxy_env | default('{}') }}"
+  tags:
+    - drop-onpc-roles

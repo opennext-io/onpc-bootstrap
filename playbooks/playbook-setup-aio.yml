@@ -26,6 +26,7 @@
     ansible_connection: local
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
     bootstrap_host_services: "{{ onpc_services_list }}"
+    bootstrap_host_container_tech: "{{ onpc_bootstrap_container_tech }}"
   
   tasks:
     - name: Verify Ansible version meets requirements

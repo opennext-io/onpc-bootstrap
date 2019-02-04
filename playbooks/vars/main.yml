@@ -16,9 +16,10 @@
 onpc_openstack_release: 18.1.0
 onpc_openstack_branch: "stable/rocky"
 onpc_lma_release: master
-onpc_bootstrap_scenario: "{{ lookup('env','SCENARIO') | default('starter_aio', true) }}"
+onpc_bootstrap_scenario: "{{ lookup('env','SCENARIO') | default('lxc_starter', true) }}"
 onpc_bootstrap_config_path: /opt/onpc-bootstrap/etc/openstack_deploy
 onpc_install_method: "{{ lookup('env', 'INSTALL_METHOD') | default('source', true)  }}"
+onpc_bootstrap_container_tech: "{{ (onpc_bootstrap_scenario is search('nspawn')) | ternary('nspawn', 'lxc') }}"
 onpc_debug_enabled: False
 onpc_low_end_profile: False
 onpc_cpu_overcommit: 8.0

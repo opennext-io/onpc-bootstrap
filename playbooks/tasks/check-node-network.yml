@@ -1,5 +1,4 @@
 ---
-# Copyright 2015, Rackspace US, Inc.
 # Copyright (c) 2018, OpenNext SAS
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,8 +53,6 @@
   set_fact:
     interface_address: "{{ network_interface.get('ipv4', {}).get('address', '') }}" 
 
-- debug: var=interface_address
-
 - name: "Check that interface 'br-vlan' is not assigned an IP address"
   assert:
     that: interface_address | length == 0
@@ -65,10 +62,6 @@
 - name: "Set interface '{{ interface_name }}' type"
   set_fact:
     interface_type: "{{ network_interface.get('type', {}) }}" 
-
-- debug: var=network_interface
-- debug: var=network_roles
-- debug: var=interface_type
 
 - name: "Check that interface '{{ interface_name }}' is a bridge"
   assert:

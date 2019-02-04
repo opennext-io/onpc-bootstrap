@@ -29,11 +29,6 @@
   set_fact:
     first_controller_node_name:  "{{ infra_hosts_list | sort | first }}"
 
-# Not sure about this  (commented for now...)
-#- name: Set Swift facts
-#  set_fact:
-#    swift: "{% if swift_hosts_list | length > 0 %}True{% else %}False{% endif %}"
-
 - name: Set hosts list facts by default
   set_fact:
     network_hosts_list: "{% if network_hosts_list | length == 0  %}{{ infra_hosts_list}}{% endif %}"
@@ -54,7 +49,7 @@
 
 - name: Set networking facts
   set_fact:
-    reserved_ips: "{% set sel = [] %}{% for net in onpc_required_networks %}{% for rsv in net['reserved'] %}{% set l = sel.append(rsv) %}{% endfor %}{% endfor %}{{ sel }}"
+    reserved_ips: "{% set sel = [] %}{% for net in onpc_osa_networks %}{% for rsv in net['reserved'] %}{% set l = sel.append(rsv) %}{% endfor %}{% endfor %}{{ sel }}"
     internal_vip_address: "{% set sel = container_network.split('.')[:-1] + ['100'] %}{{ sel | join('.') }}"
     external_vip_address: "{% set sel = onpc_external_network.split('.')[:-1] + ['100'] %}{{ sel | join('.') }}"
 
@@ -64,11 +59,5 @@
     external_vip_cidr: "{{ external_vip_address }}/{{ onpc_external_network.split('/')[1] }}"
     internal_vip_interface: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['device'] }}"
     external_vip_interface: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['interface'] }}"
- 
-- debug: var=internal_vip_address
-- debug: var=external_vip_address
-- debug: var=internal_vip_cidr
-- debug: var=external_vip_cidr
-- debug: var=internal_vip_interface
-- debug: var=external_vip_interface
-- debug: var=reserved_ips
+
+

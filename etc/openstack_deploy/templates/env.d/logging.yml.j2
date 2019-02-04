@@ -1,5 +1,5 @@
 # {{ ansible_managed }}
-{% if 'logging' in bootstrap_host_services %}
+{% if 'logging' in onpc_services_list %}
 component_skel:
   elasticsearch:
     belongs_to:

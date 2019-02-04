@@ -13,6 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Verify Ansible version meets requirements
+  assert:
+    that: "ansible_version.full is version_compare('2.5', '>=')"
+  msg: >
+    "You must upgrade Ansible version to 2.5 or greater (current version is {{ ansible_version.full }})"
+
 - name: Check for a supported Operating System
   assert:
     that:

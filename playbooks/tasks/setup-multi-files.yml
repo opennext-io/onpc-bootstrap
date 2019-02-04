@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 - name: Check the existence of user_secrets.yml
   stat:
     path: "/etc/openstack_deploy/user_secrets.yml"
@@ -75,8 +76,7 @@
     backup: yes
     group: root
     mode: 0644
-  tags:
-    - drop-user-variables 
+  tags: drop-user-variables 
 
 - name: Drop the extra user_variables files for the scenario 
   template:
@@ -90,30 +90,29 @@
   with_items:
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_ceph.yml.j2"
       dest: user_variables_ceph.yml
-      condition: '"ceph" in onpc_services_list'
+      conditional: "{{ 'ceph' in onpc_services_list }}"
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_swift.yml.j2"
       dest: user_variables_swift.yml
-      condition: '"swift" in onpc_services_list'
+      conditional: "{{ 'swift' in onpc_services_list }}"
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_designate.yml.j2"
       dest: user_variables_designate.yml
-      condition: "{{ 'designate' in onpc_services_list }}"
+      conditional: "{{ 'designate' in onpc_services_list }}"
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_ceilometer.yml.j2"
       dest: user_variables_ceilometer.yml
-      condition: "{{ 'ceilometer' in onpc_services_list }}"
+      conditional: "{{ 'ceilometer' in onpc_services_list }}"
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_aodh.yml.j2"
       dest: user_variables_aodh.yml
-      condition: "{{ 'aodh' in onpc_services_list }}"
+      conditional: "{{ 'aodh' in onpc_services_list }}"
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_gnocchi.yml.j2"
       dest: user_variables_gnocchi.yml
-      condition: "{{ 'gnocchi' in onpc_services_list }}"
+      conditional: "{{ 'gnocchi' in onpc_services_list }}"
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_octavia.yml.j2"
       dest: user_variables_octavia.yml
-      condition: "{{ 'octavia' in onpc_services_list }}"
+      conditional: "{{ 'octavia' in onpc_services_list }}"
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_magnum.yml.j2"
       dest: user_variables_magnum.yml
-      condition: "{{ 'magnum' in onpc_services_list }}"
+      conditional: "{{ 'magnum' in onpc_services_list }}"
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_heat.yml.j2"
       dest: user_variables_heat.yml
-      condition: "{{ 'heat' in onpc_services_list }}"
-  tags:
-    - drop-extra-variables-files
+      conditional: "{{ 'heat' in onpc_services_list }}"
+  tags: drop-extra-user-variables

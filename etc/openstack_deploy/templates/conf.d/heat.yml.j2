@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 ---
 # The infra nodes that will be running the orchestration services
-{% if 'heat' in bootstrap_host_services %}
+{% if 'heat' in onpc_services_list %}
 orchestration_hosts:
 {% for h in infrastructure_hosts_dict %}
   {{ h.name }}:

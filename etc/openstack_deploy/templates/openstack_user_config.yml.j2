@@ -4,7 +4,7 @@ cidr_networks: &cidr_networks
   container: {{ container_network }}
   tunnel: {{ tunnel_network }}
   storage: {{ storage_network }}
-{% if 'octavia' in bootstrap_host_services %}
+{% if 'octavia' in onpc_services_list %}
   lbaas: {{ lbaas_network }}
 {% endif %}
 
@@ -43,9 +43,9 @@ global_overrides:
           - cinder_api
           - cinder_volume
           - nova_compute
-{% if 'swift' in bootstrap_host_services %}
+{% if 'swift' in onpc_services_list %}
           - swift_proxy
-{% elif 'ceph' in bootstrap_host_services %}
+{% elif 'ceph' in onpc_services_list %}
           - ceph_osd
 {% endif %}
     - network:
@@ -77,7 +77,7 @@ global_overrides:
         net_name: "flat"
         group_binds:
           - neutron_linuxbridge_agent
-{% if 'octavia' in bootstrap_host_services %}
+{% if 'octavia' in onpc_services_list %}
     - network:
         container_bridge: "br-lbaas"
         container_type: "veth"
@@ -98,6 +98,9 @@ _infrastructure_hosts: &infrastructure_hosts
 {% for h in infrastructure_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
+    container_vars:
+      # Optional | container_tech for a target host, default is "lxc".
+      container_tech: "{{ onpc_bootstrap_container_tech }}"
 {% endfor %}
 
 # Compute hypervisor hosts

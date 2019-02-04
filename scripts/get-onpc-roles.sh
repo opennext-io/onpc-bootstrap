@@ -11,7 +11,7 @@ if [ ! -r /opt/onpc-bootstrap/ansible-role-requirements.yml ]; then
 fi
 # Import the ansible role dependencies
 pushd /opt/openstack-ansible
-openstack-ansible ./scripts/get-ansible-role-requirements.yml -e role_file=/opt/onpc-bootstrap/ansible-role-requirements.yml
+/usr/bin/ansible-playbook ./scripts/get-ansible-role-requirements.yml -e role_file=/opt/onpc-bootstrap/ansible-role-requirements.yml
 popd
 # All done
 touch /opt/.onpc-get-roles-done

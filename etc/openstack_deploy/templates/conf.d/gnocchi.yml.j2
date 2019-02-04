@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 ---
 # gnocchi (telemetry metrics storage) hosts
-{% if 'gnocchi' in bootstrap_host_services %}
+{% if 'gnocchi' in onpc_services_list %}
 metrics_hosts:
 {% for h in infrastructure_hosts_dict %}
   {{ h.name }}:

@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 ---
 # Designate (DNS services) hossts
-{% if 'designate' in bootstrap_host_services %}
+{% if 'designate' in onpc_services_list %}
 dnsaas_hosts:
 {% for h in infrastructure_hosts_dict %}
   {{ h.name }}:

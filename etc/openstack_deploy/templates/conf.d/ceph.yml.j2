@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 ---
 # Ceph services hosts
-{% if 'ceph' in bootstrap_host_services %}
+{% if 'ceph' in onpc_services_list %}
 # The infra nodes where the Ceph Mon services will run
 ceph-mon_hosts:
 {% for h in infrastructure_hosts_dict %}

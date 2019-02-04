@@ -6,4 +6,5 @@ octavia-infra_hosts:
 {% for h in infrastructure_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
+{% endfor %}
 {% endif %}

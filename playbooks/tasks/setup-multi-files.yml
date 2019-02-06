@@ -13,13 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 - name: Check the existence of user_secrets.yml
   stat:
     path: "/etc/openstack_deploy/user_secrets.yml"
   register: user_secrets_info
-  tags:
-    - always
+  tags: always
 
 - name: Drop user_secrets.yml file
   copy:
@@ -29,15 +27,13 @@
     group: root
     mode: 0600
   when: not user_secrets_info.stat.exists
-  tags:
-    - drop-user-secrets
+  tags: drop-user-secrets
 
 - name: Generate user_secrets password
   command: "/opt/ansible-runtime/bin/python /opt/openstack-ansible/scripts/pw-token-gen.py --file /etc/openstack_deploy/user_secrets.yml"
   changed_when: false
   when: not user_secrets_info.stat.exists
-  tags:
-    - generate-passwords
+  tags: generate-passwords
 
 - name: Find conf.d templates for multinode
   find:
@@ -45,8 +41,7 @@
     patterns: '^.*\.j2$'
     use_regex: yes
   register: onpc_confd_templates
-  tags:
-    - find-confd-files
+  tags: always
 
 - name: Drop conf.d config files for multinode 
   template:
@@ -56,8 +51,7 @@
     group: root
     mode: 0644
   with_items: "{{ onpc_confd_templates.get('files', []) | map(attribute='path') | list }}"
-  tags:
-    - drop-confd-files
+  tags: drop-confd-files
 
 - name: Drop the openstack_user_config.yml for multinode 
   template:
@@ -66,8 +60,7 @@
     backup: yes
     group: root
     mode: 0644
-  tags:
-    - drop-openstack-user-config 
+  tags: drop-openstack-user-config 
 
 - name: Drop the user_variables.yml for multinode 
   template:
@@ -86,7 +79,7 @@
     group: root
     mode: 0644
   when:
-    - "item.condition | bool"
+    - "item.conditional | bool"
   with_items:
     - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_ceph.yml.j2"
       dest: user_variables_ceph.yml

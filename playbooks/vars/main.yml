@@ -14,7 +14,7 @@
 # limitations under the License.
 
 onpc_openstack_release: 18.1.0
-onpc_openstack_branch: "stable/rocky"
+onpc_openstack_branch: stable/rocky
 onpc_lma_release: master
 onpc_bootstrap_scenario: "{{ lookup('env','SCENARIO') | default('lxc_starter', true) }}"
 onpc_bootstrap_config_path: /opt/onpc-bootstrap/etc/openstack_deploy
@@ -23,7 +23,7 @@ onpc_bootstrap_container_tech: "{{ (onpc_bootstrap_scenario is search('nspawn'))
 onpc_debug_enabled: False
 onpc_low_end_profile: False
 onpc_cpu_overcommit: 8.0
-onpc_nova_domain: "openstacklocal"
+onpc_nova_domain: openstacklocal
 onpc_infra_domain: "{{ ansible_domain }} | default('opennext.local') }}"
 onpc_region_name: RegionOne
 onpc_haproxy_ssl_enabled: True
@@ -72,8 +72,8 @@ onpc_root_filesystem_min_size: 50
 # the proxy will work transparently (on TCP port 3128). Otherwise machines
 # will need to access it on TCP port 8000.
 #
-onpc_proxy_host: "172.31.0.48"
-onpc_proxy_port: "3128"
+onpc_proxy_host: 172.31.0.48
+onpc_proxy_port: 3128
 onpc_time_server: "{{ onpc_proxy_host }}"
 
 # Use a Slack channel for sending alerts.

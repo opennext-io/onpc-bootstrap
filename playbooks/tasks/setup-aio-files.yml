@@ -19,8 +19,7 @@
     patterns: '^.*\.aio$'
     use_regex: yes
   register: onpc_confd_templates
-  tags:
-    - find-confd-files
+  tags: always
 
 - name: Drop the conf.d config files for aio
   copy:
@@ -30,5 +29,4 @@
     group: root
     mode: 0644
   with_items: "{{ onpc_confd_templates.get('files', []) | map(attribute='path') | list }}"
-  tags:
-    - drop-confd-files
+  tags: drop-confd-files

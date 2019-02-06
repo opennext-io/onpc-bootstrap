@@ -2,24 +2,6 @@
 ---
 # The nodes that will be running the Swift services
 {% if 'swift' in onpc_services_list %}
-global_overrides:
-  swift:
-    part_power: 8
-{% raw %}}    
-    storage_network: "{{ (container_tech != 'nspawn') | ternary('br-storage', ansible_default_ipv4['alias']) }}"
-    replication_network: "{{ (container_tech != 'nspawn') | ternary('br-storage', ansible_default_ipv4['alias']) }}"
-{% endraw %}
-    statsd_host: localhost
-    statsd_port: 8125
-{% raw %}
-    statsd_metric_prefix: "{{ inventory_hostname }}.swift"
-{% endraw %}
-    storage_policies:
-      - policy:
-          name: default
-          index: 0
-          default: True
-
 swift-proxy_hosts:
 {% for h in infrastructure_hosts_dict %}
   {{ h.name }}:
@@ -41,9 +23,5 @@ swift_hosts:
         limit_container_types: swift
         zone: {{ loop.index }}
         region: 1
-#        drives:     
-#        {%- for i in {{ ansible_mounts | selectattr("mount", "search", "^swift$") | map('device') | split('/')[1] | list }} %}
-#          - name: {{ i.device }}
-#        {% endfor %}
 {% endfor %}
 {% endif %}

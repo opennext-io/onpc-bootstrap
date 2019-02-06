@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Setup the ONPC deployment nodes
+- name: Check the ONPC deployment nodes
   hosts: openstack
   become: true
   become_user: root
@@ -67,42 +67,3 @@
       when:
         - onpc_managed_node | bool == True
       tags: configure-node-chrony
-
-
-- name: Setup the ONPC deployment environment 
-  hosts: localhost
-  become: true
-  become_user: root
-  environment: "{{ onpc_proxy_environment | default({}) }}"
-  vars_files:
-    - vars/main.yml
-    - vars/networks.yml
-    - vars/services.yml
-  vars:
-    ansible_python_interpreter: "{{ ansible_playbook_python }}"
-    bootstrap_host_services: "{{ onpc_services_list }}"
-  
-  tasks:
-    - name: Verify Ansible version meets requirements
-      assert:
-        that: "ansible_version.full is version_compare('2.5', '>=')"
-      msg: >
-        "You must upgrade Ansible version to 2.5 or greater (current version is {{ ansible_version.full }})"
-      tags: always 
-    - import_tasks: tasks/check-deploy-requirements.yml
-      tags: check_deploy_requirements
-    - import_tasks: tasks/import-osa-repos.yml
-      tags: import-osa-repo 
-    - import_tasks: tasks/import-lma-repos.yml
-      tags: import-lma-repo 
-    - import_tasks: tasks/bootstrap-ansible.yml
-      tags: bootstrap-ansible 
-    - import_tasks: tasks/setup-multi-facts.yml
-      tags: always
-    - import_tasks: tasks/setup-common-files.yml
-      tags: setup-common-files
-    - import_tasks: tasks/setup-multi-files.yml
-      tags: setup-multi-files
-    - import_tasks: tasks/check-deploy-params.yml
-      tags: check-deploy-params 
-    

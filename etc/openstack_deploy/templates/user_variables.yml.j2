@@ -148,7 +148,7 @@ nova_libvirt_images_rbd_pool: vms
 nova_cpu_allocation_ratio: "{{ onpc_cpu_overcommit | default(8.0) }}" 
 nova_nova_conf_overrides:
   DEFAULT:
-{% raw %}}  
+{%-- raw %}
     cpu_allocation_ratio: "{{ nova_cpu_allocation_ratio }}"
 {% endraw %}
     block_device_allocate_retries: 60
@@ -203,14 +203,15 @@ tempest_run: {{ onpc_run_tempest_tests }}
 ## This is used by apt-cacher-ng to download apt packages:
 # This is applied only during deployment, nothing is left after deployment is complete:
 {% if onpc_proxy_host is defined and onpc_proxy_host | length > 0 %}
-{%- raw %}
 proxy_env_url: "http://{{ onpc_proxy_host }}:{{ onpc_proxy_port | default(8000) }}/"
 deployment_environment_variables:
   http_proxy: "{{ onpc_proxy_host }}"
   https_proxy: "{{ onpc_proxy_host }}"
+{%- raw %}
   no_proxy: "localhost,127.0.0.1,{{ internal_lb_vip_address }},{{ external_lb_vip_address }},{% for host in groups['keystone_all'] %}{{ hostvars[host]['container_address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
 {% endraw %}
 {% endif %}
+
 
 ## SSH connection wait time
 # Increase delay for the ssh connection check if desired.

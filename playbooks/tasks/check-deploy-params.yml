@@ -48,44 +48,44 @@
     that: "storage_hosts_list is defined and storage_hosts_list | length > 0"
     msg: >
       "The storage hosts list is not defined or empty"
-    when: '"ceph" not in onpc_services_list'
+  when: "'ceph' not in onpc_services_list"
 
 - name: Verify that the ceph hosts list is defined
   assert:
     that: "ceph_hosts_list is defined and ceph_hosts_list | length > 0"
     msg: >
-      "The 'ceph' service is enabled but the ceph hosts list is not defined or empty"
-    when: '"ceph" in onpc_services_list'
+      "The 'ceph' service is enabled and the ceph hosts list is not defined or empty"
+  when: "'ceph' in onpc_services_list"
 
 - name: Verify that the logging hosts list is defined
   assert:
     that: "logging_hosts_list is defined and logging_hosts_list | length > 0"
     msg: >
-      "The 'logging' service is enabled but the logging hosts list is not defined or empty"
-    when: '"logging" in onpc_services_list'
+      "The 'logging' service is enabled and the logging hosts list is not defined or empty"
+  when: "'logging' in onpc_services_list"
 
 - name: Verify that the swift hosts list is defined
   assert:
     that: "swift_hosts_list is defined and swift_hosts_list | length > 0"
     msg: >
-      "The 'swift' service is enabled but the swift hosts list is not defined or empty"
-    when: '"swift" in onpc_services_list'
+      "The 'swift' service is enabled and the swift hosts list is not defined or empty"
+  when: "'swift' in onpc_services_list"
 
 - name: Verify that the monitoring hosts list is defined
   assert:
     that: "monitoring_hosts_list is defined and monitoring_hosts_list | length > 0"
     msg: >
-      "The 'monitoring' service is enabled but the monitoring hosts list is not defined or empty"
-    when: '"monitoring" in onpc_services_list'
+      "The 'monitoring' service is enabled and the monitoring hosts list is not defined or empty"
+  when: "'monitoring' in onpc_services_list"
 
-- name: Verify that the internal VIP CIDR is properly defined
+- name: Verify that the internal VIP CIDR is a valid IP address 
   assert:
-    that: "{{ internal_vip_cidr | ipaddr }}"
+    that: "{{ internal_vip_cidr | ipaddr  | length > 0}}"
     msg: >
       "The variable 'internal_vip_cidr' is not defined or empty"
 
-- name: Verify that the external VIP CIDR is properly defined
+- name: Verify that the external VIP CIDR is a valid IP address 
   assert:
-    that: "{{ external_vip_cidr | ipaddr }}"
+    that: "{{ external_vip_cidr | ipaddr | length > 0}}"
     msg: >
       "The variable 'external_vip_cidr' is not defined or empty"

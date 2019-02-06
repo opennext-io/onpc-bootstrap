@@ -31,9 +31,9 @@
   tasks:
     - name: Verify Ansible version meets requirements
       assert:
-        that: "ansible_version.full is version_compare('2.5', '>=')"
+        that: "ansible_version.full is version_compare('2.7', '>=')"
       msg: >
-        "You must upgrade Ansible version to 2.5 or greater (current version is {{ ansible_version.full }})"
+        "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
     - include_tasks: tasks/import-osa-repos.yml
     - include_tasks: tasks/import-lma-repos.yml
     - include_tasks: tasks/bootstrap-ansible.yml

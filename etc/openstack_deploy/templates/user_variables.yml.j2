@@ -38,7 +38,7 @@ install_method: "{{ lookup('env','INSTALL_METHOD') | default('source', true) }}"
 lxc_container_backing_store: "{{ onpc_container_backing_store | default('lvm') }}"
 lxc_container_backing_method: "{{ onpc_container_backing_method | default('copy-on-write') }}"
 
-{% if repo_build_pip_extra_indexes is defined and repo_build_pip_extra_indexes|length > 0 %}
+{% if repo_build_pip_extra_indexes is defined and repo_build_pip_extra_indexes | length > 0 %}
 ## Wheel mirrors for the repo_build to use
 repo_build_pip_extra_indexes:
 {{ repo_build_pip_extra_indexes | to_nice_yaml }}
@@ -148,7 +148,7 @@ nova_libvirt_images_rbd_pool: vms
 nova_cpu_allocation_ratio: "{{ onpc_cpu_overcommit | default(8.0) }}" 
 nova_nova_conf_overrides:
   DEFAULT:
-{%-- raw %}
+{%- raw %}
     cpu_allocation_ratio: "{{ nova_cpu_allocation_ratio }}"
 {% endraw %}
     block_device_allocate_retries: 60

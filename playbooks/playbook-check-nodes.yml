@@ -27,9 +27,9 @@
   pre_tasks:
     - name: Verify Ansible version meets requirements
       assert:
-        that: "ansible_version.full is version_compare('2.5', '>=')"
-      msg: >
-        "You must upgrade Ansible version to 2.5 or greater (current version is {{ ansible_version.full }})"
+        that: "ansible_version.full is version_compare('2.7', '>=')"
+        msg: >
+          "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
     - name: Gather nodes facts
       setup:
     - import_tasks: tasks/setup-node-facts.yml
@@ -56,9 +56,16 @@
     - import_tasks: tasks/install-packages.yml
       when: onpc_managed_node | bool == True
       tags: install-node-packages
-    - import_tasks: tasks/configure-kernel.yml
+# (Note (PP): Commented until proven necessary.
+# Kernel tuning is already taken care of by OpenStack-Ansible
+#    - import_tasks: tasks/configure-kernel.yml
+#      when: onpc_managed_node | bool == True
+#      tags: configure-node-kernel
+    - import_tasks: tasks/import-root-public-key.yml
+      vars:
+       public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
       when: onpc_managed_node | bool == True
-      tags: configure-node-kernel
+      tags: import-root-public-key 
 
   roles:
     - role: chrony

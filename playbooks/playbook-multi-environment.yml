@@ -13,8 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- hosts: openstack
+  tasks:
+    - name: "Gather fact from {{ inventory_hostname }}"
+      setup:
+
 - name: Setup the ONPC deployment environment 
   hosts: localhost
+  connection: local
   become: true
   become_user: root
   environment: "{{ onpc_proxy_environment | default({}) }}"
@@ -29,9 +35,9 @@
   tasks:
     - name: Verify Ansible version meets requirements
       assert:
-        that: "ansible_version.full is version_compare('2.5', '>=')"
-      msg: >
-        "You must upgrade Ansible version to 2.5 or greater (current version is {{ ansible_version.full }})"
+        that: "ansible_version.full is version_compare('2.7', '>=')"
+        msg: >-
+          "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
       tags: always 
     - import_tasks: tasks/setup-multi-facts.yml
       tags: always

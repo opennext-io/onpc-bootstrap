@@ -38,14 +38,14 @@
 
 - name: Set hosts list name and IP address parameters facts
   set_fact:
-    infrastructure_hosts_dict: "{% set sel = [] %}{% for host in infra_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
-    storage_hosts_dict: "{% set sel = [] %}{% for host in storage_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
-    ceph_osd_hosts_dict: "{% set sel = [] %}{% for host in ceph_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
-    compute_hosts_dict: "{% set sel = [] %}{% for host in compute_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
-    network_hosts_dict: "{% set sel = [] %}{% for host in network_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
-    image_hosts_dict: "{% set sel = [] %}{% for host in image_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
-    monitoring_hosts_dict: "{% set sel = [] %}{% for host in monitoring_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
-    logging_hosts_dict: "{% set sel = [] %}{% for host in logging_hosts_list %}{% set l = sel.append({'name': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
+    infrastructure_hosts_dict: "{% set sel = [] %}{% for host in infra_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
+    storage_hosts_dict: "{% set sel = [] %}{% for host in storage_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
+    ceph_osd_hosts_dict: "{% set sel = [] %}{% for host in ceph_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
+    compute_hosts_dict: "{% set sel = [] %}{% for host in compute_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
+    network_hosts_dict: "{% set sel = [] %}{% for host in network_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
+    image_hosts_dict: "{% set sel = [] %}{% for host in image_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
+    monitoring_hosts_dict: "{% set sel = [] %}{% for host in monitoring_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
+    logging_hosts_dict: "{% set sel = [] %}{% for host in logging_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
 
 - name: Set networking facts
   set_fact:

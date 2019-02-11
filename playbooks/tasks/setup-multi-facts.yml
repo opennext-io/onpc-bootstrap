@@ -47,6 +47,10 @@
     monitoring_hosts_dict: "{% set sel = [] %}{% for host in monitoring_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     logging_hosts_dict: "{% set sel = [] %}{% for host in logging_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
 
+- name: Set Glance images NFS backing store hostname
+  set_fact:
+    glance_nfs_backing_store_host: "{{ infrastructure_hosts_dict[0].ip_v4 }}"
+
 - name: Set networking facts
   set_fact:
     reserved_ips: "{% set sel = [] %}{% for net in onpc_osa_networks %}{% for rsv in net['reserved'] %}{% set l = sel.append(rsv) %}{% endfor %}{% endfor %}{{ sel }}"

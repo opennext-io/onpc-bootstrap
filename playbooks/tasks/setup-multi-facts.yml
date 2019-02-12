@@ -48,6 +48,7 @@
     image_hosts_dict: "{% set sel = [] %}{% for host in image_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     monitoring_hosts_dict: "{% set sel = [] %}{% for host in monitoring_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     logging_hosts_dict: "{% set sel = [] %}{% for host in logging_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
+    swift_hosts_dict: "{% set sel = [] %}{% for host in swift_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     nfs_hosts_dict: "{% set sel = [] %}{% for host in nfs_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
 
 - name: Set NFS backing store host fact
@@ -56,12 +57,12 @@
 
 - name: Set onpc_services_list with Ceph
   set_fact:
-    onpc_services_list: "{{ onpc_services_list + ['ceph']) }}"
+    onpc_services_list: "{{ onpc_services_list + ['ceph'] }}"
   when: ceph_hosts_list is defined and ceph_hosts_list | length > 0
 
 - name: Set onpc_services_list with Swift
   set_fact:
-    onpc_services_list: "{{ onpc_services_list + ['swift']) }}"
+    onpc_services_list: "{{ onpc_services_list + ['swift'] }}"
   when: swift_hosts_list is defined and swift_hosts_list | length > 0
 
 - name: Set networking facts

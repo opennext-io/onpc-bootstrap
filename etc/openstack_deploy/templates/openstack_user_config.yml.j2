@@ -218,6 +218,7 @@ image_hosts:
 {% for h in image_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
+{%- if glance_default_store == 'file' %}
     container_vars:
       limit_container_types: glance
       glance_nfs_client:
@@ -226,6 +227,7 @@ image_hosts:
           local_path: /var/lib/glance/images
           type: nfs
           options: "_netdev,auto"
+{% endif %}
 {% endfor %}
 
 # neutron server, agents (L3, etc)

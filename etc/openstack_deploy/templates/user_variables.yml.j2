@@ -119,13 +119,15 @@ glance_rbd_store_pool: images
 # example, a password of "super$ecure" would need to be entered as
 # "super$$ecure" below.  See Launchpad Bug #1259729 for more details.
 
-{% else if 'swift' in onpc_services_list %}
+{% elif 'swift' in onpc_services_list %}
 glance_default_store: swift
 glance_swift_store_auth_version: 3
+{%- raw %}
 glance_swift_store_auth_address: "{{ keystone_service_internalurl }}"
+glance_swift_store_key: "{{ glance_service_password }}"
+{% endraw %}
 glance_swift_store_container: glance_images
 glance_swift_store_endpoint_type: internalURL
-glance_swift_store_key: "{{ glance_service_password }}"
 glance_swift_store_region: "{{ onpc_region_name }}"
 glance_swift_store_user: 'service:glance'
 {% else %}

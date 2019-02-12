@@ -15,13 +15,21 @@ swift-proxy_hosts:
 {% endfor %}
 
 swift_hosts:
-{% for h in swift_hosts_dict %}
+{%- for h in swift_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
       swift_vars:
+        mount_point: /srv/node
         limit_container_types: swift
         zone: {{ loop.index }}
         region: 1
+        weight: 100
+        drives:
+{% for i in onpc_partitions_list %}
+  {% if i.name | regexp_search('^swift') %}
+          - name: {{ i.device }}
+  {% endif %}
+{% endfor %}
 {% endfor %}
 {% endif %}

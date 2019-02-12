@@ -66,7 +66,7 @@
     - conditional: "{{ (actual_partition_size | int) >= (partition_min_size | int) }}"
       msg: "Check that partition '{{ partition_mountpoint }}' size ({{ actual_partition_size }} bytes) is >= {{ partition_min_size }} bytes"
     - conditional: "{{ actual_partition_fstype ==  partition_fstype }}"
-      msg: "Check that partition '{{ partition_mountpoint }}' fstype '{{ actual_partition_fstype }}'  matches '{{ partition_fstype }}'" 
+      msg: "Check that partition '{{ partition_mountpoint }}' fstype '{{ actual_partition_fstype }}' matches '{{ partition_fstype }}'" 
   loop_control:
     loop_var: condition_item 
   when:

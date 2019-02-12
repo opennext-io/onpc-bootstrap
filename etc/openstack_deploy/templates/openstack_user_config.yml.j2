@@ -222,7 +222,7 @@ image_hosts:
       limit_container_types: glance
       glance_nfs_client:
         - server: {{ glance_nfs_backing_store_host }}
-          remote_path: /srv/nfs/glance
+          remote_path: /srv/nfs4/glance
           local_path: /var/lib/glance/images
           type: nfs
           options: "_netdev,auto"

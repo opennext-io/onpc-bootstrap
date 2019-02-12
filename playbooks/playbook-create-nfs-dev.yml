@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Create an NFS backing store
-  hosts: glance_nfs_backing_store_host
+- name: "Create an NFS backing store {{ nfs_serer }}"
+  hosts: "{{ nfs_server }}"
   become: true
   become_user: root
   vars:
@@ -23,7 +23,7 @@
       centos: "nfs-utils"
       suse: "nfs-kernel-server"
     glance_nfs_backing_store_path:
-      - /srv/nfs/glance
+      - /srv/nfs4/glance
   tasks:
     - block:
       - name: Install NFS packages
@@ -47,7 +47,7 @@
           shell: "/bin/false"
           system: "yes"
           createhome: "yes"
-          home: "/srv/nfs"
+          home: "/srv/nfs4"
 
       - name: Create base directories
         file:
@@ -60,7 +60,7 @@
       - name: Create exports file
         lineinfile:
           path: /etc/exports
-          line: '{{ item }} {{ container_network }} (rw,sync,no_subtree_check,insecure,all_squash,anonuid=10000,anongid=10000,rsize=8192,wsize=8192)'
+          line: '{{ item }} {{ container_network }} (rw,sync,no_subtree_check,insecure,all_squash,anonuid=10000,anongid=10000)'
           owner: root
           group: root
           mode: 0644

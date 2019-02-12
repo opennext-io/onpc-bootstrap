@@ -50,9 +50,9 @@
     logging_hosts_dict: "{% set sel = [] %}{% for host in logging_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     nfs_hosts_dict: "{% set sel = [] %}{% for host in nfs_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
 
-- name: Set first controller node fact
+- name: Set NFS backing store host fact
   set_fact:
-    glance_nfs_backing_store_host: "{{ nfs_hosts_dict[0].ip_v4 }"
+    glance_nfs_backing_store_host: "{{ nfs_hosts_dict[0].ip_v4 }}"
 
 - name: Set networking facts
   set_fact:

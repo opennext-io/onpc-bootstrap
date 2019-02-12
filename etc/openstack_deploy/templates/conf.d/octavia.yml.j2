@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 ---
 # The infra nodes that will be running the octavia services
-{% if 'octavia' in bootstrap_host_services %}
+{% if 'octavia' in onpc_services_list %}
 octavia-infra_hosts:
 {% for h in infrastructure_hosts_dict %}
   {{ h.name }}:

@@ -54,6 +54,16 @@
   set_fact:
     glance_nfs_backing_store_host: "{{ nfs_hosts_dict[0].ip_v4 }}"
 
+- name: Set onpc_services_list with Ceph
+  set_fact:
+    onpc_services_list: "{{ onpc_services_list + ['ceph']) }}"
+  when: ceph_hosts_list is defined and ceph_hosts_list | length > 0
+
+- name: Set onpc_services_list with Swift
+  set_fact:
+    onpc_services_list: "{{ onpc_services_list + ['swift']) }}"
+  when: swift_hosts_list is defined and swift_hosts_list | length > 0
+
 - name: Set networking facts
   set_fact:
     reserved_ips: "{% set sel = [] %}{% for net in onpc_osa_networks %}{% for rsv in net['reserved'] %}{% set l = sel.append(rsv) %}{% endfor %}{% endfor %}{{ sel }}"

@@ -30,7 +30,6 @@
     - vars/services.yml
   vars:
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
-    bootstrap_host_services: "{{ onpc_services_list }}"
   
   tasks:
     - name: Verify Ansible version meets requirements

@@ -19,12 +19,6 @@ onpc_services_list: >-
   {%- set scenario_list = onpc_scenario_list %}
   {%- set service_list = ['keystone', 'cinder', 'glance', 'neutron', 'nova'] %}
   {%- set service_list_extra = scenario_list | difference(['distro', 'lxc', 'nspawn', 'metal', 'source', 'starter', 'standard', 'extended', 'coe']) %}
-  {%- if 'ceph' in scenario_list %}
-  {%-   set _ = service_list.extend(['ceph']) %}
-  {%- endif %}
-  {%- if 'swift' in scenario_list %}
-  {%-   set _ = service_list.extend(['swift']) %}
-  {%- endif %}
   {%- if 'metal' not in scenario_list %}
   {%-   set _ = service_list.append('haproxy') %}
   {%- endif %}

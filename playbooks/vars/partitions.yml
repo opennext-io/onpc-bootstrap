@@ -63,5 +63,19 @@ onpc_osa_partitions: [
       min_size: "{{ ceph_journal_partition_size | default(16) }}",
       type: "vgonly",
       roles: ['ceph']
+    },
+    {
+      name: "swift-sdb",
+      min_size: "{{ swift_partition_size | default(64) }}",
+      fstype: "xfs",
+      mountpoint: "/srv/node/sdb/",
+      roles: ['swift']
+    },
+    {
+      name: "swift-sdc",
+      min_size: "{{ swift_partition_size | default(64) }}",
+      fstype: "xfs",
+      mountpoint: "/srv/node/sdc/",
+      roles: ['swift']
     }
   ]

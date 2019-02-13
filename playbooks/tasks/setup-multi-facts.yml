@@ -28,7 +28,7 @@
 
 - name: Set first controller node fact
   set_fact:
-    first_controller_node_name:  "{{ infra_hosts_list | sort | first }}"
+    first_controller_node_name: "{{ infra_hosts_list | sort | first }}"
 
 - name: Set hosts list facts by default
   set_fact:
@@ -69,18 +69,20 @@
   set_fact:
     oncp_partions_list: >-
         {%- set partitions_list = [] %}
-        {% for partition in onpc_osa_partitions %}
-        {%- if partition.get('name', '') | regex_search('^ceph', ignorecase=true) and 'ceph' in onpc_services_list %}
-            {%- set _ = partition_list.append(partition) %}
-        {% elif partition.get('name', '') | regex_search('^swift', ignorecase=true) and 'swift' in onpc_services_list %}
-            {%- set _ = partition_list.append(partition) %}
-        {%- else %}
-            {%- set _ = partition_list.append(partition) %}
+        {%- for partition in onpc_osa_partitions %}
+        {%- if (partition.get('name', '') | regex_search('^ceph', ignorecase=true)) and ('ceph' in onpc_services_list) %}
+            {{- partitions_list.append(partition) }}
+        {%- elif (partition.get('name', '') | regex_search('^swift', ignorecase=true)) and ('swift' in onpc_services_list) %}
+            {{- partitions_list.append(partition) }}
+        {%- elif (partition.get('name', '') | regex_search('^openstack', ignorecase=true)) %}
+            {{- partitions_list.append(partition) }}
+        {%- elif (partition.get('name', '') | regex_search('^cinder', ignorecase=true)) %}
+            {{- partitions_list.append(partition) }}
+        {%- elif (partition.get('name', '') | regex_search('^root$', ignorecase=true)) %}
+            {{- partitions_list.append(partition) }}
         {%- endif %}
         {%- endfor %}
-        {{- partition_list }}
-
-- debug: var=oncp_partions_list
+        {{- partitions_list | join }}
 
 - name: Set networking facts
   set_fact:
@@ -94,5 +96,3 @@
     external_vip_cidr: "{{ external_vip_address }}/{{ onpc_external_network.split('/')[1] }}"
     internal_vip_interface: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['device'] }}"
     external_vip_interface: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['interface'] }}"
-
-

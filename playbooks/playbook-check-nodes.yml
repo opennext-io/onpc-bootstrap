@@ -44,7 +44,7 @@
       when:
         - onpc_osa_partitions_check is defined and onpc_osa_partitions_check | bool == True
         - onpc_managed_node | bool == True
-      tags: check-node-partition
+      tags: check-node-partitions
     - include_tasks: tasks/check-node-network.yml
       vars:
         network_setup: "{{ item }}"

@@ -1,9 +1,10 @@
+#jinja2: lstrip_blocks: True
 # {{ ansible_managed }}
 ---
 # The nodes that will be running the Swift services
-{%- if 'swift' in onpc_services_list %}
+{% if 'swift' in onpc_services_list %}
 swift-proxy_hosts:
-{%- for h in infrastructure_hosts_dict %}
+{% for h in infrastructure_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
@@ -15,7 +16,7 @@ swift-proxy_hosts:
 {% endfor %}
 
 swift_hosts:
-{%- for h in swift_hosts_dict %}
+{% for h in swift_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
@@ -26,12 +27,12 @@ swift_hosts:
         region: 1
         weight: 100
         drives:
-{%- for p in onpc_partitions_list %}
-  {%- if p.get('name') | regex_search('^swift') %}
-    {%- set device = hostvars[h]['ansible_facts']['ansible_mounts'] | selectattr('mount', 'equalto', p.get('mountpoint')) | map(attribute='device') | join  %}
+{% for p in onpc_partitions_list %}
+  {% set device = '' %}
+  {% if p.name | regex_search('^swift') %}
+    {%- set device = hostvars[p.hostname]['ansible_mounts'] | selectattr('mount', 'equalto', p.mountpoint) | map(attribute='device') | join %}
           - name: {{ device }}
   {% endif %}
 {% endfor %}
 {% endfor %}
 {% endif %}
-

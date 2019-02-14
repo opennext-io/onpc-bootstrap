@@ -129,7 +129,7 @@ glance_swift_store_key: "{{ glance_service_password }}"
 glance_swift_store_container: glance_images
 glance_swift_store_endpoint_type: internalURL
 glance_swift_store_region: "{{ onpc_region_name }}"
-glance_swift_store_user: 'service:glance'
+glance_swift_store_user: "service:glance"
 {% else %}
 glance_default_store: file
 {% endif %}

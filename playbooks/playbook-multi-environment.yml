@@ -13,12 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- hosts: openstack
-  tasks:
-    - name: "Gather fact from {{ inventory_hostname }}"
-      setup:
-
-- name: Setup the ONPC deployment environment 
+- import_playbook: playbook-check-nodes.yml
+- name: Setup the ONPC deployment environment
   hosts: localhost
   connection: local
   become: true

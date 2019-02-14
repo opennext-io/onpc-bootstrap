@@ -68,14 +68,16 @@ onpc_osa_partitions: [
       name: "swift-sdb",
       min_size: "{{ swift_partition_size | default(64) }}",
       fstype: "xfs",
-      mountpoint: "/srv/node/sdb/",
+      mountpoint: "/srv/node/sdb",
+      options: "noatime,nodiratime,nobarrier,logbufs=8 0 2",
       roles: ['swift']
     },
     {
       name: "swift-sdc",
       min_size: "{{ swift_partition_size | default(64) }}",
       fstype: "xfs",
-      mountpoint: "/srv/node/sdc/",
+      mountpoint: "/srv/node/sdc",
+      options: "noatime,nodiratime,nobarrier,logbufs=8 0 2",
       roles: ['swift']
     }
   ]

@@ -1,35 +1,45 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Exits on errors
-set -ex
-# Trace everything into specific log file
-exec > >(tee -i /var/log/"$(basename "$0" .sh)"_"$(date '+%Y-%m-%d_%H-%M-%S')".log) 2>&1
+## Shell Opts ----------------------------------------------------------------
+set -e -u -x
+  
+## Variables -----------------------------------------------------------------
+# Extra options to pass to the ONPC bootstrap process
+export BOOTSTRAP_OPTS=${BOOTSTRAP_OPTS:-''}
+  
+# Store the clone repo root location
+export ONPC_CLONE_DIR="${ONPC_CLONE_DIR:-$(readlink -f $(dirname $0)/..)}"
 
-# Move to proper dir
-pushd /opt/openstack-ansible/playbooks
-# Run host setup
-openstack-ansible setup-hosts.yml
-# In queens some playbooks have been added for extra checks
-if [ -r healthcheck-hosts.yml ]; then
-	openstack-ansible healthcheck-hosts.yml
-fi
-# Run YAML config files syntax checks
-openstack-ansible setup-infrastructure.yml --syntax-check
-# Run infra setup
-openstack-ansible setup-infrastructure.yml
-# Check Galera in infra
-ansible galera_container -m shell -a "mysql -h localhost -e 'show status like \"%wsrep_cluster_%\";'"
-# In queens some playbooks have been added for extra checks
-if [ -r healthcheck-infrastructure.yml ]; then
-	openstack-ansible healthcheck-infrastructure.yml -e rabbit_test_prompt=no
-fi
-# In rocky some playbooks have been added for extra checks
-if [ -r healthcheck-openstack.yml ]; then
-	openstack-ansible healthcheck-openstack.yml
-fi
-# Run OpenStack setup
-openstack-ansible setup-openstack.yml
-popd
-
-# All done
-touch /opt/.setup-osa-done
+## Main ----------------------------------------------------------------------
+    
+# Ensure that some of the wrapper options are overridden
+# to prevent interference with the OSA bootstrap.
+export ANSIBLE_INVENTORY="/etc/ansible/maas.py"
+export ANSIBLE_REMOTE_USER="ubuntu"
+export ANSIBLE_ROLE_FETCH_MODE=git-clone
+export MAAS_INI_PATH="/etc/ansible/maas.ini"
+export ANSIBLE_VARS_PLUGINS="/dev/null"
+export HOST_VARS_PATH="/dev/null"
+export GROUP_VARS_PATH="/dev/null"
+        
+# Run ONPC bootstrap playbook
+pushd playbooks 
+  if [ -z "${BOOTSTRAP_OPTS}" ]; then
+    /usr/bin/ansible-playbook playbook-osa-environment.yml
+  else  
+    export BOOTSTRAP_OPTS_ITEMS=''
+    for BOOTSTRAP_OPT in ${BOOTSTRAP_OPTS}; do
+      BOOTSTRAP_OPTS_ITEMS=${BOOTSTRAP_OPTS_ITEMS}"-e "${BOOTSTRAP_OPT}" "
+    done
+    /usr/bin/ansible-playbook playbook-osa-environment.yml ${BOOTSTRAP_OPTS_ITEMS}
+  fi    
+popd  
+      
+# Now unset the env var overrides so that the defaults work again
+unset ANSIBLE_INVENTORY
+unset ANSIBLE_REMOTE_USER
+unset ANSIBLE_VARS_PLUGINS
+unset ANSIBLE_ROLE_FETCH_MODE
+unset HOST_VARS_PATH
+unset GROUP_VARS_PATH
+unset MAAS_INI_PATH

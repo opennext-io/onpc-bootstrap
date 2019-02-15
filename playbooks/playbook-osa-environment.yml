@@ -14,6 +14,7 @@
 # limitations under the License.
 
 - import_playbook: playbook-check-nodes.yml
+  tags: always
 - name: Setup the ONPC deployment environment
   hosts: localhost
   connection: local

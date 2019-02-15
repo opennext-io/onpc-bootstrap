@@ -90,15 +90,25 @@
         {%- endfor %}
         {{- partitions_list | join(',') }}
 
-- name: Set networking facts
+- set_fact:
+    internal_vip_address: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['address'].split('.')[:-1] + ['100'] }}"
+- set_fact:
+    internal_vip_netmask: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['network'] }}/{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['netmask'] }}"
+
+- name: Set internal networking facts
   set_fact:
     reserved_ips: "{% set sel = [] %}{% for net in onpc_osa_networks %}{% for rsv in net['reserved'] %}{% set l = sel.append(rsv) %}{% endfor %}{% endfor %}{{ sel }}"
-    internal_vip_address: "{% set sel = container_network.split('.')[:-1] + ['100'] %}{{ sel | join('.') }}"
-    external_vip_address: "{% set sel = onpc_external_network.split('.')[:-1] + ['100'] %}{{ sel | join('.') }}"
-
-- name: Set HAProxy - Keepalive facts
-  set_fact:
-    internal_vip_cidr: "{{ internal_vip_address }}/{{ container_network.split('/')[1] }}"
-    external_vip_cidr: "{{ external_vip_address }}/{{ onpc_external_network.split('/')[1] }}"
+    internal_vip_address: "{{ internal_vip_address | join('.') }}"
+    internal_vip_cidr: "{{ internal_vip_netmask | ipaddr('net') }}"
     internal_vip_interface: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['device'] }}"
+
+- set_fact:
+    external_vip_address: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['address'].split('.')[:-1] + ['100'] }}"
+- set_fact:
+    external_vip_netmask: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['network'] }}/{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['netmask'] }}"
+
+- name: Set external networking facts
+  set_fact:
+    external_vip_address: "{{ external_vip_address | join('.') }}"
+    external_vip_cidr: "{{ external_vip_netmask | ipaddr('net') }}"
     external_vip_interface: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['interface'] }}"

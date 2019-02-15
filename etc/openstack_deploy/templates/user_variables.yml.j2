@@ -38,7 +38,7 @@ install_method: "{{ lookup('env','INSTALL_METHOD') | default('source', true) }}"
 lxc_container_backing_store: "{{ onpc_container_backing_store | default('dir') }}"
 lxc_container_backing_method: "{{ onpc_container_backing_method | default('null') }}"
 
-{% if repo_build_pip_extra_indexes is defined and repo_build_pip_extra_indexes | length > 0 %}
+{%- if repo_build_pip_extra_indexes is defined and repo_build_pip_extra_indexes | length > 0 %}
 ## Wheel mirrors for the repo_build to use
 repo_build_pip_extra_indexes:
 {{ repo_build_pip_extra_indexes | to_nice_yaml }}
@@ -70,7 +70,7 @@ haproxy_keepalived_external_interface: "{{ external_vip_interface }}"
 haproxy_keepalived_internal_interface: "{{ internal_vip_interface }}"
 
 ## HAProxy SSL certificates, keys, and CA certificates from your own trusted certificate authority.
-{% if haproxy_ssl is defined and haproxy_ssl | bool %}
+{%- if haproxy_ssl is defined and haproxy_ssl | bool %}
 haproxy_user_ssl_cert: {{ haproxy_ssl_cert_path | default('/etc/openstack_deploy/ssl/openstack_cert.crt') }}
 haproxy_user_ssl_key: {{ haproxy_ssl_key_path | default('/etc/openstack_deploy/ssl/openstack_key.key') }}
 haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | default('/etc/openstack_deploy/ssl/openstack_ca.pem') }}
@@ -99,7 +99,7 @@ haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | default('/etc/openstack_
 #glance_default_store: file
 
 ## Ceph pool name for Glance to use
-{% if 'ceph' in onpc_services_list%}
+{%- if 'ceph' in onpc_services_list%}
 glance_default_store: rbd
 glance_rbd_store_pool: images
 glance_rbd_store_chunk_size: 8
@@ -118,8 +118,7 @@ glance_rbd_store_pool: images
 # it must be escaped with an additional dollar sign ($$), not a backslash. For
 # example, a password of "super$ecure" would need to be entered as
 # "super$$ecure" below.  See Launchpad Bug #1259729 for more details.
-
-{% elif 'swift' in onpc_services_list %}
+{%- elif 'swift' in onpc_services_list %}
 glance_default_store: swift
 glance_swift_store_auth_version: 3
 {%- raw %}
@@ -130,7 +129,7 @@ glance_swift_store_container: glance_images
 glance_swift_store_endpoint_type: internalURL
 glance_swift_store_region: "{{ onpc_region_name }}"
 glance_swift_store_user: "service:glance"
-{% else %}
+{%- else %}
 glance_default_store: file
 {% endif %}
 
@@ -144,7 +143,7 @@ neutron_plugin_base:
 ## Common Nova Overrides
 # When nova_libvirt_images_rbd_pool is defined, ceph will be installed on nova
 # hosts.
-{% if 'ceph' in onpc_services_list %}
+{%- if 'ceph' in onpc_services_list %}
 nova_libvirt_images_rbd_pool: vms
 {% endif %}
 
@@ -161,26 +160,26 @@ nova_nova_conf_overrides:
 cinder_cinder_conf_overrides:
   DEFAULT:
     image_volume_cache_enabled: true
-{% if 'ceph' in onpc_services_list %}
+{%- if 'ceph' in onpc_services_list %}
   ceph:
     image_volume_cache_enabled: true
 {% endif %}
 
-{% if 'ceph' in onpc_services_list %}
+{%- if 'ceph' in onpc_services_list %}
 cinder_default_volume_type: rbddriver
 {% else %}
 cinder_default_volume_type: LVM_iSCSI
 {% endif %}
 
 ## Tempest settings
-{% if onpc_bootstrap_container_tech == 'nspawn' %}
+{%- if onpc_bootstrap_container_tech == 'nspawn' %}
 tempest_public_subnet_cidr: "{{ container_network }}"
 tempest_public_subnet_allocation_pools: "172.29.239.110-172.29.239.200"
-{% else %}
+{%- else %}
 ## Tempest settings
 tempest_public_subnet_cidr: "{{ external_network }}"
 tempest_public_subnet_allocation_pools: "172.29.249.110-172.29.249.200"
-{% endif %}
+{%- endif %}
 tempest_install: {{ onpc_run_tempest_tests }}
 tempest_run: {{ onpc_run_tempest_tests }}
 
@@ -206,15 +205,16 @@ tempest_run: {{ onpc_run_tempest_tests }}
 ## This is used by apt-cacher-ng to download apt packages:
 # proxy_env_url: http://username:pa$$w0rd@10.10.10.9:9000/
 
-{% if onpc_proxy_host is defined and onpc_proxy_host | length > 0 %}
+{%- if onpc_proxy_host is defined and onpc_proxy_host | length > 0 %}
 proxy_env_url: "http://{{ onpc_proxy_host }}:{{ onpc_proxy_port | default(8000) }}/"
 {% endif %}
 
-{% if onpc_proxy_host is defined and onpc_proxy_host | length > 0 %}
+{%- if onpc_proxy_host is defined and onpc_proxy_host | length > 0 %}
 ## (1) This sets up a permanent environment, used during and after deployment:
 {%- raw %}
 # no_proxy_env: "localhost,127.0.0.1,{{ internal_lb_vip_address }},{{ external_lb_vip_address }},{% for host in groups['all_containers'] %}{{ hostvars[host]['container_address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
 {% endraw %}
+
 # global_environment_variables:
 #   HTTP_PROXY: "{{ proxy_env_url }}"
 #   HTTPS_PROXY: "{{ proxy_env_url }}"
@@ -224,7 +224,7 @@ proxy_env_url: "http://{{ onpc_proxy_host }}:{{ onpc_proxy_port | default(8000) 
 #   no_proxy: "{{ no_proxy_env }}"
 {% endif %}
 
-{% if onpc_proxy_host is defined and onpc_proxy_host | length > 0 %}
+{%- if onpc_proxy_host is defined and onpc_proxy_host | length > 0 %}
 ## (2) This is applied only during deployment, nothing is left after deployment is complete:
 deployment_environment_variables:
    http_proxy: "{{ proxy_env_url }}"
@@ -233,7 +233,6 @@ deployment_environment_variables:
   no_proxy: "localhost,127.0.0.1,{{ internal_lb_vip_address }},{{ external_lb_vip_address }},{% for host in groups['keystone_all'] %}{{ hostvars[host]['container_address'] }}{% if not loop.last %},{% endif %}{% endfor %}"
 {% endraw %}
 {% endif %}
-
 
 ## SSH connection wait time
 # Increase delay for the ssh connection check if desired.

@@ -91,24 +91,41 @@
         {{- partitions_list | join(',') }}
 
 - set_fact:
-    internal_vip_address: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['address'].split('.')[:-1] + ['100'] }}"
-- set_fact:
-    internal_vip_netmask: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['network'] }}/{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['netmask'] }}"
+    _internal_vip_address: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['address'].split('.')[:-1] + ['100'] }}"
 
-- name: Set internal networking facts
+- name: Set reserved_ips facts
   set_fact:
     reserved_ips: "{% set sel = [] %}{% for net in onpc_osa_networks %}{% for rsv in net['reserved'] %}{% set l = sel.append(rsv) %}{% endfor %}{% endfor %}{{ sel }}"
-    internal_vip_address: "{{ internal_vip_address | join('.') }}"
-    internal_vip_cidr: "{{ internal_vip_netmask | ipaddr('net') }}"
+
+- name: Set internal_vip_address facts
+  set_fact:
+    internal_vip_address: "{{ _internal_vip_address | join('.') }}"
+
+- set_fact:
+    _internal_vip_netmask: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['network'] }}/{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['netmask'] }}"
+
+- name: Set internal_vip_cidr fact
+  set_fact:
+    internal_vip_cidr: "{{ internal_vip_address }}/{{ _internal_vip_netmask | ipaddr('prefix') }}"
+
+- name: Set internal_vip_interface fact
+  set_fact:
     internal_vip_interface: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['device'] }}"
 
 - set_fact:
-    external_vip_address: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['address'].split('.')[:-1] + ['100'] }}"
-- set_fact:
-    external_vip_netmask: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['network'] }}/{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['netmask'] }}"
+    _external_vip_address: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['address'].split('.')[:-1] + ['100'] }}"
 
-- name: Set external networking facts
+- name: Set external_vip_address facts
   set_fact:
-    external_vip_address: "{{ external_vip_address | join('.') }}"
-    external_vip_cidr: "{{ external_vip_netmask | ipaddr('net') }}"
+    external_vip_address: "{{ _external_vip_address | join('.') }}"
+
+- set_fact:
+    _external_vip_netmask: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['network'] }}/{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['netmask'] }}"
+- name: Set external_vip_cidr fact
+  set_fact:
+    external_vip_cidr: "{{ external_vip_address}}/{{ _external_vip_netmask | ipaddr('prefix') }}"
+
+- name: Set external_vip_interface fact
+  set_fact:
     external_vip_interface: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['interface'] }}"
+

@@ -13,14 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Get OpenNext Repositories
-  git:
-    repo: "https://github.com/opennext-io/{{ item }}"
-    dest: "/opt/{{ item }}"
-    force: yes
-    recursive: no
-    version: "{{ onpc_lma_release | default('master') }}"
-  with_items:
-    - "onpc-logging"
-    - "onpc-monitoring"
+- name: Check Boostrap Status
+  stat:
+    path: /opt/ansible-runtime/bin/
+  register: bootstrap
+
+- debug:
+    var: bootstrap
+    verbosity: 2
+
+- name: Bootstrap Ansible
+  shell: ./scripts/bootstrap-ansible.sh
+  args:
+    chdir: /opt/openstack-ansible
+  when: bootstrap.stat.exists == false
   environment: "{{ onpc_proxy_environment| default('{}') }}"

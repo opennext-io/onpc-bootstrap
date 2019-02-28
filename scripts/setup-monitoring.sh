@@ -26,10 +26,10 @@ exec > >(tee -i /var/log/"$(basename "$0" .sh)"_"$(date '+%Y-%m-%d_%H-%M-%S')".l
 export grafana_url=${grafana_url:-''}
 
 # Move to proper dir
-pushd /opt/onpc-monitoring
+pushd /opt/onpc-monitoring/playbooks
 # Create the monitoring container(s)
 #openstack-ansible /opt/openstack-ansible/playbooks/lxc-containers-create.yml -e #'container_group=influx_containers:collectd_containers:grafana_containers'
-openstack-ansible setup-everything.yml
+openstack-ansible setup_everything.yml
 popd
 
 # Now unset the env var overrides so that the defaults work again

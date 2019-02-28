@@ -24,7 +24,7 @@ container_network: 172.29.236.0/22
 tunnel_network: 172.29.240.0/22
 storage_network: 172.29.244.0/22
 external_network: 172.29.248.0/22
-lbaas_network: 172.29.252.0/22
+#lbaas_network: 172.29.252.0/22
 
 onpc_osa_networks:
   - name: container

@@ -5,7 +5,7 @@
     dest: "/tmp/os_image_{{ item.name }}"
     timeout: 600   # big files might take a while to download
   register: download_result
-  until: download_result|succeeded
+  until: download_result is succeeded
   retries: 10
   delay: 15
   failed_when: download_result is failure

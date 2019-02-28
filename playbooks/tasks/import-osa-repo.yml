@@ -18,9 +18,7 @@
     repo: "https://github.com/openstack/openstack-ansible"
     dest: "/opt/openstack-ansible"
     accept_hostkey: yes
-    force: no 
+    force: yes
     recursive: no
     version: "{{ onpc_openstack_release | default('stable/rocky') }}"
-  tags:
-    - import-osa-repo
   environment: "{{ onpc_proxy_environment | default('{}') }}"

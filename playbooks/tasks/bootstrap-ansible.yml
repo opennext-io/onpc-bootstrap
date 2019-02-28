@@ -17,10 +17,12 @@
   stat:
     path: /opt/ansible-runtime/bin/
   register: bootstrap
+  tags: bootstrap-ansible
 
 - debug:
     var: bootstrap
     verbosity: 2
+  tags: bootstrap-ansible
 
 - name: Bootstrap Ansible
   shell: ./scripts/bootstrap-ansible.sh
@@ -28,3 +30,4 @@
     chdir: /opt/openstack-ansible
   when: bootstrap.stat.exists == false
   environment: "{{ onpc_proxy_environment| default('{}') }}"
+  tags: bootstrap-ansible

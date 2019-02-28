@@ -47,7 +47,6 @@
     - import_tasks: tasks/import-lma-repos.yml
       tags: import-lma-repo
     - include_tasks: tasks/bootstrap-ansible.yml
-      tags: bootstrap-ansible
     - import_tasks: tasks/setup-common-files.yml
       tags: setup-common-files
     - import_tasks: tasks/setup-multi-files.yml

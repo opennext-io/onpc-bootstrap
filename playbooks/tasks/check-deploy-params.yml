@@ -15,9 +15,9 @@
 
 - name: Verify that the container network is properly defined
   assert:
-    that: "container_network is defined and container_network.split('/') | length == 2"
+    that: "management_network is defined and management_network.split('/') | length == 2"
     msg: >
-      "The variable 'container_network' is not properly defined"
+      "The variable 'management_network' is not properly defined"
 
 - name: Verify that the tunnel network is properly defined
   assert:

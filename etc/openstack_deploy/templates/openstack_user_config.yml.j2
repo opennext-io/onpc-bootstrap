@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 ---
 cidr_networks: &cidr_networks
-  container: {{ container_network }}
+  container: {{ management_network }}
   tunnel: {{ tunnel_network }}
   storage: {{ storage_network }}
 {% if 'octavia' in onpc_services_list %}
@@ -14,17 +14,17 @@ used_ips:
 {% endfor %}
 
 global_overrides:
-  #cidr_networks: *cidr_networks
   internal_lb_vip_address: {{ internal_vip_address }}
   external_lb_vip_address: {{ external_vip_address }}
   management_bridge: "br-mgmt"
   tunnel_bridge: "br-vxlan"
+  lb_name: haproxy
   provider_networks:
     - network:
         container_bridge: "br-mgmt"
         container_interface: "eth1"
         container_type: "veth"
-        ip_from_q: "container"
+        ip_from_q: "management"
         is_container_address: true
         is_ssh_address: true
         type: "raw"
@@ -64,19 +64,20 @@ global_overrides:
         container_type: "veth"
         container_interface: "eth11"
         type: "vlan"
-        range: "101:200,301:400"
+        range: "1:1"
         net_name: "vlan"
         group_binds:
           - neutron_linuxbridge_agent
-    - network:
-        container_bridge: "br-vlan"
-        container_type: "veth"
-        container_interface: "eth12"
-        host_bind_override: "eth12"
-        type: "flat"
-        net_name: "flat"
-        group_binds:
-          - neutron_linuxbridge_agent
+## Not used anymore since pike
+#   - network:
+#       container_bridge: "br-vlan"
+#       container_type: "veth"
+#       container_interface: "eth12"
+#       host_bind_override: "eth12"
+#       type: "flat"
+#       net_name: "flat"
+#       group_binds:
+#         - neutron_linuxbridge_agent
 {% if 'octavia' in onpc_services_list %}
     - network:
         container_bridge: "br-lbaas"
@@ -191,7 +192,7 @@ shared-infra_hosts: *infrastructure_hosts
 # repository (apt cache, python packages, etc)
 repo-infra_hosts: *infrastructure_hosts
 
-# Ideally the load balancer should not use the infrastructure hosts.
+# Ideally the load balancer should not run on the infrastructure hosts.
 # Dedicated hardware is best for improved performance and security.
 haproxy_hosts: *infrastructure_hosts
 

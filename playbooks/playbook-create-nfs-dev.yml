@@ -60,7 +60,7 @@
       - name: Create exports file
         lineinfile:
           path: /etc/exports
-          line: '{{ item }} {{ container_network }} (rw,sync,no_subtree_check,insecure,all_squash,anonuid=10000,anongid=10000)'
+          line: '{{ item }} {{ management_network }} (rw,sync,no_subtree_check,insecure,all_squash,anonuid=10000,anongid=10000)'
           owner: root
           group: root
           mode: 0644

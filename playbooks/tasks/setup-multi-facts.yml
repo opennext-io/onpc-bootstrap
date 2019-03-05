@@ -54,7 +54,6 @@
 - name: Set NFS backing store host fact
   set_fact:
     glance_nfs_store_host: "{{ nfs_hosts_dict[0].ip_v4 }}"
-    glance_default_store: file
   when:
     - swift_hosts_list is not defined or swift_hosts_list | length == 0
     - ceph_hosts_list is not defined or ceph_hosts_list | length == 0
@@ -62,13 +61,11 @@
 - name: Set onpc_services_list for Ceph
   set_fact:
     onpc_services_list: "{{ onpc_services_list + ['ceph'] }}"
-    glance_default_store: rbd
   when: ceph_hosts_list is defined and ceph_hosts_list | length > 0
 
 - name: Set onpc_services_list for Swift
   set_fact:
     onpc_services_list: "{{ onpc_services_list + ['swift'] }}"
-    glance_default_store: swift
   when: swift_hosts_list is defined and swift_hosts_list | length > 0
 
 - name: Set onpc_partions_list

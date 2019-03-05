@@ -14,21 +14,26 @@
 # limitations under the License.
 
 
-# container_network: used to provide access the internal services and containers
+# management_network: used to provide access the internal services and containers
 # tunnel_network: used by tenants private networks 
 # storage_network: used by the storage services (optional)
-# external_network: used to provide access to the Internet
+# provider_network: used to provide access to the Internet
 # lbaas_network: used by tenants for load balacing (octavia)
 
-container_network: 172.29.236.0/22
+# Adjust as per your environment to include any IP addresses that are already used by existing
+# physical hosts in the environment where OpenStack will be deployed (and ensuring that you've
+# included any reserved IP addresses for physical growth too). Single IP addresses or ranges
+# (start and end placed either side of a ',') can be placed under the 'reserved' stanza for each # OSA network.
+
+management_network: 172.29.236.0/22
 tunnel_network: 172.29.240.0/22
 storage_network: 172.29.244.0/22
-external_network: 172.29.248.0/22
+provider_network: 172.29.248.0/22
 #lbaas_network: 172.29.252.0/22
 
 onpc_osa_networks:
-  - name: container
-    cidr: "{{ container_network }}"
+  - name: management
+    cidr: "{{ management_network }}"
     interface: br-mgmt
     reserved:
       - "172.29.236.1,172.29.236.50"
@@ -47,8 +52,8 @@ onpc_osa_networks:
       - "172.29.244.1,172.29.244.50"
       - "172.29.244.100"
     roles: ['storage', 'compute', 'ceph']
-  - name: external
-    cidr: "{{ external_network }}"
+  - name: provider
+    cidr: "{{ provider_network }}"
     interface: br-vlan
     reserved:
       - "172.29.248.1,172.29.248.50"

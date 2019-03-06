@@ -18,6 +18,7 @@ global_overrides:
   external_lb_vip_address: {{ external_vip_address }}
   management_bridge: "br-mgmt"
   tunnel_bridge: "br-vxlan"
+  storage_bridge: "br-storage"
   lb_name: haproxy
   provider_networks:
     - network:
@@ -68,7 +69,7 @@ global_overrides:
         net_name: "vlan"
         group_binds:
           - neutron_linuxbridge_agent
-## Not used anymore since pike
+## Not used anymore since rocky
 #   - network:
 #       container_bridge: "br-vlan"
 #       container_type: "veth"
@@ -124,19 +125,21 @@ _infrastructure_hosts: &infrastructure_hosts
       container_tech: "{{ onpc_bootstrap_container_tech }}"
 {% endfor %}
 
-# Compute hypervisor hosts
+# The compute hypervisor hosts
 compute_hosts: &compute_hosts
 {% for h in compute_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
 
-# Rsyslog host
+# The server(s) that run the rsyslog service
 log_hosts:
-  {{ logging_hosts_dict[0].name }}:
-    ip: {{ logging_hosts_dict[0].ip_v4 }}
+{% for h in rsyslog_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+{% endfor %}
 
-# Cinder storage (LVM/iSCSI)
+# The Cinder storage LVM/iSCSI hosts
 storage_hosts:
 {% for h in storage_hosts_dict %}
   {{ h.name }}:
@@ -155,6 +158,8 @@ storage_hosts:
             - high-iops
             - ultra-high-iops
 {% endfor %}
+
+# The hosts that run the Cinder API service
 storage-infra_hosts:
 {% for h in infrastructure_hosts_dict %}
   {{ h.name }}:
@@ -187,12 +192,18 @@ storage-infra_hosts:
 ##
 ## Infrastructure middleware
 ##
+
+# The shared infrastructure software (MariaDB/Galera and RabbitMQ)
 shared-infra_hosts: *infrastructure_hosts
 
-# repository (apt cache, python packages, etc)
+# The OpenStack API services such as Nova API and Glance API
+os-infra_hosts: *infrastructure_hosts
+
+# OpenStack-Ansible repository cache (apt, python packages, etc)
 repo-infra_hosts: *infrastructure_hosts
 
-# Ideally the load balancer should not run on the infrastructure hosts.
+# When using HAProxy for load balancing, this tells the playbooks
+# where to install and configure this service.
 # Dedicated hardware is best for improved performance and security.
 haproxy_hosts: *infrastructure_hosts
 
@@ -200,7 +211,7 @@ haproxy_hosts: *infrastructure_hosts
 ### OpenStack mandatory services
 ###
 
-## Keystone services
+# The servers that run the Keystone (OpenStack Identity) Service
 identity_hosts: *infrastructure_hosts
 
 # Neutron L2/L3 agents and metadata services
@@ -213,10 +224,10 @@ network_hosts:
 # nova api services
 compute-infra_hosts: *infrastructure_hosts
 
-# horizon services
+# The nodes that run the Horizon (OpenStack Dashboard) service
 dashboard_hosts: *infrastructure_hosts
 
-# glance services: 
+# The nodes that run the Glance (OpenStack Image) service
 image_hosts:
 {% for h in image_hosts_dict %}
   {{ h.name }}:
@@ -233,7 +244,8 @@ image_hosts:
 {% endif %}
 {% endfor %}
 
-# neutron server, agents (L3, etc)
+# The nodes that run the Neutron (OpenStack Networking) agents and services
+# (neutron server, L3 agent, ...)
 network_hosts:
 {% for h in network_hosts_dict %}
   {{ h.name }}:

@@ -25,18 +25,18 @@
     swift_hosts_list: "{% set sel = [] %}{% if 'swift' in groups %}{% for host in groups['swift'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
     image_hosts_list: "{% set sel = [] %}{% if 'image' in groups %}{% for host in groups['image'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
     nfs_hosts_list: "{% set sel = [] %}{% if 'nfs' in groups %}{% for host in groups['nfs'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
+    rsyslog_hosts_list: "{% set sel = [] %}{% if 'rsyslog' in groups %}{% for host in groups['rsyslog'] %}{% set l = sel.append(host) %}{% endfor %}{% endif %}{{ sel }}"
 
 - name: Set first controller node fact
   set_fact:
     first_controller_node_name: "{{ infra_hosts_list | sort | first }}"
 
-- name: Set hosts list facts by default
+- name: Set mandatory hosts list facts if not explicitely specified
   set_fact:
     network_hosts_list: "{% if network_hosts_list | length == 0  %}{{ infra_hosts_list}}{% endif %}"
     monitoring_hosts_list: "{% if monitoring_hosts_list | length == 0  %}{{ infra_hosts_list}}{% else %}{{ monitoring_hosts_list }}{% endif %}"
     logging_hosts_list: "{% if logging_hosts_list | length == 0  %}{{ infra_hosts_list}}{% else %}{{ logging_hosts_list }}{% endif %}"
     image_hosts_list: "{% if image_hosts_list | length == 0  %}{{ infra_hosts_list}}{% else %}{{ image_hosts_list }}{% endif %}"
-    nfs_hosts_list: "{% if nfs_hosts_list | length == 0  %}{{ infra_hosts_list}}{% else %}{{ nfs_hosts_list }}{% endif %}"
 
 - name: Set hosts list name and IP address parameters facts
   set_fact:
@@ -50,6 +50,7 @@
     logging_hosts_dict: "{% set sel = [] %}{% for host in logging_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'hostname': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     swift_hosts_dict: "{% set sel = [] %}{% for host in swift_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'hostname': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     nfs_hosts_dict: "{% set sel = [] %}{% for host in nfs_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'hostname': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
+    rsyslog_hosts_dict: "{% set sel = [] %}{% for host in rsyslog_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'hostname': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
 
 - name: Set NFS backing store host fact
   set_fact:

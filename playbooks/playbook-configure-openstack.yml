@@ -8,7 +8,8 @@
 #
 - name: OpenStack services setup
   hosts: utility_all[0]
-  user: root
+  become: true
+  become_user: root
   environment: "{{ onpc_proxy_environment | default({}) }}"
 
   vars_files:
@@ -23,13 +24,10 @@
       - always
   - include_tasks: tasks/setup-user-flavors.yml
     with_items: "{{ vm_flavors }}"
-    tags:
-      - create_flavors
+    tags: create-flavors
   - include_tasks: tasks/setup-user-images.yml
     with_items: "{{ images }}"
-    tags:
-      - create_images
+    tags: create-images
   - include_tasks: tasks/setup-user-networks.yml
-    tags:
-      - create_networks
+    tags: create-networks
 

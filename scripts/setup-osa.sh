@@ -2,6 +2,7 @@
 
 ## Shell Opts ----------------------------------------------------------------
 set -e -u -x
+exec > >(tee -i /var/log/"$(basename "$0" .sh)"_"$(date '+%Y-%m-%d_%H-%M-%S')".log) 2>&1
   
 ## Variables -----------------------------------------------------------------
 # Extra options to pass to the ONPC bootstrap process

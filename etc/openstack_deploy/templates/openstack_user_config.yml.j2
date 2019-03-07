@@ -232,7 +232,7 @@ image_hosts:
 {% for h in image_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
-{% if glance_default_store == 'file' %}
+{% if 'ceph' not in onpc_services_list and 'swift' not in onpc_services_list %}
     container_vars:
       limit_container_types: glance
       glance_nfs_client:

@@ -135,9 +135,8 @@ compute_hosts: &compute_hosts
 # The server(s) that run the rsyslog service (optional)
 {% if rsyslog_hosts_dict is defined and rsyslog_hosts_dict | length > 0 %}
 log_hosts:
-{% for h in rsyslog_hosts_dict %}
-  {{ h.name }}:
-    ip: {{ h.ip_v4 }}
+  "{{ rsyslog_hosts_dict[0]['name'] }}":
+    ip: "{{ rsyslog_hosts_dict[0]['ip_v4'] }}"
 {% endfor %}
 {% endfor %}
 

@@ -75,12 +75,13 @@ onpc_root_filesystem_min_size: 50
 #onpc_proxy_port: 8000
 onpc_time_server: 172.31.0.48
 
-# Use a Slack channel for sending alerts.
-onpc_slack_alerts:
-  alert-channel: ''
-  uuid: ''
+## Use a Slack channel for sending alerts.
+# onpc_slack_alerts:
+#  channels:
+#    - name: ''
+#      uuid: ''
 
-# Sensu Alert handlers
+# Use Sensu handlers for sending alerts
 onpc_sensu_alerts:
   handlers:
-    - 'default'
+    - default

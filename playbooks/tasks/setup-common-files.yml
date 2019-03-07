@@ -89,6 +89,18 @@
   tags:
     - drop-user-logging-variables
 
+- name: Set Sensu alerts handlers fact
+  set_fact:
+    sensu_alerts_handlers: "{{ onpc_sensu_alerts['handlers'] }}"
+  when:
+    - onpc_sensu_alerts is defined and onpc_sensu_alerts['handlers'] | length > 0
+
+- name: Set Slack alerts channels facts
+  set_fact:
+    slack_alerts_channels: "{{ onpc_slack_alerts['channels'] }}"
+  when:
+    - onpc_slack_alerts is defined and onpc_slack_alerts['channels'] | length > 0
+
 - name: Drop the monitoring user_variables file
   template:
     src: "/opt/onpc-monitoring/templates/user_variables_monitoring.yml.j2"

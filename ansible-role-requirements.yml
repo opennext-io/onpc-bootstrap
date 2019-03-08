@@ -1,6 +1,6 @@
 - name: grafana
   scm: git
-  src: https://github.com/opennext-io/ansible-grafana.git
+  src: https://github.com/cloudalchemy/ansible-grafana.git
 - name: kibana
   scm: git
   src: https://github.com/opennext-io/ansible-kibana.git

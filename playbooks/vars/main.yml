@@ -29,6 +29,7 @@ onpc_region_name: RegionOne
 onpc_haproxy_ssl_enabled: True
 onpc_osa_partitions_check: True
 onpc_osa_networks_check: True
+onpc_multidomain_support: False
 
 # The variable onpc_environment_name is used to tag the monitoring metrics
 # and alerts.

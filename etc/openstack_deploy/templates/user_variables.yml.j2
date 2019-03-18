@@ -44,6 +44,13 @@ repo_build_pip_extra_indexes:
 {{ repo_build_pip_extra_indexes | to_nice_yaml }}
 {% endif %}
 
+## Horizon Overrides
+# In OpenStack, if you are taking advantage of the multiple domain
+# functionality, you have full control via command-line tools.
+# However, if you want to be able to use the OpenStack dashboard with
+# multiple domains, you will need to enable Horizon's multidomain support. 
+horizon_keystone_multidomain_support: "{{ onpc_multidomain_support }}"
+
 ## RabbitMQ Overrides
 # By default, openstack-ansible configures all OpenStack services to talk to
 # RabbitMQ over encrypted connections on port 5671. To opt-out of this default,

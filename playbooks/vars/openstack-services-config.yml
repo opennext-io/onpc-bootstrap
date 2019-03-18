@@ -71,7 +71,7 @@ networks:
     physical_network: flat
   - name: "{{ private_net_name }}"
     shared: true
-    external: true
+    external: false
     network_type: vxlan
     segmentation_id: 101
 

@@ -28,10 +28,8 @@ swift_hosts:
         weight: 100
         drives:
 {% for p in onpc_partitions_list %}
-  {% set device = '' %}
   {% if p.name | regex_search('^swift') %}
-    {%- set device = hostvars[h.hostname]['ansible_mounts'] | selectattr('mount', 'equalto', p.mountpoint | regex_replace('\\/$', '')) | map(attribute='device') | join %}
-          - name: {{ device }}
+          - name: {{ p.mountpoint.split('/')[:-1] }}
   {% endif %}
 {% endfor %}
 {% endfor %}

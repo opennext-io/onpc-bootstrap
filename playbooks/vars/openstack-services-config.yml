@@ -116,6 +116,9 @@ security_group_rules:
 
 # Create some default images
 images:
+  - name: Cirros-0.4.0
+    format: qcow2
+    url: http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
   - name: Ubuntu 18.04 LTS
     format: qcow2
     url: http://uec-images.ubuntu.com/releases/18.04/release/ubuntu-18.04-server-cloudimg-amd64.img
@@ -134,7 +137,3 @@ images:
   - name: Debian 9 Latest
     format: qcow2
     url: http://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
-  - name: Cirros-0.3.5
-    format: qcow2
-    url: http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img
-    

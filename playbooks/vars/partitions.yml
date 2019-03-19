@@ -22,6 +22,12 @@ onpc_osa_partitions: [
       mountpoint: "/"
     },
     {
+      name: "logs",
+      min_size: "{{ logs_partition_size | default(24) }}",
+      fstype: "ext4",
+      mountpoint: "/var/log"
+    },
+    {
       name: "openstack-core",
       min_size: "{{ openstack_core_partition_size | default(4) }}",
       fstype: "xfs",
@@ -31,7 +37,7 @@ onpc_osa_partitions: [
       name: "openstack-logs",
       min_size: "{{ openstack_logs_partition_size | default(16) }}",
       fstype: "xfs",
-      mountpoint: "/openstack/logs"
+      mountpoint: "/openstack/log"
     },
     {
       name: "openstack-lxc",

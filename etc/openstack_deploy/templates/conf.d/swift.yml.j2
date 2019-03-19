@@ -29,7 +29,7 @@ swift_hosts:
         drives:
 {% for p in onpc_partitions_list %}
   {% if p.name | regex_search('^swift') %}
-          - name: {{ p.mountpoint.split('/')[:-1] }}
+          - name: {{ p.mountpoint.split('/')[-1] | join }}
   {% endif %}
 {% endfor %}
 {% endfor %}

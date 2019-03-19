@@ -137,8 +137,7 @@ compute_hosts: &compute_hosts
 log_hosts:
   "{{ rsyslog_hosts_dict[0]['name'] }}":
     ip: "{{ rsyslog_hosts_dict[0]['ip_v4'] }}"
-{% endfor %}
-{% endfor %}
+{% endif %}
 
 # The Cinder storage LVM/iSCSI hosts
 storage_hosts:

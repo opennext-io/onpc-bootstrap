@@ -13,6 +13,7 @@
   environment: "{{ onpc_proxy_environment | default({}) }}"
 
   vars_files:
+    - vars/networks.yml
     - vars/openstack-services-config.yml
 
   tasks:
@@ -20,14 +21,12 @@
     apt:
       name: python-shade
       state: present
-    tags:
-      - always
+    tags: always
   - include_tasks: tasks/setup-user-flavors.yml
     with_items: "{{ vm_flavors }}"
-    tags: create-flavors
+    tags: create-flavors 
   - include_tasks: tasks/setup-user-images.yml
     with_items: "{{ images }}"
     tags: create-images
   - include_tasks: tasks/setup-user-networks.yml
-    tags: create-networks
-
+    tags: create-network

@@ -10,3 +10,4 @@
     disk: "{{ item.disk }}"
     swap: "{{ item.swap }}"
     ephemeral: "{{ item.ephemeral }}"
+  tags: create-flavors 

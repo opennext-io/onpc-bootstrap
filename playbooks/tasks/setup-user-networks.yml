@@ -4,28 +4,30 @@
     endpoint_type: internal
     cloud: default
     state: present
-    name: "{{ item[0].name }}"
-    shared: "{{ item[0].shared }}"
-    external: "{{ item[0].external }}"
-    provider_network_type: "{{ item[0].network_type }}"
-    provider_physical_network: "{{ item[0]].physical_network | default ('') }}"
+    name: "{{ item.name }}"
+    shared: "{{ item.shared }}"
+    external: "{{ item.external }}"
+    provider_network_type: "{{ item.network_type }}"
+    provider_physical_network: "{{ item.physical_network | default ('') }}"
   with_items: "{{ networks }}"
+  tags: create-networks
 
 - name: Create subnets on networks
   os_subnet:
     endpoint_type: internal
     cloud: default
     state: present
-    name: "{{ item[1].name }}"
-    network_name: "{{ item[1].network_name }}"
-    ip_version: "{{ item[1].ip_version }}"
-    cidr: "{{ item[1].cidr }}"
-    gateway_ip: "{{ item[1].gateway_ip }}"
-    enable_dhcp: "{{ item[1].enable_dhcp }}"
-    allocation_pool_start: "{{ item[1].allocation_pool_start }}"
-    allocation_pool_end: "{{ item[1].allocation_pool_end }}"
-    dns_nameservers: "{{ item[1].dns_nameservers | default([]) }}"
+    name: "{{ item.name }}"
+    network_name: "{{ item.network_name }}"
+    ip_version: "{{ item.ip_version }}"
+    cidr: "{{ item.cidr }}"
+    gateway_ip: "{{ item.gateway_ip }}"
+    enable_dhcp: "{{ item.enable_dhcp }}"
+    allocation_pool_start: "{{ item.allocation_pool_start }}"
+    allocation_pool_end: "{{ item.allocation_pool_end }}"
+    dns_nameservers: "{{ item.dns_nameservers | default([]) }}"
   with_items: "{{ subnets }}"
+  tags: create-networks
   
 - name: Create a router on both public and private networks
   os_router:
@@ -38,6 +40,7 @@
       - "{{ private_subnet_name }}"
   ignore_errors: yes  # will report error if this router already exists
   register: router_details
+  tags: create-networks
 
 - name: Get list of security groups
   # Must use shell here because Ansible does not have os_security_group_facts module
@@ -45,6 +48,7 @@
   args:
     executable: /bin/bash
   register: sec_groups
+  tags: create-networks
 
 - name: Setup rules on all security groups
   os_security_group_rule:
@@ -58,3 +62,4 @@
   with_nested:
     - "{{ security_group_rules }}"
     - "{{ sec_groups.stdout_lines }}"
+  tags: create-networks

@@ -83,7 +83,7 @@ subnets:
     gateway_ip: "{{ provider_net_cidr | ipaddr('1') | ipaddr('address') }}"
     enable_dhcp: "{{ enable_provider_net_dhcp | default(false) | bool }}"
     allocation_pool_start: "{{ provider_net_cidr | ipaddr('201') | ipaddr('address') }}"
-    allocation_pool_end:   "{{ provider_net_cidr | ipaddr('255') | ipaddr('address') }}"
+    allocation_pool_end:   "{{ provider_net_cidr | ipaddr('254') | ipaddr('address') }}"
     dns_nameservers: "{{ provider_dns_servers }}"
   - name: "{{ private_subnet_name }}"
     network_name: "{{ private_net_name }}"
@@ -137,3 +137,4 @@ images:
   - name: Cirros-0.3.5
     format: qcow2
     url: http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img
+    

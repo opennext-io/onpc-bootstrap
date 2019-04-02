@@ -49,7 +49,7 @@
     monitoring_hosts_dict: "{% set sel = [] %}{% for host in monitoring_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'hostname': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     logging_hosts_dict: "{% set sel = [] %}{% for host in logging_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'hostname': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     swift_hosts_dict: "{% set sel = [] %}{% for host in swift_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'hostname': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
-    nfs_hosts_dict: "{% set sel = [] %}{% for host in nfs_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'hostname': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
+    nfs_hosts_dict: "{% set sel = [] %}{% for host in infra_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'hostname': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     rsyslog_hosts_dict: "{% set sel = [] %}{% for host in rsyslog_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'hostname': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
 
 - name: Set NFS backing store host fact

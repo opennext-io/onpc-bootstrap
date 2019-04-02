@@ -1,5 +1,5 @@
 ---
-# OSA disks and partitions configuration
+# Disks and partitions configuration for OSA
 # Copyright (c) 2018, OpenNext SAS
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,25 +17,25 @@
 onpc_osa_partitions: [
     {
       name: "root",
-      min_size: "{{ root_partition_size | default(8) }}",
-      fstype: "ext4",
+      min_size: "{{ root_partition_size | default(16) }}",
+      fstype: "xfs",
       mountpoint: "/"
     },
     {
-      name: "logs",
-      min_size: "{{ logs_partition_size | default(24) }}",
-      fstype: "ext4",
-      mountpoint: "/var/log"
+      name: "var",
+      min_size: "{{ var_partition_size | default(32) }}",
+      fstype: "xfs",
+      mountpoint: "/var"
     },
     {
       name: "openstack-core",
-      min_size: "{{ openstack_core_partition_size | default(4) }}",
+      min_size: "{{ openstack_core_partition_size | default(32) }}",
       fstype: "xfs",
       mountpoint: "/openstack"
     },
     {
-      name: "openstack-logs",
-      min_size: "{{ openstack_logs_partition_size | default(16) }}",
+      name: "openstack-log",
+      min_size: "{{ openstack_logs_partition_size | default(64) }}",
       fstype: "xfs",
       mountpoint: "/openstack/log"
     },
@@ -47,20 +47,20 @@ onpc_osa_partitions: [
     },
     {
       name: "openstack-instances",
-      min_size: "{{ compute_partition_size | default(64) }}",
+      min_size: "{{ compute_partition_size | default(128) }}",
       fstype: "xfs",
       mountpoint: "/var/lib/nova/instances",
       roles: ['compute']
     },
     {
       name: "cinder-volumes",
-      min_size: "{{ storage_partition_size | default(128) }}",
+      min_size: "{{ storage_partition_size | default(256) }}",
       type: "vgonly",
       roles: ['storage']
     },
     {
       name: "ceph-data",
-      min_size: "{{ ceph_data_partition_size | default(128) }}",
+      min_size: "{{ ceph_data_partition_size | default(256) }}",
       type: "vgonly",
       roles: ['ceph']
     },
@@ -72,18 +72,18 @@ onpc_osa_partitions: [
     },
     {
       name: "swift-sdb",
-      min_size: "{{ swift_partition_size | default(64) }}",
+      min_size: "{{ swift_partition_size | default(128) }}",
       fstype: "xfs",
       mountpoint: "/srv/node/sdb",
-      options: "noatime,nodiratime,nobarrier,logbufs=8 0 2",
+      options: "noatime,nodiratime,nobarrier,logbufs=8",
       roles: ['swift']
     },
     {
       name: "swift-sdc",
-      min_size: "{{ swift_partition_size | default(64) }}",
+      min_size: "{{ swift_partition_size | default(128) }}",
       fstype: "xfs",
       mountpoint: "/srv/node/sdc",
-      options: "noatime,nodiratime,nobarrier,logbufs=8 0 2",
+      options: "noatime,nodiratime,nobarrier,logbufs=8",
       roles: ['swift']
     }
   ]

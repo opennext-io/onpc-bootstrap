@@ -18,10 +18,7 @@
     module: "{{ item }}"
   with_items:
     - bonding
-    - bridge
-    - br_netfilter
     - 8021q
-    - vxlan
 
 - name: Configure IP forwarding via sysctl
   sysctl:

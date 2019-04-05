@@ -58,8 +58,8 @@
           - "^osa_infos$"
           - "^infra_master_public_ips_and_or_names$"
 
- roles:
-    - role: ansible.openvpn
+  roles:
+    - ansible.openvpn
  
   post_tasks:
 

@@ -1,4 +1,5 @@
 ---
+# Copyright 2015, Rackspace US, Inc.
 # Copyright (c) 2018, OpenNext SAS
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,28 +14,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- import_playbook: playbook-check-nodes.yml
-- name: Setup the ONPC deployment environment
+- name: Setup master node
   hosts: localhost
   connection: local
   become: true
   become_user: root
-  environment: "{{ onpc_proxy_environment | default({}) }}"
+
   vars_files:
     - vars/main.yml
     - vars/networks.yml
     - vars/services.yml
     - vars/partitions.yml
-  vars:
-    ansible_python_interpreter: "{{ ansible_playbook_python }}"
-  
+    - vars/users.yml
+
   tasks:
     - name: Verify Ansible version meets requirements
       assert:
         that: "ansible_version.full is version_compare('2.7', '>=')"
         msg: >-
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
-      tags: always
+    - import_tasks: tasks/setup-kickstart.yml
+      tags: setup-kickstart
+    - import_tasks: tasks/install-master-packages.yml
+      tags: install-master-packages
     - import_tasks: tasks/setup-multi-facts.yml
       tags: always
     - import_tasks: tasks/check-deploy-params.yml

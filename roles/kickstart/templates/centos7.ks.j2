@@ -27,44 +27,56 @@ $yum_repo_stanza
 $SNIPPET('network_config')
 # Reboot after installation
 reboot
-#Root password
+# Root password
 rootpw --iscrypted $default_password_crypted
 # SELinux configuration
 selinux --disabled
 # Do not configure the X Window System
 skipx
 # System timezone
-timezone  Europe/Paris
-# Create cento user
-user --groups=wheel --name=centos --password=$centos_password_crypted --iscrypted
+timezone --utc {{ timezone }}
+{% if onpc_users_list is defined and onpc_users_list | length > 0 %}
+# Create users
+{%- for user in onpc_users_list %}
+user --groups=wheel --name={{ user.name }} --password={{ user.password }} --iscrypted
+{%- endfor %}
+{% endif %}
 # Partition clearing information
 clearpart --all --initlabel
 # Clear the Master Boot Record
 zerombr
 # Disk partitioning 
-part biosboot --fstype=biosboot --size=1
-part /boot --fstype=ext4 --size=1024 --asprimary --ondrive=sda
-part swap --fstype=swap --recommended --ondrive=sda
-part pv.01 --size=24000 --maxsize=64000 --grow --ondrive=sda  # System partition
-part pv.02 --size=32000 --maxsize=82000 --grow --ondrive=sda  # OpenStack partition
-part pv.03 --size=1000 --grow --ondrive=sda                  # Compute partition
-part pv.04 --size=1000 --grow --ondrive=sda		        # Ceph data partition
+part biosboot --fstype=biosboot --size=1 --asprimary --ondrive={{ hostvars[item]['drives'][0] | default('sda') }}
+part /boot --fstype=ext4 --size=1024 --asprimary  --ondrive={{ hostvars[item]['drives'][0] | default('sda') }}
+part swap --fstype=swap --recommended
+part pv.01 --size=24000 --maxsize=64000 --grow --ondrive={{ hostvars[item]['drives'][0] | default('sda') }}
 # System partitions
 volgroup system_vg pv.01
 logvol / --fstype=xfs --name=root_lv --vgname=system_vg --size=16384
 logvol /var/log --fstype=xfs --name=varlog_lv --vgname=system_vg --size=32000 --grow
 logvol /tmp --fstype=xfs --name=tmp_lv --vgname=system_vg --size=2000
 logvol /opt --fstype=xfs --name=opt_lv --vgname=system_vg --size=4000
-# Openstack dedicated partitions
+# OpenStack partition
+part pv.02 --size=32000 --maxsize=82000 --grow
+# Openstack partitions
 volgroup openstack_vg pv.02
 logvol /openstack --fstype=xfs --name=ost_lv --vgname=openstack_vg --percent=20
 logvol /openstack/log --fstype xfs --name=log_lv --vgname=openstack_vg --percent=80
-# OpenStack compute instances
+{% if 'compute' in group_names %}
+# Compute partitions
+part pv.03 --size=1000 --grow
 volgroup compute_vg pv.03
 logvol /var/lib/nova/instances --fstype=xfs --name=compute_lv --vgname=compute_vg --size=64000 --grow
-# Ceph data
-volgroup ceph-data_vg pv.04
-logvol /var/lib/ceph/data --fstype=xfs --name=ceph-data_lv --vgname=ceph-data_vg --grow
+{% endif %}
+{% if 'ceph' in group_names %}
+# Ceph partition
+part pv.04 --size=1000 --grow
+{% endif %}
+{% if 'storage' in group_names %}
+# Cinder storage
+part pv.05 --size=1000 --grow
+volgroup cinder_volumes pv.04
+{% endif %}
 
 %pre
 $SNIPPET('log_ks_pre')
@@ -75,14 +87,14 @@ $SNIPPET('pre_anamon')
 %end
 
 %packages
-@base
 @core
-git
-chrony
 openssh-server
-python-devel
 sudo
-@ Development Tools
+python
+bridge-utils
+iputils
+lsof
+lvm2
 $SNIPPET('func_install_if_enabled')
 %end
 
@@ -92,6 +104,15 @@ $SNIPPET('log_ks_post_nochroot')
 
 %post
 $SNIPPET('log_ks_post')
+{% if onpc_users_list is defined and onpc_users_list | length > 0 %}
+## Import ssh keys
+{%- for user in onpc_users_list %}
+sshkey --username={{ user.name}} "{{ user.key }}"
+{%- endfor %}
+{% endif %}
+sed -i -e 's|^# %wheel\tALL=(ALL)\tNOPASSWD: ALL|%wheel\tALL=(ALL)\tNOPASSWD: ALL|; s|^Defaults requiretty|#&|' /etc/sudoers
+# Install OpenStack RDO packages 
+rpm -Uvh https://rdoproject.org/repos/openstack-rocky/rdo-release-rocky.rpm
 # Start yum configuration
 $yum_config_stanza
 # End yum configuration
@@ -102,9 +123,6 @@ $SNIPPET('download_config_files')
 $SNIPPET('koan_environment')
 $SNIPPET('redhat_register')
 $SNIPPET('cobbler_register')
-$SNIPPET('import_ssh_keys')
-# Install OpenStack RDO packages 
-rpm -Uvh https://rdoproject.org/repos/openstack-rocky/rdo-release-rocky.rpm 
 # Enable post-install boot notification
 $SNIPPET('post_anamon')
 # Start final steps

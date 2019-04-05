@@ -1,0 +1,6 @@
+---
+  - name: Generate Cobbler Kickstart templates for CentOS 7
+    template:
+      src: templates/centos7.ks.j2
+      dest: "{{ kickstart_dir }}/osa_centos7_{{ hostvars[item].cobbler.name }}.ks"
+    with_items: "{{ osa_nodes_list }}"

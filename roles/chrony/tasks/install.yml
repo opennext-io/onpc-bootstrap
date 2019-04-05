@@ -1,0 +1,19 @@
+---
+- name: Ensure ntpdate isn't installed
+  package:
+    name: ntpdate
+    state: absent
+- name: Install Chrony
+  package:
+    name: chrony
+    state: present
+  tags:
+    - chrony-install
+    - chrony
+- name: Mask NTP service
+  systemd:
+    name: ntpd
+    enabled: no
+    masked: yes
+    state: stopped
+  ignore_errors: yes

@@ -14,25 +14,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-packages_install:
-  - bridge-utils
-  - btrfs-progs
-  - curl
-  - dbus
-  - ethtool
+master_packages_install:
   - git
-  - iputils
-  - lvm2
-  - python
   - python-devel
-  - sshpass
-  - systemd-networkd
-  - vim
-  - xfsprogs
-  - lsof
+  - '@Development Tools'
+  - https://rdoproject.org/repos/openstack-rocky/rdo-release-rocky.rpm
+
+master_packages_remove:
+
+packages_install:
   - openssh-server
   - sudo
+  - python
+  - bridge-utils
+  - iputils
+  - lsof
+  - lvm2
+  - curl
+  - ethtool
+  - iputils
+  - lvm2
+  - lsof
   - tcpdump
+  - chrony
 
 packages_remove:
   - centos-openstack-release-*

@@ -21,7 +21,7 @@
 
 - name: Setting fact (CentOS)
   set_fact:
-    modules_file: /etc/modules-load.d/bridges.conf
+    modules_file: /etc/modules-load.d/openstack-ansible.conf
   when: ansible_distribution | lower == 'centos'
 
 - name: Ensure that {{ modules_file }} exists (CentOS)
@@ -49,3 +49,19 @@
   modprobe:
     name: "{{ module }}"
     state: present
+
+- name: lower kernel logging level
+  lineinfile:
+    line: "kernel.printk='4 1 7 4'"
+    insertafter: EOF
+    path: /etc/sysctl.conf
+    state: present
+  when: ansible_distribution | lower == 'centos'
+
+- name: stop and mask firewall
+  systemd:
+    name: firewalld
+    state: stopped
+    masked: yes
+  when: ansible_distribution | lower == 'centos'
+

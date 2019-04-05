@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: Check the ONPC deployment nodes
-  hosts: openstack
+  hosts: osa_nodes
   become: true
   become_user: root
   gather_facts: true
@@ -25,11 +25,6 @@
     - vars/networks.yml
 
   pre_tasks:
-    - name: Verify Ansible version meets requirements
-      assert:
-        that: "ansible_version.full is version_compare('2.7', '>=')"
-        msg: >
-          "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
     - name: Gather nodes facts
       setup:
     - import_tasks: tasks/setup-node-facts.yml
@@ -53,7 +48,7 @@
         - onpc_osa_networks_check is defined and onpc_osa_networks_check | bool == True
         - onpc_managed_node | bool == True
       tags: check-node-interfaces
-    - import_tasks: tasks/install-packages.yml
+    - import_tasks: tasks/install-node-packages.yml
       when: onpc_managed_node | bool == True
       tags: install-node-packages
 # (Note (PP): Commented until proven necessary.
@@ -68,7 +63,7 @@
       tags: import-root-public-key 
 
   roles:
-    - role: chrony
+    - role: ../roles/chrony
       vars:
         chrony_server: "{{ onpc_time_server | default('pool.ntp.org') }} prefer iburst"
       when:

@@ -24,7 +24,7 @@
     - vars/partitions.yml
     - vars/networks.yml
 
-  pre_tasks:
+  tasks:
     - name: Gather nodes facts
       setup:
     - import_tasks: tasks/setup-node-facts.yml
@@ -62,8 +62,8 @@
       when: onpc_managed_node | bool == True
       tags: import-root-public-key 
 
-  roles:
-    - role: ../roles/chrony
+    - include_role:
+      name: ../roles/chrony
       vars:
         chrony_server: "{{ onpc_time_server | default('pool.ntp.org') }} prefer iburst"
       when:

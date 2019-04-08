@@ -15,5 +15,5 @@
 # limitations under the License.
 
 - name: Configure Kickstart templates
-  role:
-    - ../roles/kickstart
+  include_role:
+    name: ../roles/kickstart

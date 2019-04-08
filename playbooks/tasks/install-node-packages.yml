@@ -27,14 +27,14 @@
     
 - name: Remove known problem packages
   package:
-    name: "{{ master_packages_remove }}"
+    name: "{{ packages_remove }}"
     state: absent
   tags:
     - remove-packages
 
 - name: Install packages
   package:
-    name: "{{ master_packages_install }}"
+    name: "{{ packages_install }}"
     state: present
     update_cache: "{{ (ansible_pkg_mgr in ['apt', 'zypper']) | ternary('yes', omit) }}"
   tags:

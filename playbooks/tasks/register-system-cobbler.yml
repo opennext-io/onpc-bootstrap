@@ -1,0 +1,150 @@
+---
+- name: Query all systems in Cobbler
+  cobbler_system:
+    host: localhost
+    username: cobbler
+    password: cobbler 
+    use_ssl: False
+    state: query
+  register: result 
+
+- name: Set resgistered systems fact
+  set_fact:
+    cobbler_systems: "{{ result.failed | ternary([], result.systems) }}"
+  
+- name: Ensure controller nodes are registered in Cobbler 
+  cobbler_system:
+    host: localhost
+    username: cobbler
+    password: cobbler 
+    name: "{{ item.hostname }}" 
+    use_ssl: False
+    state: "{{ item.state }}"
+    properties:
+      hostname: "{{ item.hostname }}"
+      profile: osa-node-centos7 
+      comment: "{{ item.comment | default('') }}"
+      gateway: "{{ item.gateway | default('') }}"
+      mgmt_classes: "{{ item.roles | default([]) }}"
+      ks_meta: "{{ item.metadata | default({}) }}"
+      name_servers: "{{ item.name_servers | default([]) }}"
+      name_servers_search: "{{ item.name_servers_search | default([]) }}"
+      netboot_enabled: "{{ item.netboot | default(False) }}"
+    interfaces:
+      eth0:
+        ipaddress: "{{ item.interfaces['eth0'].ip_address | default('') }}"
+        ifgateway: "{{ item.interfaces['eth0'].if_gateway | default('') }}" 
+        macaddress: "{{ item.interfaces['eth0'].mac_address | default('') }}"
+        static: "{{ item.interfaces['eth0'].static | default(True) }}" 
+        bondingopts: "{{ item.interfaces['eth0'].bondig_opts | default('') }}" 
+        bridgeopts: "{{ item.interfaces['eth0'].bridge_opts | default('') }}" 
+        dnsname: "{{ item.interfaces['eth0'].dns_name | default('') }}"
+        interfacemaster: "{{ item.interfaces['eth0'].interface_master | default('') }}" 
+        interfacetype: "{{ item.interfaces['eth0'].interface_type | default('') }}" 
+        management: "{{ item.interfaces['eth0'].management | default(True) }}" 
+        netmask: "{{ item.interfaces['eth0'].netmask | default('') }}" 
+        staticroutes: "{{ item.interfaces['eth0'].static_routes | default([]) }}" 
+      eth1:
+        ipaddress: "{{ item.interfaces['eth1'].ip_address | default('') }}"
+        ifgateway: "{{ item.interfaces['eth1'].if_gateway | default('') }}" 
+        macaddress: "{{ item.interfaces['eth1'].mac_address | default('') }}"
+        static: "{{ item.interfaces['eth1'].static | default(True) }}" 
+        bondingopts: "{{ item.interfaces['eth1'].bondig_opts | default('') }}" 
+        bridgeopts: "{{ item.interfaces['eth1'].bridge_opts | default('') }}" 
+        dnsname: "{{ item.interfaces['eth1'].dns_name | default('') }}"
+        interfacemaster: "{{ item.interfaces['eth1'].interface_master | default('') }}" 
+        interfacetype: "{{ item.interfaces['eth1'].interface_type | default('') }}" 
+        management: "{{ item.interfaces['eth1'].management | default(False) }}" 
+        netmask: "{{ item.interfaces['eth1'].netmask | default('') }}" 
+        staticroutes: "{{ item.interfaces['eth1'].static_routes | default([]) }}"
+
+- name: Add the management network VLAN
+  command: >
+    cobbler system edit
+      --name="{{ item.hostname }}"
+      --interface="{{ item.interfaces['vlan_mgmt'].device }}"
+      --interface-type="{{ item.interfaces['vlan_mgmt'].interface_type }}"
+      --interface-master="{{ item.interfaces['vlan_mgmt'].interface_master }}"
+  register: result
+  failed_when: result.rc != 0
+  when: item.interfaces['vlan_mgmt'] is defined
+
+- name: Add the management network bridge 
+  command: >
+    cobbler system edit
+      --name="{{ item.hostname }}"
+      --interface="{{ item.interfaces['br_mgmt'].device }}"
+      --interface-type="{{ item.interfaces['br_mgmt'].interface_type }}"
+      --bridge-opts="{{ item.interfaces['br_mgmt'].bridge_opts }}"
+      --ip-address="{{ item.interfaces['br_mgmt'].ip_address }}"
+      --if-gateway="{{ item.interfaces['br_mgmt'].if_gateway }}"
+      --netmask="{{ item.interfaces['br_mgmt'].netmask }}"
+  register: result
+  failed_when: result.rc != 0
+  when: item.interfaces['br_mgmt'] is defined
+
+- name: Add the storage network VLAN
+  command: >
+    cobbler system edit
+      --name="{{ item.hostname }}"
+      --interface="{{ item.interfaces['vlan_storage'].device }}"
+      --interface-type="{{ item.interfaces['vlan_storage'].interface_type }}"
+      --interface-master="{{ item.interfaces['vlan_storage'].interface_master }}"
+  register: result
+  failed_when: result.rc != 0
+  when:
+    - item.interfaces['vlan_storage'] is defined
+    - "'storage' in item.roles"
+
+- name: Add the storage network bridge 
+  command: >
+    cobbler system edit
+      --name="{{ item.hostname }}"
+      --interface="{{ item.interfaces['br_storage'].device }}"
+      --interface-type="{{ item.interfaces['br_storage'].interface_type }}"
+      --bridge-opts="{{ item.interfaces['br_storage'].bridge_opts }}"
+      --ip-address="{{ item.interfaces['br_storage'].ip_address }}"
+      --if-gateway="{{ item.interfaces['br_storage'].if_gateway }}"
+      --netmask="{{ item.interfaces['br_storage'].netmask }}"
+  register: result
+  failed_when: result.rc != 0
+  when:
+    - item.interfaces['br_storage'] is defined
+    - "'storage' in item.roles"
+
+- name: Add the tunnel network VLAN
+  command: >
+    cobbler system edit
+      --name="{{ item.hostname }}"
+      --interface="{{ item.interfaces['vlan_tunnel'].device }}"
+      --interface-type="{{ item.interfaces['vlan_tunnel'].interface_type }}"
+      --interface-master="{{ item.interfaces['vlan_tunnel'].interface_master }}"
+  register: result
+  failed_when: result.rc != 0
+  when:
+    - item.interfaces['vlan_tunnel'] is defined
+    - "('compute' in item.roles) or ('network' in iten.roles)"
+
+- name: Add the tunnel network bridge
+  command: >
+    cobbler system edit
+      --name="{{ item.hostname }}"
+      --interface="{{ item.interfaces['br_vxlan'].device }}"
+      --interface-type="{{ item.interfaces['br_vxlan'].interface_type }}"
+      --bridge-opts="{{ item.interfaces['br_vxlan'].bridge_opts }}"
+      --ip-address="{{ item.interfaces['br_vxlan'].ip_address }}"
+      --if-gateway="{{ item.interfaces['br_vxlan'].if_gateway }}"
+      --netmask="{{ item.interfaces['br_vxlan'].netmask }}"
+  register: result
+  failed_when: result.rc != 0
+  when:
+    - item.interfaces['br_vxlan'] is defined
+    - "('compute' in item.roles) or ('network' in iten.roles)"
+
+- name: Sync Cobbler database
+  cobbler_sync:
+    host: localhost
+    username: cobbler
+    password: cobbler
+    use_ssl: False
+  run_once: yes

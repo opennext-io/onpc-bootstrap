@@ -19,7 +19,7 @@
     dest: "/opt/{{ item }}"
     force: yes
     recursive: no
-    version: "{{ onpc_lma_release | default('master') }}"
+    version: "{{ onpc_lma_branch | default('master') }}"
   with_items:
     - "onpc-logging"
     - "onpc-monitoring"

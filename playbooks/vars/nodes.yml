@@ -1,0 +1,255 @@
+---
+# Copyright 2017, Rackspace US, Inc.
+# Copyright 2018 (c), OpenNext SAS.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# OpenStack-Ansible uses bridges to connect physical and logical network
+# interfaces on the host to virtual network interfaces within containers.
+# Target hosts need to be configured with the following network bridges:
+#
+# ====================================================================== 
+# Bridge name   Configured on          With a static IP
+# ====================================================================== 
+# br-mgmt       Every node             Always
+# ----------------------------------------------------------------------
+# br-storage    Every storage node	   When component deployed on metal	
+#               On every compute node	 Always
+# ----------------------------------------------------------------------
+# br-vxlan      Every network node     When component deployed on metal
+#               On every compute node  Always
+# ----------------------------------------------------------------------
+# br-vlan       Every network node     Never
+#               On every compute node  Never
+# ----------------------------------------------------------------------
+
+onpc_osa_nodes:
+  - name: opennext01
+    comment: "This node is a controller node"
+    hostname: "{{ 'opennext01' + '.' + onpc_infra_domain }}" 
+    gateway: "{{ onpc_default_gateway }}"
+    name_servers:
+      - "{{ onpc_dns_server }}"
+      - 172.29.236.1
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    roles:
+      - controller
+      - network
+    state: present
+    interfaces:
+      eth0:
+        device: eth0
+        dns_name: "{{ 'opennext01' + '.' + onpc_infra_domain }}"
+        if_gateway: "{{ onpc_default_gateway }}"
+        ip_address: 172.31.0.48
+        mac_address: "00:25:90:d9:d3:7e" 
+        management: true
+        netmask: 255.255.255.0
+        static: true
+      eth1:
+        device: eth1
+        interface_type: bridge_slave 
+        interface_master: br-vlan
+        mac_address: "00:25:90:d9:d3:7f" 
+        static: true
+      # Container/Host management VLAN interface
+      vlan_mgmt:
+        device: eth0.10
+        interface_type: bridge_slave 
+        interface_master: br-mgmt 
+        static: true
+      # OpenStack Networking (tunnel/overlay) VLAN interface
+      vlan_tunnel:
+        device: eth1.30
+        interface_type: bridge_slave 
+        interface_master: br-storage
+        static: true
+      # Container / Host management network bridge
+      # The compute, infra and network nodes must have an IP address 
+      # on this bridge.
+      br_mgmt:
+        device: br-mgmt
+        bridge_opts: 'stp=no'
+        if_gateway: 172.29.236.1
+        interface_type: bridge
+        ip_address: 172.29.236.48
+        netmask: 255.255.252.0
+        static: true
+      # OpenStack Networking VXLAN (tunnel/overlay) network bridge.
+      # The compute and network nodes must have an IP address
+      # on this bridge.
+      br_vxlan:
+        device: br-vxlan
+        bridge_opts: 'stp=no'
+        interface_type: bridge
+        ip_address: 172.29.240.48
+        netmask: 255.255.252.0
+        static: true
+      # OpenStack Networking VLAN network bridge
+      br_vlan:
+        device: br-vlan
+        bridge_opts: 'stp=no'
+        interface_type: bridge
+        static: true
+
+  - name: opennext08
+    comment: "This node is a compute node"
+    hostname: "{{ 'opennext08' + '.' + onpc_infra_domain }}" 
+    gateway: "{{ onpc_default_gateway }}"
+    name_servers:
+      - "{{ onpc_dns_server }}"
+      - 172.29.236.1
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    roles:
+      - compute
+    netboot: false
+    state: present
+    interfaces:
+      eth0:
+        device: eth0
+        dns_name: "{{ 'opennext08' + '.' + onpc_infra_domain }}"
+        if_gateway: "{{ onpc_default_gateway }}"
+        ip_address: 172.31.0.57
+        mac_address: "ac:1f:6b:46:94:ec" 
+        management: true
+        netmask: 255.255.255.0
+        static: true
+      eth1:
+        device: eth1
+        interface_type: bridge_slave 
+        interface_master: br-vlan
+        mac_address: "ac:1f:6b:46:94:ed" 
+        static: true
+      # Container/Host management VLAN interface
+      vlan_mgmt:
+        device: eth0.10
+        interface_type: bridge_slave 
+        interface_master: br-mgmt 
+        static: true
+      # Container/Host storage VLAN interface  
+      vlan_storage:
+        device: eth0.20
+        interface_type: bridge_slave 
+        interface_master: br-storage 
+        static: true
+      # OpenStack Networking VXLAN (tunnel/overlay) VLAN interface
+      vlan_tunnel:
+        device: eth1.30
+        interface_type: bridge_slave 
+        interface_master: br-storage
+        static: true
+      # Container / Host management network bridge
+      # The compute, infra and network nodes must have an IP address 
+      # on this bridge.
+      br_mgmt:
+        device: br-mgmt
+        bridge_opts: 'stp=no'
+        if_gateway: 172.29.236.1
+        interface_type: bridge
+        ip_address: 172.29.236.57
+        netmask: 255.255.252.0
+        static: true
+      # Container / Host storage network bridge
+      # The compute and storage nodes must have an IP address
+      # on this bridge.
+      # When used by infra nodes, the IP addresses are assigned
+      # to containers which use this bridge.
+      br_storage:
+        device: br-storage
+        bridge_opts: 'stp=no'
+        interface_type: bridge
+        ip_address: 172.29.244.57
+        netmask: 255.255.252.0
+        static: true
+      # OpenStack Networking VXLAN (tunnel/overlay) network bridge.
+      # The compute and network nodes must have an IP address
+      # on this bridge.
+      br_vxlan:
+        device: br-vxlan
+        bridge_opts: 'stp=no'
+        interface_type: bridge
+        ip_address: 172.29.240.57
+        netmask: 255.255.252.0
+        static: true
+      # OpenStack Networking VLAN network bridge
+      br_vlan:
+        device: br-vlan
+        bridge_opts: 'stp=no'
+        interface_type: bridge
+        static: true
+  - name: opennext09
+    comment: "This node is a ceph node"
+    hostname: "{{ 'opennext09' + '.' + onpc_infra_domain }}" 
+    gateway: "{{ onpc_default_gateway }}"
+    name_servers:
+      - "{{ onpc_dns_server }}"
+      - 172.29.236.1
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    roles:
+      - ceph
+    netboot: false
+    state: present
+    interfaces:
+      eth0:
+        device: eth0
+        dns_name: "{{ 'opennext09' + '.' + onpc_infra_domain }}"
+        if_gateway: "{{ onpc_default_gateway }}"
+        ip_address: 172.31.0.58
+        mac_address: "0c:c4:7a:6c:99:06" 
+        management: true
+        netmask: 255.255.255.0
+        static: true
+      eth1:
+        device: eth1
+        mac_address: "0c:c4:7a:6c:99:07" 
+        static: true
+      # Container/Host management VLAN interface
+      vlan_mgmt:
+        device: eth0.10
+        interface_type: bridge_slave 
+        interface_master: br-mgmt 
+        static: true
+      # Container/Host storage VLAN interface  
+      vlan_storage:
+        device: eth0.20
+        interface_type: bridge_slave 
+        interface_master: br-storage 
+        static: true
+      # Container / Host management network bridge
+      # The compute, infra and network nodes must have an IP address 
+      # on this bridge.
+      br_mgmt:
+        device: br-mgmt
+        bridge_opts: 'stp=no'
+        if_gateway: 172.29.236.1
+        interface_type: bridge
+        ip_address: 172.29.236.58
+        netmask: 255.255.252.0
+        static: true
+      # Container / Host storage network bridge
+      # The compute and storage nodes must have an IP address
+      # on this bridge.
+      # When used by infra nodes, the IP addresses are assigned
+      # to containers which use this bridge.
+      br_storage:
+        device: br-storage
+        bridge_opts: 'stp=no'
+        interface_type: bridge
+        ip_address: 172.29.244.58
+        netmask: 255.255.252.0
+        static: true
+    

@@ -33,6 +33,8 @@
         that: "ansible_version.full is version_compare('2.7', '>=')"
         msg: >-
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
+    - include_tasks: register-systems-cobbler.yml 
+      loop: "{{ onpc_osa_nodes }}"
     - import_tasks: tasks/setup-kickstart.yml
       tags: setup-kickstart
     - import_tasks: tasks/install-master-packages.yml

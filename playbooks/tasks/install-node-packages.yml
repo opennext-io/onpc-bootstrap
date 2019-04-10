@@ -36,6 +36,6 @@
   package:
     name: "{{ packages_install }}"
     state: present
-    update_cache: "{{ (ansible_pkg_mgr in ['apt', 'zypper']) | ternary('yes', omit) }}"
+    update_cache: "{{ (ansible_pkg_mgr in ['apt', 'zypper']) | ternary('yes', 'omit') }}"
   tags:
     - install-node-packages

@@ -19,8 +19,8 @@ haproxy_stats_enabled: True
 haproxy_stats_bind_address: 127.0.0.1
 haproxy_stats_port: 1936
 haproxy_username: admin
-{% if onpc_proxy_host is defined and onpc_proxy_host | length > 0 %}
-keepalived_ping_address: "{{ onpc_proxy_host }}"
+{% if onpc_proxy_server is defined and onpc_proxy_server | length > 0 %}
+keepalived_ping_address: "{{ onpc_proxy_server }}"
 {% endif %}
 
 ## HAProxy load-balancing extra congig for the monitoring and logging services

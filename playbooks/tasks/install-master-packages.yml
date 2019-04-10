@@ -36,6 +36,6 @@
   package:
     name: "{{ master_packages_remove }}"
     state: present
-    update_cache: "{{ (ansible_pkg_mgr in ['apt', 'zypper']) | ternary('yes', omit) }}"
+    update_cache: "{{ (ansible_pkg_mgr in ['apt', 'zypper']) | ternary('yes', 'omit') }}"
   tags:
     - install-packages

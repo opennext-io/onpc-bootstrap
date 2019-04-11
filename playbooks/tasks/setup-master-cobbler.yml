@@ -1,5 +1,4 @@
 ---
-# Copyright 2015, Rackspace US, Inc.
 # Copyright (c) 2018, OpenNext SAS
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,20 +24,30 @@
 #
 # $ mount -t iso9660 -o loop,ro /path/to/isos/CentOS-7-x86_64-DVD-1810.iso /mnt
 
-
 pre_tasks:
   - assert:
     that: "{{ oncp_master_root_public_key | length > 0 }}" 
     msg: "user 'root' public key is undefined"
+
   - name: Create directory for ISOs download
-    file: state=directory path=/var/tmp/isos
+    file:
+      state: directory
+      path: /var/tmp/isos
+
+  - name: Check ISO not already downloaded
+    stat:
+      path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
+    register: result
+
   - name: Download distros ISOs
     url: "{{ item.url }}"
     dest: "/var/tmp/isos/{{ item.name }}"
     mode: 0440
+    environment: "{{ onpc_proxy_environment| default('{}') }}"
     with_items:
       - name: CentOS-7-x86_64-DVD-1810.iso
         url: http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso
+    when: result.stat.exists == false
 
 roles:
   - role: ../roles/cobbler
@@ -56,7 +65,7 @@ roles:
       - distro_name: CentOS-7
         device_or_iso_path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
         arch: x86_64
-        kickstart_file_name: centos7-osa-sda.ks
+        kickstart_file_name: centos7-customized-sda
 
     cobbler_install_web: true
     cobbler_web_user_pwd:

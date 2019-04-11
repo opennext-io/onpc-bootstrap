@@ -19,11 +19,6 @@
   register: bootstrap
   tags: bootstrap-ansible
 
-- debug:
-    var: bootstrap
-    verbosity: 2
-  tags: bootstrap-ansible
-
 - name: Bootstrap Ansible
   shell: ./scripts/bootstrap-ansible.sh
   args:

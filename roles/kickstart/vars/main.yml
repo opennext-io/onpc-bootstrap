@@ -1,6 +1,0 @@
----
-kickstart_dir: /var/lib/cobbler/kickstarts
-menu_dir: /var/lib/tftpboot/pxelinux.cfg
-timezone: "Europe/Paris"
-osa_nodes_list: "{{ groups['osa_nodes'] | list }}"
-

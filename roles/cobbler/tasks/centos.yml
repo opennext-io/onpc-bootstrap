@@ -67,14 +67,18 @@
 
 - name: /var/lib/cobbler/kickstarts/centos7-customized-sda
   template: src=var/lib/cobbler/kickstarts/centos7-customized-sda.j2
-            dest=/var/lib/cobbler/kickstarts/centos7-customized-sda
+            dest=/var/lib/cobbler/kickstarts/centos7-customized-sda.ks
             backup=yes
 
 - name: /var/lib/cobbler/kickstarts/centos7-customized-vda
   template: src=var/lib/cobbler/kickstarts/centos7-customized-vda.j2
-            dest=/var/lib/cobbler/kickstarts/centos7-customized-vda
+            dest=/var/lib/cobbler/kickstarts/centos7-customized-vda.ks
             backup=yes
 
+- name: /var/lib/cobbler/kickstarts/centos7-osa-sda
+  template: src=var/lib/cobbler/kickstarts/centos7-osa-sda.j2
+            dest=/var/lib/cobbler/kickstarts/centos7-osa-sda.ks
+            backup=yes
 
 # end add snippets and kickstarts
 

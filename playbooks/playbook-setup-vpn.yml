@@ -17,7 +17,7 @@
   become: yes
 
   vars_files:
-    - vpn-setup.yml
+    - vpn.yml
 
   pre-tasks: 
     - name: Setting some interesting facts to keep

@@ -1,9 +1,8 @@
 ## ONPC customized kickstart file, extra functions:
 ## 1. add static ip and hostname
 ## 2. add sudo users
-## 3. Create OSA partitions
-## 4. Import root public key
-## 5. Import users ssh public key
+## 3. change ssh config(change port)
+## 4. Create OSA partitions
 
 # This kickstart file should only be used with EL > 5 and/or Fedora > 7.
 # For older versions please use the sample.ks kickstart file.
@@ -47,7 +46,7 @@ timezone --utc {{ timezone }}
 {% if onpc_users_list is defined and onpc_users_list | length > 0 %}
 # Create users
 {%- for user in onpc_users_list %}
-user --groups=wheel --name={{ user.name }} --password={{ user.encrypted_password }} --iscrypted
+user --groups=wheel --name={{ user.name }} --password={{ user.password }} --iscrypted
 {%- endfor %}
 {% endif %}
 # Partition clearing information
@@ -79,11 +78,11 @@ logvol /var/lib/nova/instances --fstype=xfs --name=compute_lv --vgname=compute_v
 {% endif %}
 {% if 'ceph' in group_names %}
 # Ceph partition
-part pv.04 --size=1000 --grow --ondrive={{ hostvars[item]['drives']['ceph'].name | default('sda') }}
+part pv.04 --size=1000 --grow
 {% endif %}
 {% if 'storage' in group_names %}
 # Cinder storage
-part pv.05 --size=1000 --grow --ondrive={{ hostvars[item]['drives']['storage'].name | default('sda') }}
+part pv.05 --size=1000 --grow
 volgroup cinder_volumes pv.04
 {% endif %}
 
@@ -120,6 +119,8 @@ sshkey --username={{ user.name}} "{{ user.key }}"
 {%- endfor %}
 {% endif %}
 sed -i -e 's|^# %wheel\tALL=(ALL)\tNOPASSWD: ALL|%wheel\tALL=(ALL)\tNOPASSWD: ALL|; s|^Defaults requiretty|#&|' /etc/sudoers
+# Install OpenStack RDO packages 
+rpm -Uvh https://rdoproject.org/repos/openstack-rocky/rdo-release-rocky.rpm
 # Start yum configuration
 $yum_config_stanza
 # End yum configuration

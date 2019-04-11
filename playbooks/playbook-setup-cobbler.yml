@@ -32,6 +32,24 @@
   become: true
   become_user: root
 
+  var_files:
+    - vars/main.yml
+    - vars/users.yml
+  
+  pre_tasks:
+    - assert:
+      that: "{{ oncp_master_root_public_key | length > 0 }}" 
+      msg: "user 'root' public key is undefined"
+    - name: Create directory for ISOs download
+      file: state=directory path=/var/tmp/isos
+    - name: Download distros ISOs
+      url: "{{ item.url }}"
+      dest: "/var/tmp/isos/{{ item.name }}"
+      mode: 0440
+      with_items:
+        - name: CentOS-7-x86_64-DVD-1810.iso
+          url: http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso
+
   roles:
     - role: ../roles/cobbler
       cobbler_default_password: to@change
@@ -45,13 +63,17 @@
       cobbler_domain_name_servers: 213.246.33.144,213.246.36.14
       cobbler_subnet_mask: 255.255.255.0
       cobbler_distros:
-        - distro_name: CentOS-7.1
-          device_or_iso_path: /mnt
+        - distro_name: CentOS-7
+          device_or_iso_path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
           arch: x86_64
+          kickstart_file_name: centos7-customized-sda
+
       cobbler_install_web: true
       cobbler_web_user_pwd:
         - user_name: cobbler
           password: to!change
       cobbler_default_time_zone: "Europe/Paris"
+      cobbler_root_public_keys:
+        - "{{ oncp_master_root_public_key }}"
 
 

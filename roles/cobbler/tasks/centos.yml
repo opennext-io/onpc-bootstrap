@@ -13,12 +13,28 @@
 - name: install epel repo
   yum: name=epel-release state=present
 
+# cobbler depends on PyYAML, createrepo, httpd, mod_wsgi, rsync, tftp-server and so on.
 - name: install related packages
   yum: name={{ item }} state=present
   with_items:
-    - cobbler  # cobbler depends on PyYAML, createrepo, httpd, mod_wsgi, rsync, tftp-server and so on.
     - dhcp
     - pykickstart
+    - createrepo
+    - httpd
+    - mkisofs
+    - mod_wsgi
+    - mod_ssl
+    - python-cheetah
+    - python-netaddr
+    - python-simplejson
+    - python-urlgrabber
+    - PyYAML
+    - pyyaml
+    - rsync
+    - syslinux
+    - tftp-server
+    - yum-utils
+    - cobbler
 
 
 - name: generate crypted password
@@ -94,7 +110,6 @@
 
 - name: cobbler sync
   shell: cobbler sync
-
 
 # cobbler-web
 - name: install cobbler-web

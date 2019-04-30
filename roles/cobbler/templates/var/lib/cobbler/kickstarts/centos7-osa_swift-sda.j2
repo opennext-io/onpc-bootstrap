@@ -67,8 +67,8 @@ logvol /opt --fstype=xfs --name=opt_lv --vgname=system_vg --size=4000
 # Swift storage
 part pv.02 --size=1000 --grow
 volgroup swift_vg pv.02
-{% for p in onpc_partitions_list %}
-{% if p.name | regex_search('^swift') %}
+{% for p in onpc_osa_partitions %}
+{% if p.name | regex_search('^swift', ignorecase=true) %}
 logvol {{p.mountpoint}} --fstype={{p.fstype}} --name={{p.name}} --vgname=swift_vg --size={{p.minsize}} --grow
 {% endif %}
 {% endfor %}

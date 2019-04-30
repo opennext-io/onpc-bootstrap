@@ -42,7 +42,7 @@ selinux --disabled
 # Do not configure the X Window System
 skipx
 # System timezone
-timezone --utc {{ timezone }}
+timezone --utc {{ cobbler_default_time_zone }}
 {% if onpc_users_list is defined and onpc_users_list | length > 0 %}
 # Create users
 {%- for user in onpc_users_list %}
@@ -54,37 +54,43 @@ clearpart --all --initlabel
 # Clear the Master Boot Record
 zerombr
 # Disk partitioning
-part biosboot --fstype=biosboot --size=1 --ondrive={{ hostvars[item]['drives']['system'].name | default('sda') }}
-part /boot --fstype=ext4 --size=1024 --asprimary  --ondrive={{ hostvars[item]['drives']['system'].name | default('sda') }}
-part swap --fstype=swap --recommended --ondrive={{ hostvars[item]['drives']['system'].name | default('sda') }}
-part pv.01 --size=24000 --maxsize=64000 --grow --ondrive={{ hostvars[item]['drives']['system'].name | default('sda') }}
+part biosboot --fstype=biosboot --size=1 --ondrive=sda
+part /boot --fstype=ext4 --size=1024 --asprimary  --ondrive=sda
+part swap --fstype=swap --recommended --ondrive=sda
+part pv.01 --size=24000 --maxsize=64000 --grow --ondrive=sda
+
 # System partitions
 volgroup system_vg pv.01
 logvol / --fstype=xfs --name=root_lv --vgname=system_vg --size=16384
 logvol /var/log --fstype=xfs --name=varlog_lv --vgname=system_vg --size=32000 --grow
 logvol /tmp --fstype=xfs --name=tmp_lv --vgname=system_vg --size=2000
 logvol /opt --fstype=xfs --name=opt_lv --vgname=system_vg --size=4000
+
 # OpenStack partition
-part pv.02 --size=32000 --maxsize=82000 --grow --ondrive={{ hostvars[item]['drives']['openstack'].name | default('sda') }}
+part pv.02 --size=32000 --maxsize=82000 --grow --ondrive=sda }}
+
 # Openstack partitions
 volgroup openstack_vg pv.02
 logvol /openstack --fstype=xfs --name=ost_lv --vgname=openstack_vg --percent=20
 logvol /openstack/log --fstype xfs --name=log_lv --vgname=openstack_vg --percent=80
-{% if 'compute' in group_names %}
+
 # Compute partitions
-part pv.03 --size=1000 --grow --ondrive={{ hostvars[item]['drives']['compute'].name | default('sda') }}
+part pv.03 --size=1000 --grow --ondrive=sda
 volgroup compute_vg pv.03
 logvol /var/lib/nova/instances --fstype=xfs --name=compute_lv --vgname=compute_vg --size=64000 --grow
-{% endif %}
-{% if 'ceph' in group_names %}
-# Ceph partition
-part pv.04 --size=1000 --grow
-{% endif %}
-{% if 'storage' in group_names %}
+
 # Cinder storage
-part pv.05 --size=1000 --grow
+part pv.04 --size=1000 --grow
 volgroup cinder_volumes pv.04
+
+# Swift storage
+part pv.05 --size=1000 --grow
+volgroup swift_vg pv.05
+{% for p in onpc_partitions_list %}
+{% if p.name | regex_search('^swift') %}
+logvol {{p.mountpoint}} --fstype={{p.fstype}} --name={{p.name}} --vgname=swift_vg --size={{p.minsize}} --grow
 {% endif %}
+{% endfor %}
 
 %pre
 $SNIPPET('log_ks_pre')

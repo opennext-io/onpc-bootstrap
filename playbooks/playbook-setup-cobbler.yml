@@ -25,6 +25,7 @@
 # $ mount -t iso9660 -o loop,ro /path/to/isos/CentOS-7-x86_64-DVD-1810.iso /mnt
 
 - name: Setup Cobbler server
+  hosts: localhost
   connection: local
   become: true
   become_user: root
@@ -35,8 +36,8 @@
 
   pre_tasks:
     - assert:
-      that: "{{ oncp_master_root_public_key | length > 0 }}" 
-      msg: "user 'root' public key is undefined"
+        that: "{{ oncp_master_root_public_key | length > 0 }}" 
+        msg: "user 'root' public key is undefined"
 
     - name: Create directory for ISOs download
       file:
@@ -50,13 +51,18 @@
       tags: always
 
     - name: Download distros ISOs
-      url: "{{ item.url }}"
-      dest: "/var/tmp/isos/{{ item.name }}"
-      mode: 0440
-      environment: "{{ onpc_proxy_environment| default('{}') }}"
+      get_url:
+        url: "{{ item.url }}"
+        dest: "/var/tmp/isos/{{ item.name }}"
+        timeout: 600   # big files might take a while to download
+        mode: 0440
+      register: download_result
+      until: download_result is succeeded
+      retries: 5 
+      delay: 15
+      failed_when: download_result is failure
       with_items:
-        - name: CentOS-7-x86_64-DVD-1810.iso
-          url: http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso
+        - { name: CentOS-7-x86_64-DVD-1810.iso, url: "http://mirror.plusserver.com/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso" }
       when: result.stat.exists == false
       tags: download-osa-distros
 
@@ -76,7 +82,7 @@
         - distro_name: CentOS-7
           device_or_iso_path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
           arch: x86_64
-          kickstart_file_name: centos7-osa-sda.ks.j2
+          kickstart_file_name: centos7-osa_default-sda.ks.j2
       cobbler_install_web: true
       cobbler_web_user_pwd:
         - user_name: cobbler

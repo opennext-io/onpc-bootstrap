@@ -15,7 +15,9 @@
 
 # cobbler depends on PyYAML, createrepo, httpd, mod_wsgi, rsync, tftp-server and so on.
 - name: install related packages
-  yum: name={{ item }} state=present
+  yum:
+    name: "{{ item }}"
+    state: present
   with_items:
     - dhcp
     - pykickstart
@@ -29,13 +31,11 @@
     - python-simplejson
     - python-urlgrabber
     - PyYAML
-    - pyyaml
     - rsync
     - syslinux
     - tftp-server
     - yum-utils
     - cobbler
-
 
 - name: generate crypted password
   shell: openssl passwd -1 {{ cobbler_default_password }}
@@ -75,9 +75,34 @@
             dest=/var/lib/cobbler/kickstarts/centos7-customized-vda.ks
             backup=yes
 
-- name: /var/lib/cobbler/kickstarts/centos7-osa-sda
-  template: src=var/lib/cobbler/kickstarts/centos7-osa-sda.j2
-            dest=/var/lib/cobbler/kickstarts/centos7-osa-sda.ks
+- name: /var/lib/cobbler/kickstarts/centos7-osa_ceph-sda
+  template: src=var/lib/cobbler/kickstarts/centos7-osa_ceph-sda.j2
+            dest=/var/lib/cobbler/kickstarts/centos7-osa_ceph-sda.ks
+            backup=yes
+
+- name: /var/lib/cobbler/kickstarts/centos7-osa_compute-sda
+  template: src=var/lib/cobbler/kickstarts/centos7-osa_compute-sda.j2
+            dest=/var/lib/cobbler/kickstarts/centos7-osa_compute-sda.ks
+            backup=yes
+
+- name: /var/lib/cobbler/kickstarts/centos7-osa_infra-sda
+  template: src=var/lib/cobbler/kickstarts/centos7-osa_infra-sda.j2
+            dest=/var/lib/cobbler/kickstarts/centos7-osa_infra-sda.ks
+            backup=yes
+
+- name: /var/lib/cobbler/kickstarts/centos7-osa_storage-sda
+  template: src=var/lib/cobbler/kickstarts/centos7-osa_storage-sda.j2
+            dest=/var/lib/cobbler/kickstarts/centos7-osa_storage-sda.ks
+            backup=yes
+
+- name: /var/lib/cobbler/kickstarts/centos7-osa_default-sda
+  template: src=var/lib/cobbler/kickstarts/centos7-osa_default-sda.j2
+            dest=/var/lib/cobbler/kickstarts/centos7-osa_default-sda.ks
+            backup=yes
+
+- name: /var/lib/cobbler/kickstarts/centos7-osa_swift-sda
+  template: src=var/lib/cobbler/kickstarts/centos7-osa_swift-sda.j2
+            dest=/var/lib/cobbler/kickstarts/centos7-osa_swift-sda.ks
             backup=yes
 
 # end add snippets and kickstarts

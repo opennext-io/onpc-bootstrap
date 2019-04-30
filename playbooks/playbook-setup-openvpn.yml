@@ -26,10 +26,6 @@
   roles:
     - role: ../roles/openvpn
       openvpn_server_hostname: 80.93.82.55
-      openvpn_dns_servers:
-        - 80.93.83.11
-        - 213.246.33.144 
-        - 213.246.36.14 
       openvpn_push:
         - "route {{ ansible_default_ipv4.network }} {{ ansible_default_ipv4.netmask }}"
         - "route {{ management_network | ipaddr('network') }} {{ management_network | ipaddr('netmask') }}"
@@ -37,4 +33,4 @@
       clients:
         - client1
         - client2
-      openvpn_masquerade_not_snat: false 
+      openvpn_masquerade_not_snat: true

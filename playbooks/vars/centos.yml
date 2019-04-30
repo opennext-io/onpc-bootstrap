@@ -16,11 +16,12 @@
 
 master_packages_install:
   - git
+  - pip
   - python-devel
   - '@Development Tools'
   - https://rdoproject.org/repos/openstack-rocky/rdo-release-rocky.rpm
 
-master_packages_remove:
+master_packages_remove: []
 
 packages_install:
   - openssh-server

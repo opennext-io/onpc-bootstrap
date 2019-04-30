@@ -1,5 +1,4 @@
 ---
-# Copyright 2015, Rackspace US, Inc.
 # Copyright (c) 2018, OpenNext SAS
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,45 +24,70 @@
 #
 # $ mount -t iso9660 -o loop,ro /path/to/isos/CentOS-7-x86_64-DVD-1810.iso /mnt
 
+- name: Setup Cobbler server
+  connection: local
+  become: true
+  become_user: root
 
-pre_tasks:
-  - assert:
-    that: "{{ oncp_master_root_public_key | length > 0 }}" 
-    msg: "user 'root' public key is undefined"
-  - name: Create directory for ISOs download
-    file: state=directory path=/var/tmp/isos
-  - name: Download distros ISOs
-    url: "{{ item.url }}"
-    dest: "/var/tmp/isos/{{ item.name }}"
-    mode: 0440
-    with_items:
-      - name: CentOS-7-x86_64-DVD-1810.iso
-        url: http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso
+  vars_files:
+    - vars/nodes.yml
+    - vars/users.yml
 
-roles:
-  - role: ../roles/cobbler
-    cobbler_default_password: to@change
-    cobbler_server: 172.31.0.55
-    cobbler_next_server: 172.31.0.55
-    cobbler_subnet: 172.31.0.0
-    cobbler_netmask: 255.255.255.0
-    cobbler_dynamic_bootp_start: 172.31.0.60
-    cobbler_dynamic_bootp_end: 172.31.0.70
-    cobbler_routers: 172.31.0.254
-    cobbler_domain_name_servers: 213.246.33.144,213.246.36.14
-    cobbler_subnet_mask: 255.255.255.0
-    cobbler_distros:
-      - distro_name: CentOS-7
-        device_or_iso_path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
-        arch: x86_64
-        kickstart_file_name: centos7-osa-sda.ks
+  pre_tasks:
+    - assert:
+      that: "{{ oncp_master_root_public_key | length > 0 }}" 
+      msg: "user 'root' public key is undefined"
 
-    cobbler_install_web: true
-    cobbler_web_user_pwd:
-      - user_name: cobbler
-        password: to!change
-    cobbler_default_time_zone: "Europe/Paris"
-    cobbler_root_public_keys:
-      - "{{ oncp_master_root_public_key }}"
+    - name: Create directory for ISOs download
+      file:
+        state: directory
+        path: /var/tmp/isos
 
+    - name: Check ISO not already downloaded
+      stat:
+        path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
+      register: result
+      tags: always
 
+    - name: Download distros ISOs
+      url: "{{ item.url }}"
+      dest: "/var/tmp/isos/{{ item.name }}"
+      mode: 0440
+      environment: "{{ onpc_proxy_environment| default('{}') }}"
+      with_items:
+        - name: CentOS-7-x86_64-DVD-1810.iso
+          url: http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso
+      when: result.stat.exists == false
+      tags: download-osa-distros
+
+  roles:
+    - role: ../roles/cobbler
+      cobbler_default_password: to@change
+      cobbler_server: "{{ ansible_default_ipv4.address }}"
+      cobbler_next_server: "{{ ansible_default_ipv4.address }}"
+      cobbler_subnet: "{{ ansible_default_ipv4.network }}"
+      cobbler_netmask: "{{ ansible_default_ipv4.netmask }}"
+      cobbler_dynamic_bootp_start: "{{ ansible_default_ipv4.network | ipmath(100) }}"
+      cobbler_dynamic_bootp_end: "{{ ansible_default_ipv4.network | ipmath(120) }}"
+      cobbler_routers: "{{ ansible_default_ipv4.gateway }}"
+      cobbler_domain_name_servers: "8.8.8.8,8.8.4.4"
+      cobbler_subnet_mask: "{{ ansible_default_ipv4.netmask }}"
+      cobbler_distros:
+        - distro_name: CentOS-7
+          device_or_iso_path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
+          arch: x86_64
+          kickstart_file_name: centos7-osa-sda.ks.j2
+      cobbler_install_web: true
+      cobbler_web_user_pwd:
+        - user_name: cobbler
+          password: to!change
+      cobbler_default_time_zone: "Europe/Paris"
+      cobbler_root_public_keys:
+        - "{{ oncp_master_root_public_key }}"
+      tags: install-cobbler
+
+  post_tasks:
+    - name: Register OSA systems in Cobbler
+      include_tasks: register-systems-cobbler.yml 
+      loop: "{{ onpc_osa_nodes }}"
+      tags: register-osa-systems

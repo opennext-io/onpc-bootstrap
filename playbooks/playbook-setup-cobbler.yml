@@ -33,6 +33,7 @@
   vars_files:
     - vars/nodes.yml
     - vars/users.yml
+    - vars/partitions.yml
 
   pre_tasks:
     - assert:
@@ -97,3 +98,4 @@
       include_tasks: register-systems-cobbler.yml 
       loop: "{{ onpc_osa_nodes }}"
       tags: register-osa-systems
+      

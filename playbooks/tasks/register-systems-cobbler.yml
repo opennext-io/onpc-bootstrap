@@ -2,8 +2,8 @@
 - name: Query all systems in Cobbler
   cobbler_system:
     host: localhost
-    username: cobbler
-    password: "{{ cobbler_default_password }}"
+    username: "{{ cobbler_user.name }}"
+    password: "{{ cobbler_user.password }}"
     use_ssl: False
     state: query
   register: result
@@ -19,8 +19,8 @@
 - name: Ensure infra nodes are registered in Cobbler 
   cobbler_system:
     host: localhost
-    uusername: cobbler
-    password: "{{ cobbler_default_password }}"
+    username: "{{ cobbler_user.name }}"
+    password: "{{ cobbler_user.password }}"
     name: "{{ item.hostname }}" 
     use_ssl: False
     state: "{{ item.state }}"
@@ -148,7 +148,7 @@
 - name: Sync Cobbler database
   cobbler_sync:
     host: localhost
-    username: cobbler
-    password: "{{ cobbler_default_password }}"
+    username: "{{ cobbler_user.name }}"
+    password: "{{ cobbler_user.password }}"
     use_ssl: False
   run_once: yes

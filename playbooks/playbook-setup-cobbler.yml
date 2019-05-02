@@ -97,6 +97,9 @@
   post_tasks:
     - name: Register OSA systems in Cobbler
       include_tasks: tasks/register-systems-cobbler.yml
-      cobbler_default_password: change!me
+      vars:
+        cobbler_user:
+          - name: cobbler
+            password: change@me
       loop: "{{ onpc_osa_nodes }}"
       tags: register-osa-systems

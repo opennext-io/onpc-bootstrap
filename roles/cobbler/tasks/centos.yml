@@ -35,6 +35,7 @@
     - tftp-server
     - yum-utils
     - cobbler
+    - fence-agents
 
 - name: generate crypted password
   shell: openssl passwd -1 {{ cobbler_default_password }}

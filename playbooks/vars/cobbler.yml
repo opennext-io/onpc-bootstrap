@@ -20,22 +20,22 @@ cobbler_distros:
 
 cobbler_profiles:
   - profile_name: Infra-CentOS-7-x86_64
-    distro: CentOS-7-x86_64
+    distro_name: CentOS-7-x86_64
     kickstart_file_name: centos7-osa_infra-sda.ks
   - profile_name: Ceph-CentOS-7-x86_64
-    distro: CentOS-7-x86_64
+    distro_name: CentOS-7-x86_64
     kickstart_file_name: centos7-osa_ceph-sda.ks
   - profile_name: Compute-CentOS-7-x86_64
-    distro: CentOS-7-x86_64
+    distro_name: CentOS-7-x86_64
     kickstart_file_name: centos7-osa_compute-sda.ks
   - profile_name: Default-CentOS-7-x86_64
-    distro: CentOS-7-x86_64
+    distro_name: CentOS-7-x86_64
     kickstart_file_name: centos7-osa_default-sda.ks
   - profile_name: Storage-CentOS-7-x86_64
-    distro: CentOS-7-x86_64
+    distro_name: CentOS-7-x86_64
     kickstart_file_name: centos7-osa_storage-sda.ks
   - profile_name: Swift-CentOS-7-x86_64
-    distro: CentOS-7-x86_64
+    distro_name: CentOS-7-x86_64
     kickstart_file_name: centos7-osa_swift-sda.ks
     
     

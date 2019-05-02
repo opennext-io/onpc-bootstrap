@@ -1,9 +1,9 @@
 ---
-- name: import distros to cobbler
+- name: import profiles to cobbler
   command: >
     cobbler profile
-      --name={{ item.distro_name }}
-      --distro={{ item.arch }}
+      --name={{ item.profile_name }}
+      --distro={{ item.distro_name }}
       --kickstart=/var/lib/cobbler/kickstarts/{{ item.kickstart_file_name }}
   ignore_errors: true
 

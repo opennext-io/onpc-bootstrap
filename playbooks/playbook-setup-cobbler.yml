@@ -94,26 +94,23 @@
     - name: Register Cobbler distros
       include_tasks: tasks/register-cobbler-distros.yml
       vars:
-        cobbler_user:
-          - name: cobbler
-            password: change@me
+        cobbler_user: cobbler
+        cobbler_password: change@me
       loop: "{{ cobbler_distros | default([]) }}"
       tags: register-cobbler_distros
 
     - name: Register Cobbler profiles
       include_tasks: tasks/register-cobbler-profiles.yml
       vars:
-        cobbler_user:
-          - name: cobbler
-            password: change@me
+        cobbler_user: cobbler
+        cobbler_password: change@me
       loop: "{{ cobbler_profiles | default([])}}"
       tags: register-cobbler_distros
 
     - name: Register Cobbler systems
       include_tasks: tasks/register-systems-cobbler.yml
       vars:
-        cobbler_user:
-          - name: cobbler
-            password: change@me
+        cobbler_user: cobbler
+        cobbler_password: change@me
       loop: "{{ cobbler_systems }}"
       tags: register-cobbler-systems

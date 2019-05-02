@@ -2,8 +2,8 @@
 - name: Ensure infra nodes are registered in Cobbler 
   cobbler_system:
     host: localhost
-    username: "{{ cobbler_user.name }}"
-    password: "{{ cobbler_user.password }}"
+    username: "{{ cobbler_user }}"
+    password: "{{ cobbler_password }}"
     name: "{{ item.name }}" 
     use_ssl: False
     state: "{{ item.state }}"
@@ -131,7 +131,7 @@
 - name: Sync Cobbler database
   cobbler_sync:
     host: localhost
-    username: "{{ cobbler_user.name }}"
-    password: "{{ cobbler_user.password }}"
+    username: "{{ cobbler_user }}"
+    password: "{{ cobbler_password }}"
     use_ssl: False
   run_once: yes

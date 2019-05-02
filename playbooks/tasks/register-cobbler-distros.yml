@@ -5,7 +5,7 @@
          opts=ro fstype=iso9660 state=mounted
 
 - name: import distros to cobbler
-  shell: >-
+  command: >
     cobbler import
       --name={{ item.distro_name }}
       --arch={{ item.arch }}
@@ -15,7 +15,7 @@
 - name: Sync Cobbler database
   cobbler_sync:
     host: localhost
-    username: "{{ cobbler_user.name }}"
-    password: "{{ cobbler_user.password }}"
+    username: "{{ cobbler_user }}"
+    password: "{{ cobbler_password }}"
     use_ssl: False
   run_once: yes

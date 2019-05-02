@@ -1,6 +1,6 @@
 ---
 - name: import distros to cobbler
-  shell: >-
+  command: >
     cobbler profile
       --name={{ item.distro_name }}
       --distro={{ item.arch }}
@@ -10,7 +10,7 @@
 - name: Sync Cobbler database
   cobbler_sync:
     host: localhost
-    username: "{{ cobbler_user.name }}"
-    password: "{{ cobbler_user.password }}"
+    username: "{{ cobbler_user }}"
+    password: "{{ cobbler_password }}"
     use_ssl: False
   run_once: yes

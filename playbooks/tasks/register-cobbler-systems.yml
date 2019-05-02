@@ -21,12 +21,12 @@
     host: localhost
     username: "{{ cobbler_user.name }}"
     password: "{{ cobbler_user.password }}"
-    name: "{{ item.hostname }}" 
+    name: "{{ item.name }}" 
     use_ssl: False
     state: "{{ item.state }}"
     properties:
       hostname: "{{ item.hostname }}"
-      profile: osa-node-centos7 
+      profile: osa-node-centos7
       comment: "{{ item.comment | default('') }}"
       gateway: "{{ item.gateway | default('') }}"
       mgmt_classes: "{{ item.roles | default([]) }}"

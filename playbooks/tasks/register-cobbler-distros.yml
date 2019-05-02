@@ -1,0 +1,21 @@
+---
+- name: mount device or iso to mount point
+  mount: name=/mnt/{{ item.distro_name }}
+         src={{ item.device_or_iso_path }}
+         opts=ro fstype=iso9660 state=mounted
+
+- name: import distros to cobbler
+  shell: >-
+    cobbler import
+      --name={{ item.distro_name }}
+      --arch={{ item.arch }}
+      --path=/mnt/{{ item.distro_name }}
+  ignore_errors: true
+
+- name: Sync Cobbler database
+  cobbler_sync:
+    host: localhost
+    username: "{{ cobbler_user.name }}"
+    password: "{{ cobbler_user.password }}"
+    use_ssl: False
+  run_once: yes

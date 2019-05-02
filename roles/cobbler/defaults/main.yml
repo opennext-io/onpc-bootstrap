@@ -26,8 +26,6 @@ cobbler_web_user_pwd:
  - user_name: test1
    password: Change@me
 
-
-
 # import distros
 cobbler_distros:
   - distro_name: CentOS-7.1-sda

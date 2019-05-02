@@ -35,6 +35,7 @@
     - vars/nodes.yml
     - vars/users.yml
     - vars/partitions.yml
+    - vars/cobbler.yml
 
   pre_tasks:
     - assert:
@@ -80,11 +81,6 @@
       cobbler_routers: "{{ ansible_default_ipv4.gateway }}"
       cobbler_domain_name_servers: "8.8.8.8,8.8.4.4"
       cobbler_subnet_mask: "{{ ansible_default_ipv4.netmask }}"
-      cobbler_distros:
-        - distro_name: CentOS-7
-          device_or_iso_path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
-          arch: x86_64
-          kickstart_file_name: centos7-osa_default-sda.ks.j2
       cobbler_install_web: true
       cobbler_web_user_pwd:
         - user_name: cobbler
@@ -95,11 +91,29 @@
       tags: install-cobbler
 
   post_tasks:
-    - name: Register OSA systems in Cobbler
+    - name: Register Cobbler distros
+      include_tasks: tasks/register-cobbler-distros.yml
+      vars:
+        cobbler_user:
+          - name: cobbler
+            password: change@me
+      loop: "{{ cobbler_distros | default([]) }}"
+      tags: register-cobbler_distros
+
+    - name: Register Cobbler profiles
+      include_tasks: tasks/register-cobbler-profiles.yml
+      vars:
+        cobbler_user:
+          - name: cobbler
+            password: change@me
+      loop: "{{ cobbler_profiles | default([])}}"
+      tags: register-cobbler_distros
+
+    - name: Register Cobbler systems
       include_tasks: tasks/register-systems-cobbler.yml
       vars:
         cobbler_user:
           - name: cobbler
             password: change@me
       loop: "{{ onpc_osa_nodes }}"
-      tags: register-osa-systems
+      tags: register-cobbler-systems

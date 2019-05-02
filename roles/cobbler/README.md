@@ -100,7 +100,6 @@ cobbler_web_user_pwd:
     password: to!change
 ```
 
-
 ## Optional variables
 
 ```

@@ -98,7 +98,7 @@ default_ownership:
 # The simplest way to change the password is to run 
 # openssl passwd -1
 # and put the output between the "" below.
-default_password_crypted: "{{ cobbler_default_password_crypted.stdout }}"
+default_password_crypted: "{{ cobbler_default_password_crypted }}"
 
 # the default template type to use in the absence of any
 # other detected template. If you do not specify the template 

@@ -3,20 +3,24 @@
   cobbler_system:
     host: localhost
     username: cobbler
-    password: cobbler
+    password: "{{ cobbler_default_password }}"
     use_ssl: False
     state: query
-  register: result 
+  register: result
+  failed_when: result.rc != 0
 
 - name: Set resgistered systems fact
   set_fact:
     cobbler_systems: "{{ result.failed | ternary([], result.systems) }}"
-  
-- name: Ensure controller nodes are registered in Cobbler 
+
+- name: Display registered systems in Cobbler
+  debug: var=cobbler_systems
+
+- name: Ensure infra nodes are registered in Cobbler 
   cobbler_system:
     host: localhost
-    username: cobbler
-    password: cobbler 
+    uusername: cobbler
+    password: "{{ cobbler_default_password }}"
     name: "{{ item.hostname }}" 
     use_ssl: False
     state: "{{ item.state }}"
@@ -145,6 +149,6 @@
   cobbler_sync:
     host: localhost
     username: cobbler
-    password: cobbler
+    password: "{{ cobbler_default_password }}"
     use_ssl: False
   run_once: yes

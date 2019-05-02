@@ -38,7 +38,12 @@
 
 - name: generate crypted password
   shell: openssl passwd -1 {{ cobbler_default_password }}
-  register: cobbler_default_password_crypted
+  register: result
+  failed_when: result.rc != 0
+
+- name: set default cobbler password crypted
+  set_fact:
+    cobbler_default_password_crypted: "{{ result.stdout }}"
 
 - name: template /etc/cobbler/settings
   template: src=etc/cobbler/settings.j2 dest=/etc/cobbler/settings backup=yes

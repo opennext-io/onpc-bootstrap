@@ -70,7 +70,7 @@
 
   roles:
     - role: ../roles/cobbler
-      cobbler_default_password: to@change
+      cobbler_default_password: change!me
       cobbler_server: "{{ ansible_default_ipv4.address }}"
       cobbler_next_server: "{{ ansible_default_ipv4.address }}"
       cobbler_subnet: "{{ ansible_default_ipv4.network }}"
@@ -88,7 +88,7 @@
       cobbler_install_web: true
       cobbler_web_user_pwd:
         - user_name: cobbler
-          password: to!change
+          password: change@me
       cobbler_default_time_zone: "Europe/Paris"
       cobbler_root_public_keys:
         - "{{ oncp_master_root_public_key }}"
@@ -96,6 +96,7 @@
 
   post_tasks:
     - name: Register OSA systems in Cobbler
-      include_tasks: tasks/register-systems-cobbler.yml 
+      include_tasks: tasks/register-systems-cobbler.yml
+      cobbler_default_password: change!me
       loop: "{{ onpc_osa_nodes }}"
       tags: register-osa-systems

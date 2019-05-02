@@ -2,7 +2,7 @@
 # defaults file for cobbler
 
 ### cobbler server
-cobbler_default_password: changE_me
+cobbler_default_password: change@me
 cobbler_default_time_zone: "Asia/Shanghai"   # America/New_York
 cobbler_manage_dhcp: 1 # default
 cobbler_pxe_just_once: 1
@@ -22,7 +22,7 @@ cobbler_subnet_mask: 255.255.255.0
 cobbler_install_web: true
 cobbler_web_user_pwd:
  - user_name: cobbler
-   password: Change!me
+   password: change!me
  - user_name: test1
    password: Change@me
 

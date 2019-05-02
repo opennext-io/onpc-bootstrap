@@ -45,27 +45,6 @@ onpc_valid_roles:
     - monitoring
     - swift
 
-## Extra storage
-# The node bootstrap process may optionally use a second storage device.
-# If a secondary disk device to use is not specified, then existing
-# disk partitions will be used.
-#
-# WARNING: The data on the secondary storage device specified here will
-# be destroyed and repartitioned.
-#
-# Specify the secondary disk device to use. When the data disk is in use.
-# Do not set the full path to the device. IE: "/dev/sda2" should be "sda2".
-onpc_host_data_disk_device: "{{ bootstrap_host_data_disk_device | default('sda') }}"
-#
-# If the storage capacity on this device is greater than or equal to this
-# size (in GB), the bootstrap process will use it.
-onpc_host_data_disk_min_size: "{{ bootstrap_host_data_disk_min_size | default(100) }}"
-
-#onpc_host_root_disk_device: sda2
-
-# Minimum storage capacity on root filesystem (in GB) for nodes
-onpc_root_filesystem_min_size: 50
-
 # The default gateway for the infra is assumed to be the master
 # node.
 onpc_default_gateway: 172.31.0.54

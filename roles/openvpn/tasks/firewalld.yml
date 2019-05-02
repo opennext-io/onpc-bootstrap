@@ -1,3 +1,4 @@
+---
 - name: Enable firewalld
   service:
     name: firewalld
@@ -29,7 +30,7 @@
     immediate: true
     state: enabled
 
-- name: Set default interface to external
+- name: Set default interface to public
   firewalld:
     interface: "{{ansible_default_ipv4.interface}}"
     zone: "{{firewalld_default_interface_zone}}"

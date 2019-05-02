@@ -1,0 +1,51 @@
+---
+- name: Enable firewalld
+  service:
+    name: firewalld
+    enabled: true
+    masked: false
+    state: started
+
+- name: Install python2-firewall (Fedora)
+  package:
+    name: python-firewall
+    state: present
+  when:
+    - ansible_distribution == "Fedora"
+    - ansible_python.version.major == 2
+
+- name: Enable TFTP ports
+  shell: |
+    firewall-cmd --direct --permanent --add-rule ipv4 filter INPUT 0 -p tcp --dport 69 -j ACCEPT
+    firewall-cmd --direct --permanent --add-rule ipv4 filter INPUT 0 -p udp --dport 69 -j ACCEPT
+  args:
+    executable: /bin/bash
+
+- name: Enable HTTP ports
+  shell: |
+    firewall-cmd --direct --permanent --add-rule ipv4 filter INPUT 0 -p tcp --dport 80 -j ACCEPT
+    firewall-cmd --direct --permanent --add-rule ipv4 filter INPUT 0 -p tcp --dport 443 -j ACCEPT
+  args:
+    executable: /bin/bash
+
+- name: Enable Cobbler XML-RPC ports
+  shell: |
+    firewall-cmd --direct --permanent --add-rule ipv4 filter INPUT 0 -p tcp --dport 25150 -j ACCEPT
+    firewall-cmd --direct --permanent --add-rule ipv4 filter INPUT 0 -p tcp --dport 25151 -j ACCEPT
+  args:
+    executable: /bin/bash
+
+- name: Reload firewalld
+  shell: |
+    firewall-cmd --reload
+  args:
+    executable: /bin/bash
+
+- name: Check firewalld rules are correctly saved
+  shell: |
+    firewall-cmd --permanent --direct --get-rules ipv4 filter INPUT
+  args:
+    executable: /bin/bash
+  register: result
+
+- debug: var=result

@@ -1,3 +1,4 @@
+---
 - name: Check for firewalld
   command: which firewall-cmd
   register: firewalld

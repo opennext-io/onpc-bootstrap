@@ -3,7 +3,7 @@
   cobbler_system:
     host: localhost
     username: cobbler
-    password: cobbler 
+    password: cobbler
     use_ssl: False
     state: query
   register: result 

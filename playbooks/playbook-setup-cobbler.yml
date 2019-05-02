@@ -31,6 +31,7 @@
   become_user: root
 
   vars_files:
+    - vars/main.yml
     - vars/nodes.yml
     - vars/users.yml
     - vars/partitions.yml
@@ -95,7 +96,6 @@
 
   post_tasks:
     - name: Register OSA systems in Cobbler
-      include_tasks: register-systems-cobbler.yml 
+      include_tasks: tasks/register-systems-cobbler.yml 
       loop: "{{ onpc_osa_nodes }}"
       tags: register-osa-systems
-      

@@ -32,7 +32,7 @@
 
   vars_files:
     - vars/main.yml
-    - vars/nodes.yml
+    - vars/systems.yml
     - vars/users.yml
     - vars/partitions.yml
     - vars/cobbler.yml
@@ -115,5 +115,5 @@
         cobbler_user:
           - name: cobbler
             password: change@me
-      loop: "{{ onpc_osa_nodes }}"
+      loop: "{{ cobbler_systems }}"
       tags: register-cobbler-systems

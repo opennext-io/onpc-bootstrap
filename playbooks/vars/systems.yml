@@ -1,5 +1,4 @@
 ---
-# Copyright 2017, Rackspace US, Inc.
 # Copyright 2018 (c), OpenNext SAS.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,10 +33,11 @@
 #               On every compute node  Never
 # ----------------------------------------------------------------------
 
-onpc_osa_nodes:
+cobbler_systems:
   - name: opennext01
     comment: "This node is a controller node"
-    hostname: "{{ 'opennext01' + '.' + onpc_infra_domain }}" 
+    hostname: "{{ 'opennext01' + '.' + onpc_infra_domain }}"
+    profile: Infra-CentOS-7-x86_64
     gateway: "{{ onpc_default_gateway }}"
     name_servers:
       - "{{ onpc_dns_server }}"
@@ -47,6 +47,8 @@ onpc_osa_nodes:
     roles:
       - controller
       - network
+      - monitoring
+      - logging
     state: present
     interfaces:
       eth0:
@@ -106,7 +108,8 @@ onpc_osa_nodes:
 
   - name: opennext08
     comment: "This node is a compute node"
-    hostname: "{{ 'opennext08' + '.' + onpc_infra_domain }}" 
+    hostname: "{{ 'opennext08' + '.' + onpc_infra_domain }}"
+    profile: Compute-CentOS-7-x86_64
     gateway: "{{ onpc_default_gateway }}"
     name_servers:
       - "{{ onpc_dns_server }}"
@@ -192,7 +195,8 @@ onpc_osa_nodes:
         static: true
   - name: opennext09
     comment: "This node is a ceph node"
-    hostname: "{{ 'opennext09' + '.' + onpc_infra_domain }}" 
+    hostname: "{{ 'opennext09' + '.' + onpc_infra_domain }}"
+    profile: Ceph-CentOS-7-x86_64
     gateway: "{{ onpc_default_gateway }}"
     name_servers:
       - "{{ onpc_dns_server }}"

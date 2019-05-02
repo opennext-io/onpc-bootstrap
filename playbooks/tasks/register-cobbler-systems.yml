@@ -1,21 +1,4 @@
 ---
-- name: Query all systems in Cobbler
-  cobbler_system:
-    host: localhost
-    username: "{{ cobbler_user.name }}"
-    password: "{{ cobbler_user.password }}"
-    use_ssl: False
-    state: query
-  register: result
-  failed_when: result.rc != 0
-
-- name: Set resgistered systems fact
-  set_fact:
-    cobbler_systems: "{{ result.failed | ternary([], result.systems) }}"
-
-- name: Display registered systems in Cobbler
-  debug: var=cobbler_systems
-
 - name: Ensure infra nodes are registered in Cobbler 
   cobbler_system:
     host: localhost
@@ -26,7 +9,7 @@
     state: "{{ item.state }}"
     properties:
       hostname: "{{ item.hostname }}"
-      profile: osa-node-centos7
+      profile: "{{ item.profile }}"
       comment: "{{ item.comment | default('') }}"
       gateway: "{{ item.gateway | default('') }}"
       mgmt_classes: "{{ item.roles | default([]) }}"

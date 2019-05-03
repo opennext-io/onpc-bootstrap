@@ -1,5 +1,5 @@
 ---
-- name: Ensure infra nodes are registered in Cobbler 
+- name: "Register '{{ item.name }}' into Cobbler"
   cobbler_system:
     host: localhost
     username: "{{ cobbler_user }}"
@@ -45,10 +45,10 @@
         netmask: "{{ item.interfaces['eth1'].netmask | default('') }}" 
         staticroutes: "{{ item.interfaces['eth1'].static_routes | default([]) }}"
 
-- name: Add the management network VLAN
+- name: "Add the management network VLAN to '{{ item.name }}'"
   command: >
     cobbler system edit
-      --name="{{ item.hostname }}"
+      --name="{{ item.name }}"
       --interface="{{ item.interfaces['vlan_mgmt'].device }}"
       --interface-type="{{ item.interfaces['vlan_mgmt'].interface_type }}"
       --interface-master="{{ item.interfaces['vlan_mgmt'].interface_master }}"
@@ -56,10 +56,10 @@
   failed_when: result.rc != 0
   when: item.interfaces['vlan_mgmt'] is defined
 
-- name: Add the management network bridge 
+- name: "Add the management network bridge to '{{ item.name }}'"
   command: >
     cobbler system edit
-      --name="{{ item.hostname }}"
+      --name="{{ item.name }}"
       --interface="{{ item.interfaces['br_mgmt'].device }}"
       --interface-type="{{ item.interfaces['br_mgmt'].interface_type }}"
       --bridge-opts="{{ item.interfaces['br_mgmt'].bridge_opts }}"
@@ -70,10 +70,10 @@
   failed_when: result.rc != 0
   when: item.interfaces['br_mgmt'] is defined
 
-- name: Add the storage network VLAN
+- name: "Add the storage network VLAN to '{{ item.name }}'"
   command: >
     cobbler system edit
-      --name="{{ item.hostname }}"
+      --name="{{ item.name }}"
       --interface="{{ item.interfaces['vlan_storage'].device }}"
       --interface-type="{{ item.interfaces['vlan_storage'].interface_type }}"
       --interface-master="{{ item.interfaces['vlan_storage'].interface_master }}"
@@ -83,10 +83,10 @@
     - item.interfaces['vlan_storage'] is defined
     - "'storage' in item.roles"
 
-- name: Add the storage network bridge 
+- name: "Add the storage network bridge to '{{ item.name }}'"
   command: >
     cobbler system edit
-      --name="{{ item.hostname }}"
+      --name="{{ item.name }}"
       --interface="{{ item.interfaces['br_storage'].device }}"
       --interface-type="{{ item.interfaces['br_storage'].interface_type }}"
       --bridge-opts="{{ item.interfaces['br_storage'].bridge_opts }}"
@@ -99,10 +99,10 @@
     - item.interfaces['br_storage'] is defined
     - "'storage' in item.roles"
 
-- name: Add the tunnel network VLAN
+- name: "Add the tunnel network VLAN to '{{ item.name }}'"
   command: >
     cobbler system edit
-      --name="{{ item.hostname }}"
+      --name="{{ item.name }}"
       --interface="{{ item.interfaces['vlan_tunnel'].device }}"
       --interface-type="{{ item.interfaces['vlan_tunnel'].interface_type }}"
       --interface-master="{{ item.interfaces['vlan_tunnel'].interface_master }}"
@@ -110,20 +110,19 @@
   failed_when: result.rc != 0
   when:
     - item.interfaces['vlan_tunnel'] is defined
-    - "('compute' in item.roles) or ('network' in iten.roles)"
+    - "('compute' in item.roles) or ('network' in item.roles)"
 
-- name: Add the tunnel network bridge
+- name: "Add the tunnel network bridge to '{{ item.name }}'"
   command: >
     cobbler system edit
-      --name="{{ item.hostname }}"
+      --name="{{ item.name }}"
       --interface="{{ item.interfaces['br_vxlan'].device }}"
       --interface-type="{{ item.interfaces['br_vxlan'].interface_type }}"
       --bridge-opts="{{ item.interfaces['br_vxlan'].bridge_opts }}"
       --ip-address="{{ item.interfaces['br_vxlan'].ip_address }}"
-      --if-gateway="{{ item.interfaces['br_vxlan'].if_gateway }}"
       --netmask="{{ item.interfaces['br_vxlan'].netmask }}"
   register: result
   failed_when: result.rc != 0
   when:
     - item.interfaces['br_vxlan'] is defined
-    - "('compute' in item.roles) or ('network' in iten.roles)"
+    - "('compute' in item.roles) or ('network' in item.roles)"

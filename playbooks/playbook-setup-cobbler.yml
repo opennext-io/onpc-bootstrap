@@ -108,7 +108,7 @@
       tags: register-cobbler_distros
 
     - name: Register Cobbler systems
-      include_tasks: tasks/register-systems-cobbler.yml
+      include_tasks: tasks/register-cobbler-systems.yml
       vars:
         cobbler_user: cobbler
         cobbler_password: change@me
@@ -122,4 +122,6 @@
         password: "{{ cobbler_password }}"
         use_ssl: False
       run_once: yes
+      register: result
+      failed_when: result.rc != 0
   

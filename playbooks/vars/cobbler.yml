@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+cobbler_user: cobbler
+cobbler_password: change@me
+
 cobbler_distros:
   - distro_name: CentOS-7
     device_or_iso_path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso

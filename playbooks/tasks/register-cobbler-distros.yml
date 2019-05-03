@@ -11,11 +11,3 @@
       --arch={{ item.arch }}
       --path=/mnt/{{ item.distro_name }}
   ignore_errors: true
-
-- name: Sync Cobbler database
-  cobbler_sync:
-    host: localhost
-    username: "{{ cobbler_user }}"
-    password: "{{ cobbler_password }}"
-    use_ssl: False
-  run_once: yes

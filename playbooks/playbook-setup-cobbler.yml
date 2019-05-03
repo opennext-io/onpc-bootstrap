@@ -114,3 +114,12 @@
         cobbler_password: change@me
       loop: "{{ cobbler_systems }}"
       tags: register-cobbler-systems
+    
+    - name: Sync Cobbler database
+      cobbler_sync:
+        host: localhost
+        username: "{{ cobbler_user }}"
+        password: "{{ cobbler_password }}"
+        use_ssl: False
+      run_once: yes
+  

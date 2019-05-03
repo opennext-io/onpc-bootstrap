@@ -1,16 +1,8 @@
 ---
 - name: import profiles to cobbler
   command: >
-    cobbler profile
+    cobbler profile add
       --name={{ item.profile_name }}
       --distro={{ item.distro_name }}
       --kickstart=/var/lib/cobbler/kickstarts/{{ item.kickstart_file_name }}
   ignore_errors: true
-
-- name: Sync Cobbler database
-  cobbler_sync:
-    host: localhost
-    username: "{{ cobbler_user }}"
-    password: "{{ cobbler_password }}"
-    use_ssl: False
-  run_once: yes

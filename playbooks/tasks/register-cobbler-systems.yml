@@ -127,11 +127,3 @@
   when:
     - item.interfaces['br_vxlan'] is defined
     - "('compute' in item.roles) or ('network' in iten.roles)"
-
-- name: Sync Cobbler database
-  cobbler_sync:
-    host: localhost
-    username: "{{ cobbler_user }}"
-    password: "{{ cobbler_password }}"
-    use_ssl: False
-  run_once: yes

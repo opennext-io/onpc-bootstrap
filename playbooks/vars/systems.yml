@@ -51,7 +51,7 @@ cobbler_systems:
       - logging
     state: present
     interfaces:
-      eth0:
+      primary:
         device: eth0
         dns_name: "{{ 'opennext01' + '.' + onpc_infra_domain }}"
         if_gateway: "{{ onpc_default_gateway }}"
@@ -60,7 +60,7 @@ cobbler_systems:
         management: true
         netmask: 255.255.255.0
         static: true
-      eth1:
+      secondary:
         device: eth1
         interface_type: bridge_slave 
         interface_master: br-vlan

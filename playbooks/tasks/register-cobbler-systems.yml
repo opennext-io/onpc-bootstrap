@@ -1,4 +1,18 @@
 ---
+
+- name: Get cobbler systems 
+  cobbler_system:
+    host: localhost
+    username: "{{ cobbler_user }}" 
+    password: "{{ cobbler_password }}" 
+    use_ssl: False
+    state: query
+  register: result
+
+- name: Set registered_systems facts
+  set_fact:
+  registered_systems: "{{ result.systems | map(attribute='name') | list | default([]) }}"
+
 - name: "Register '{{ item.name }}' into Cobbler"
   cobbler_system:
     host: localhost
@@ -6,7 +20,7 @@
     password: "{{ cobbler_password }}"
     name: "{{ item.name }}" 
     use_ssl: False
-    state: "{{ item.state }}"
+#   state: "{{ item.state }}"
     properties:
       hostname: "{{ item.hostname }}"
       profile: "{{ item.profile }}"
@@ -17,33 +31,50 @@
       name_servers: "{{ item.name_servers | default([]) }}"
       name_servers_search: "{{ item.name_servers_search | default([]) }}"
       netboot_enabled: "{{ item.netboot | default(False) }}"
-    interfaces:
-      eth0:
-        ipaddress: "{{ item.interfaces['eth0'].ip_address | default('') }}"
-        ifgateway: "{{ item.interfaces['eth0'].if_gateway | default('') }}" 
-        macaddress: "{{ item.interfaces['eth0'].mac_address | default('') }}"
-        static: "{{ item.interfaces['eth0'].static | default(True) }}" 
-        bondingopts: "{{ item.interfaces['eth0'].bondig_opts | default('') }}" 
-        bridgeopts: "{{ item.interfaces['eth0'].bridge_opts | default('') }}" 
-        dnsname: "{{ item.interfaces['eth0'].dns_name | default('') }}"
-        interfacemaster: "{{ item.interfaces['eth0'].interface_master | default('') }}" 
-        interfacetype: "{{ item.interfaces['eth0'].interface_type | default('') }}" 
-        management: "{{ item.interfaces['eth0'].management | default(True) }}" 
-        netmask: "{{ item.interfaces['eth0'].netmask | default('') }}" 
-        staticroutes: "{{ item.interfaces['eth0'].static_routes | default([]) }}" 
-      eth1:
-        ipaddress: "{{ item.interfaces['eth1'].ip_address | default('') }}"
-        ifgateway: "{{ item.interfaces['eth1'].if_gateway | default('') }}" 
-        macaddress: "{{ item.interfaces['eth1'].mac_address | default('') }}"
-        static: "{{ item.interfaces['eth1'].static | default(True) }}" 
-        bondingopts: "{{ item.interfaces['eth1'].bondig_opts | default('') }}" 
-        bridgeopts: "{{ item.interfaces['eth1'].bridge_opts | default('') }}" 
-        dnsname: "{{ item.interfaces['eth1'].dns_name | default('') }}"
-        interfacemaster: "{{ item.interfaces['eth1'].interface_master | default('') }}" 
-        interfacetype: "{{ item.interfaces['eth1'].interface_type | default('') }}" 
-        management: "{{ item.interfaces['eth1'].management | default(False) }}" 
-        netmask: "{{ item.interfaces['eth1'].netmask | default('') }}" 
-        staticroutes: "{{ item.interfaces['eth1'].static_routes | default([]) }}"
+
+- name: "Add the primary network iinterface to '{{ item.name }}'"
+  command: >
+    cobbler system edit
+      --name="{{ item.name }}"
+      --interface="{{ item.interfaces['primary'].device }}"
+      --interface-type="{{ item.interfaces['primary'].interface_type }}"
+      --interface-master="{{ item.interfaces['primary'].interface_master }}"
+      --ipaddress="{{ item.interfaces['primary'].ip_address | default('') }}"
+      --ifgateway="{{ item.interfaces['primary'].if_gateway | default('') }}" 
+      --macaddress="{{ item.interfaces['primary'].mac_address | default('') }}"
+      --static="{{ item.interfaces['primary'].static | default(True) }}" 
+      --bondingopts="{{ item.interfaces['primary'].bondig_opts | default('') }}" 
+      --bridgeopts="{{ item.interfaces['primary'].bridge_opts | default('') }}" 
+      --dnsname="{{ item.interfaces['primary'].dns_name | default('') }}"
+      --interfacemaster="{{ item.interfaces['primary'].interface_master | default('') }}" 
+      --management="{{ item.interfaces['primary'].management | default(True) }}" 
+      --netmask="{{ item.interfaces['primary'].netmask | default('') }}" 
+      --staticroutes="{{ item.interfaces['primary'].static_routes | default([]) }}" 
+  register: result
+  failed_when: result.rc != 0
+  when: item.interfaces['primary'] is defined
+
+- name: "Add the secondary network interface to '{{ item.name }}'"
+  command: >
+    cobbler system edit
+      --name="{{ item.name }}"
+      --interface="{{ item.interfaces['secondary'].device }}"
+      --interface-type="{{ item.interfaces['secondary'].interface_type }}"
+      --interface-master="{{ item.interfaces['secondary'].interface_master }}"
+      --ipaddress="{{ item.interfaces['secondary'].ip_address | default('') }}"
+      --ifgateway="{{ item.interfaces['secondary'].if_gateway | default('') }}" 
+      --macaddress="{{ item.interfaces['secondary'].mac_address | default('') }}"
+      --static="{{ item.interfaces['secondary'].static | default(True) }}" 
+      --bondingopts="{{ item.interfaces['secondary'].bondig_opts | default('') }}" 
+      --bridgeopts="{{ item.interfaces['secondary'].bridge_opts | default('') }}" 
+      --dnsname="{{ item.interfaces['secondary'].dns_name | default('') }}"
+      --interfacemaster="{{ item.interfaces['secondary'].interface_master | default('') }}" 
+      --management="{{ item.interfaces['secondary'].management | default(True) }}" 
+      --netmask="{{ item.interfaces['secondary'].netmask | default('') }}" 
+      --staticroutes="{{ item.interfaces['secondary'].static_routes | default([]) }}" 
+  register: result
+  failed_when: result.rc != 0
+  when: item.interfaces['secondary'] is defined
 
 - name: "Add the management network VLAN to '{{ item.name }}'"
   command: >

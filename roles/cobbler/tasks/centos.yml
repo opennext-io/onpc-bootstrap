@@ -122,6 +122,8 @@
 
 - name: cobbler get-loaders
   shell: cobbler get-loaders
+  changed_when: false
+
 
 # cobbler-web
 - name: install cobbler-web

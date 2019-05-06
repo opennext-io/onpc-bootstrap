@@ -35,7 +35,7 @@
 
 cobbler_systems:
   - name: opennext01
-    comment: "This node is a controller node"
+    comment: "This node is an infra node"
     hostname: "{{ 'opennext01' + '.' + onpc_infra_domain }}"
     profile: Infra-CentOS-7-x86_64
     gateway: "{{ onpc_default_gateway }}"
@@ -69,14 +69,14 @@ cobbler_systems:
       # Container/Host management VLAN interface
       vlan_mgmt:
         device: eth0.10
-        interface_type: bridge_slave 
-        interface_master: br-mgmt 
+        interface_type: bridge_slave
+        interface_master: br-mgmt
         static: true
       # OpenStack Networking (tunnel/overlay) VLAN interface
       vlan_tunnel:
         device: eth1.30
-        interface_type: bridge_slave 
-        interface_master: br-storage
+        interface_type: bridge_slave
+        interface_master: br-vxlan
         static: true
       # Container / Host management network bridge
       # The compute, infra and network nodes must have an IP address 
@@ -152,7 +152,7 @@ cobbler_systems:
       vlan_tunnel:
         device: eth1.30
         interface_type: bridge_slave 
-        interface_master: br-storage
+        interface_master: br-vxlan
         static: true
       # Container / Host management network bridge
       # The compute, infra and network nodes must have an IP address 

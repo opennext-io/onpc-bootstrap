@@ -25,12 +25,12 @@
       --if-gateway="{{ interface.if_gateway | default('') }}" 
       --mac-address="{{ interface.mac_address | default('') }}"
       --static="{{ interface.static | default(False) }}" 
-      --bonding-opts="{{ interface.bondig_opts | default('') }}" 
-      --bridge-opts="{{ interface.bridge_opts | default('') }}" 
+      --bonding-opts="{{ interface.bondig_opts | default([]) | join(' ') }}" 
+      --bridge-opts="{{ interface.bridge_opts | default([]) | join(' ') }}" 
       --dns-name="{{ interface.dns_name | default('') }}"
       --management="{{ interface.management | default(False) }}" 
       --netmask="{{ interface.netmask | default('') }}" 
-      --static-routes="{{ interface.static_routes | default([]) }}" 
+      --static-routes="{{ interface.static_routes | default([]) | join(' ') }}" 
   register: result
   failed_when: result.rc != 0
   tags: register-cobbler-interfaces

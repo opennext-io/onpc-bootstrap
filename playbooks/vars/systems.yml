@@ -50,6 +50,7 @@ cobbler_systems:
       - monitoring
       - logging
     state: present
+    netboot: true
     interfaces:
       # Primary (management) interface 
       - device: eth0
@@ -113,7 +114,7 @@ cobbler_systems:
       - "{{ onpc_infra_domain }}"
     roles:
       - compute
-    netboot: false
+    netboot: true
     state: present
     interfaces:
       - device: eth0
@@ -177,7 +178,7 @@ cobbler_systems:
       - "{{ onpc_infra_domain }}"
     roles:
       - ceph
-    netboot: false
+    netboot: true
     state: present
     interfaces:
       - device: eth0

@@ -22,7 +22,7 @@
 - name: Set registered_distros facts
   set_fact:
     registered_distros: "{{ result.stdout_lines | map('trim') | list | default([]) }}"
-    distro_name: "{{ item.distro_name }}-{{ item.arch }}"
+    distro_name: "{{ item.distro_name | lower }}-{{ item.arch | lower }}"
   tags: always
 
 - name: Mount device or iso to mount point
@@ -32,11 +32,11 @@
   when: "distro_name not in registered_distros"
   tags: import-cobbler-distros
 
-- name: "Import cobbler distro {{item.distro_name}}"
+- name: "Import cobbler distro '{{item.distro_name}}'"
   command: >
     cobbler import
-      --name={{ item.distro_name }}
-      --arch={{ item.arch }}
+      --name={{ item.distro_name | lower }}
+      --arch={{ item.arch | lower}}
       --path=/mnt/{{ item.distro_name }}
   when: "distro_name not in registered_distros"
   tags: import-cobbler-distros

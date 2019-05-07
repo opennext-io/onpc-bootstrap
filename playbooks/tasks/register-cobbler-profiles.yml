@@ -27,8 +27,8 @@
 - name: "Import cobbler profile '{{item.profile_name}}'"
   command: >
     cobbler profile add
-      --name={{ item.profile_name }}
-      --distro={{ item.distro_name }}
+      --name={{ item.profile_name | lower }}
+      --distro={{ item.distro_name | lower }}
       --kickstart=/var/lib/cobbler/kickstarts/{{ item.kickstart_file_name }}
   when: "item.profile_name not in registered_profiles"
   tags: register-cobbler-profiles
@@ -36,8 +36,8 @@
 - name: "Edit cobbler profile '{{profile_name}}'" 
   command: >
     cobbler profile edit 
-      --name={{ item.profile_name }}
-      --distro={{ item.distro_name }}
+      --name={{ item.profile_name | lower }}
+      --distro={{ item.distro_name  | lower }}
       --kickstart=/var/lib/cobbler/kickstarts/{{ item.kickstart_file_name }}
   when: "item.profile_name in registered_profiles"
   tags: register-cobbler-profiles

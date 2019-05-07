@@ -12,7 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
----
 
 - name: Get cobbler systems 
   cobbler_system:
@@ -34,25 +33,25 @@
     host: localhost
     username: "{{ cobbler_user }}"
     password: "{{ cobbler_password }}"
-    name: "{{ item.name }}" 
+    name: "{{ item.name | lower }}" 
     use_ssl: False
 #   state: "{{ item.state }}"
     properties:
-      hostname: "{{ item.hostname }}"
-      profile: "{{ item.profile }}"
+      hostname: "{{ item.hostname | lower }}"
+      profile: "{{ item.profile | lower }}"
       comment: "{{ item.comment | default('') }}"
       gateway: "{{ item.gateway | default('') }}"
       mgmt_classes: "{{ item.roles | default([]) }}"
       ks_meta: "{{ item.metadata | default({}) }}"
       name_servers: "{{ item.name_servers | default([]) }}"
-      name_servers_search: "{{ item.name_servers_search | default([]) }}"
+      name_servers_search: "{{ item.name_servers_search | default('') }}"
       netboot_enabled: "{{ item.netboot | default(False) }}"
   tags: register-cobbler-systems
 
 - name: "Add network interfaces to '{{ item.name }}'"
   include_tasks: tasks/register-cobbler-interfaces.yml
   vars:
-    system_name: "{{ item.name }}"
+    system_name: "{{ item.name | lower }}"
   loop: "{{ item.interfaces }}"
   loop_control:
     loop_var: interface

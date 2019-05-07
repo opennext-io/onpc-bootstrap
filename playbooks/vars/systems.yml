@@ -34,9 +34,9 @@
 # ----------------------------------------------------------------------
 
 cobbler_systems:
-  - name: opennext01
+  - name: opennext07
     comment: "This node is an infra node"
-    hostname: "{{ 'opennext01' + '.' + onpc_infra_domain }}"
+    hostname: "{{ 'infra' + '.' + onpc_infra_domain }}"
     profile: Infra-CentOS-7-x86_64
     gateway: "{{ onpc_default_gateway }}"
     name_servers:
@@ -104,7 +104,7 @@ cobbler_systems:
 
   - name: opennext08
     comment: "This node is a compute node"
-    hostname: "{{ 'opennext08' + '.' + onpc_infra_domain }}"
+    hostname: "{{ 'compute' + '.' + onpc_infra_domain }}"
     profile: Compute-CentOS-7-x86_64
     gateway: "{{ onpc_default_gateway }}"
     name_servers:
@@ -168,7 +168,7 @@ cobbler_systems:
 
   - name: opennext09
     comment: "This node is a ceph node"
-    hostname: "{{ 'opennext09' + '.' + onpc_infra_domain }}"
+    hostname: "{{ 'ceph' + '.' + onpc_infra_domain }}"
     profile: Ceph-CentOS-7-x86_64
     gateway: "{{ onpc_default_gateway }}"
     name_servers:

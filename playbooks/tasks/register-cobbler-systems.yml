@@ -45,7 +45,7 @@
       ks_meta: "{{ item.metadata | default({}) }}"
       name_servers: "{{ item.name_servers | default([]) }}"
       name_servers_search: "{{ item.name_servers_search | default('') }}"
-      netboot_enabled: "{{ item.netboot | default(False) }}"
+      netboot_enabled: "{{ item.netboot | default(True) }}"
   tags: register-cobbler-systems
 
 - name: "Add network interfaces to '{{ item.name }}'"

@@ -10,3 +10,7 @@
 
 - name: install cobbler on CentOS
   include: centos.yml
+
+- name: install cobber integration ansible
+  include: ansible.yml
+

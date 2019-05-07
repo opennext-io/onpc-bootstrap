@@ -94,17 +94,17 @@
     - name: Register Cobbler distros
       include_tasks: tasks/register-cobbler-distros.yml
       loop: "{{ cobbler_distros | default([]) }}"
-      tags: register-cobbler_distros
+      tags: cobbler-distros
 
     - name: Register Cobbler profiles
       include_tasks: tasks/register-cobbler-profiles.yml
       loop: "{{ cobbler_profiles | default([])}}"
-      tags: register-cobbler_distros
+      tags: cobbler-profiles
 
     - name: Register Cobbler systems
       include_tasks: tasks/register-cobbler-systems.yml
       loop: "{{ cobbler_systems }}"
-      tags: register-cobbler-systems
+      tags: cobbler-systems
     
     - name: Sync Cobbler database
       cobbler_sync:
@@ -115,4 +115,5 @@
       run_once: yes
       register: result
       failed_when: result.failed
-  
+      tags: cobbler-sync
+      

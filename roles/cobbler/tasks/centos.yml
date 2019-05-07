@@ -13,30 +13,33 @@
   yum: name=epel-release state=present
 
 # cobbler depends on PyYAML, createrepo, httpd, mod_wsgi, rsync, tftp-server and so on.
+- name: Set cobbler package dependencies
+  set_fact:
+    cobbler_packages:
+        - dhcp
+        - pykickstart
+        - createrepo
+        - httpd
+        - mkisofs
+        - mod_wsgi
+        - mod_ssl
+        - python-cheetah
+        - python-netaddr
+        - python-simplejson
+        - python-urlgrabber
+        - PyYAML
+        - rsync
+        - syslinux
+        - tftp-server
+        - yum-utils
+        - cobbler
+        - fence-agents
+
 - name: install related packages
   yum:
-    name: "{{ item }}"
+    name: "{{ cobbler_packages }}"
     state: present
-  with_items:
-    - dhcp
-    - pykickstart
-    - createrepo
-    - httpd
-    - mkisofs
-    - mod_wsgi
-    - mod_ssl
-    - python-cheetah
-    - python-netaddr
-    - python-simplejson
-    - python-urlgrabber
-    - PyYAML
-    - rsync
-    - syslinux
-    - tftp-server
-    - yum-utils
-    - cobbler
-    - fence-agents
-
+  
 - name: generate crypted password
   shell: openssl passwd -1 {{ cobbler_default_password }}
   register: result

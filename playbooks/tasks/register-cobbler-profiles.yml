@@ -1,8 +1,43 @@
 ---
-- name: import profiles to cobbler
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Get cobbler profiles 
+  command: >
+    cobbler profile list
+  register: result
+  tags: always 
+
+- name: Set registered_profiles facts
+  set_fact:
+    registered_profiles: "{{ result.stdout_lines | map('trim') | list | default([]) }}"
+  tags: always 
+
+- name: "Import cobbler profile '{{item.profile_name}}'"
   command: >
     cobbler profile add
       --name={{ item.profile_name }}
       --distro={{ item.distro_name }}
       --kickstart=/var/lib/cobbler/kickstarts/{{ item.kickstart_file_name }}
-  ignore_errors: true
+  when: "item.profile_name not in registered_profiles"
+  tags: register-cobbler-profiles
+
+- name: "Edit cobbler profile '{{profile_name}}'" 
+  command: >
+    cobbler profile edit 
+      --name={{ item.profile_name }}
+      --distro={{ item.distro_name }}
+      --kickstart=/var/lib/cobbler/kickstarts/{{ item.kickstart_file_name }}
+  when: "item.profile_name in registered_profiles"
+  tags: register-cobbler-profiles

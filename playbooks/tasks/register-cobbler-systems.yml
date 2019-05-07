@@ -1,4 +1,18 @@
 ---
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
 
 - name: Get cobbler systems 
   cobbler_system:
@@ -8,12 +22,14 @@
     use_ssl: False
     state: query
   register: result
+  tags: always
 
 - name: Set registered_systems facts
   set_fact:
-  registered_systems: "{{ result.systems | map(attribute='name') | list | default([]) }}"
+    registered_systems: "{{ result.systems | map(attribute='name') | list | default([]) }}"
+  tags: always
 
-- name: "Register '{{ item.name }}' into Cobbler"
+- name: "Register cobbler system '{{ item.name }}'"
   cobbler_system:
     host: localhost
     username: "{{ cobbler_user }}"
@@ -31,129 +47,13 @@
       name_servers: "{{ item.name_servers | default([]) }}"
       name_servers_search: "{{ item.name_servers_search | default([]) }}"
       netboot_enabled: "{{ item.netboot | default(False) }}"
+  tags: register-cobbler-systems
 
-- name: "Add the primary network iinterface to '{{ item.name }}'"
-  command: >
-    cobbler system edit
-      --name="{{ item.name }}"
-      --interface="{{ item.interfaces['primary'].device }}"
-      --interface-type="{{ item.interfaces['primary'].interface_type }}"
-      --interface-master="{{ item.interfaces['primary'].interface_master }}"
-      --ipaddress="{{ item.interfaces['primary'].ip_address | default('') }}"
-      --ifgateway="{{ item.interfaces['primary'].if_gateway | default('') }}" 
-      --macaddress="{{ item.interfaces['primary'].mac_address | default('') }}"
-      --static="{{ item.interfaces['primary'].static | default(True) }}" 
-      --bondingopts="{{ item.interfaces['primary'].bondig_opts | default('') }}" 
-      --bridgeopts="{{ item.interfaces['primary'].bridge_opts | default('') }}" 
-      --dnsname="{{ item.interfaces['primary'].dns_name | default('') }}"
-      --interfacemaster="{{ item.interfaces['primary'].interface_master | default('') }}" 
-      --management="{{ item.interfaces['primary'].management | default(True) }}" 
-      --netmask="{{ item.interfaces['primary'].netmask | default('') }}" 
-      --staticroutes="{{ item.interfaces['primary'].static_routes | default([]) }}" 
-  register: result
-  failed_when: result.rc != 0
-  when: item.interfaces['primary'] is defined
-
-- name: "Add the secondary network interface to '{{ item.name }}'"
-  command: >
-    cobbler system edit
-      --name="{{ item.name }}"
-      --interface="{{ item.interfaces['secondary'].device }}"
-      --interface-type="{{ item.interfaces['secondary'].interface_type }}"
-      --interface-master="{{ item.interfaces['secondary'].interface_master }}"
-      --ipaddress="{{ item.interfaces['secondary'].ip_address | default('') }}"
-      --ifgateway="{{ item.interfaces['secondary'].if_gateway | default('') }}" 
-      --macaddress="{{ item.interfaces['secondary'].mac_address | default('') }}"
-      --static="{{ item.interfaces['secondary'].static | default(True) }}" 
-      --bondingopts="{{ item.interfaces['secondary'].bondig_opts | default('') }}" 
-      --bridgeopts="{{ item.interfaces['secondary'].bridge_opts | default('') }}" 
-      --dnsname="{{ item.interfaces['secondary'].dns_name | default('') }}"
-      --interfacemaster="{{ item.interfaces['secondary'].interface_master | default('') }}" 
-      --management="{{ item.interfaces['secondary'].management | default(True) }}" 
-      --netmask="{{ item.interfaces['secondary'].netmask | default('') }}" 
-      --staticroutes="{{ item.interfaces['secondary'].static_routes | default([]) }}" 
-  register: result
-  failed_when: result.rc != 0
-  when: item.interfaces['secondary'] is defined
-
-- name: "Add the management network VLAN to '{{ item.name }}'"
-  command: >
-    cobbler system edit
-      --name="{{ item.name }}"
-      --interface="{{ item.interfaces['vlan_mgmt'].device }}"
-      --interface-type="{{ item.interfaces['vlan_mgmt'].interface_type }}"
-      --interface-master="{{ item.interfaces['vlan_mgmt'].interface_master }}"
-  register: result
-  failed_when: result.rc != 0
-  when: item.interfaces['vlan_mgmt'] is defined
-
-- name: "Add the management network bridge to '{{ item.name }}'"
-  command: >
-    cobbler system edit
-      --name="{{ item.name }}"
-      --interface="{{ item.interfaces['br_mgmt'].device }}"
-      --interface-type="{{ item.interfaces['br_mgmt'].interface_type }}"
-      --bridge-opts="{{ item.interfaces['br_mgmt'].bridge_opts }}"
-      --ip-address="{{ item.interfaces['br_mgmt'].ip_address }}"
-      --if-gateway="{{ item.interfaces['br_mgmt'].if_gateway }}"
-      --netmask="{{ item.interfaces['br_mgmt'].netmask }}"
-  register: result
-  failed_when: result.rc != 0
-  when: item.interfaces['br_mgmt'] is defined
-
-- name: "Add the storage network VLAN to '{{ item.name }}'"
-  command: >
-    cobbler system edit
-      --name="{{ item.name }}"
-      --interface="{{ item.interfaces['vlan_storage'].device }}"
-      --interface-type="{{ item.interfaces['vlan_storage'].interface_type }}"
-      --interface-master="{{ item.interfaces['vlan_storage'].interface_master }}"
-  register: result
-  failed_when: result.rc != 0
-  when:
-    - item.interfaces['vlan_storage'] is defined
-    - "'storage' in item.roles"
-
-- name: "Add the storage network bridge to '{{ item.name }}'"
-  command: >
-    cobbler system edit
-      --name="{{ item.name }}"
-      --interface="{{ item.interfaces['br_storage'].device }}"
-      --interface-type="{{ item.interfaces['br_storage'].interface_type }}"
-      --bridge-opts="{{ item.interfaces['br_storage'].bridge_opts }}"
-      --ip-address="{{ item.interfaces['br_storage'].ip_address }}"
-      --if-gateway="{{ item.interfaces['br_storage'].if_gateway }}"
-      --netmask="{{ item.interfaces['br_storage'].netmask }}"
-  register: result
-  failed_when: result.rc != 0
-  when:
-    - item.interfaces['br_storage'] is defined
-    - "'storage' in item.roles"
-
-- name: "Add the tunnel network VLAN to '{{ item.name }}'"
-  command: >
-    cobbler system edit
-      --name="{{ item.name }}"
-      --interface="{{ item.interfaces['vlan_tunnel'].device }}"
-      --interface-type="{{ item.interfaces['vlan_tunnel'].interface_type }}"
-      --interface-master="{{ item.interfaces['vlan_tunnel'].interface_master }}"
-  register: result
-  failed_when: result.rc != 0
-  when:
-    - item.interfaces['vlan_tunnel'] is defined
-    - "('compute' in item.roles) or ('network' in item.roles)"
-
-- name: "Add the tunnel network bridge to '{{ item.name }}'"
-  command: >
-    cobbler system edit
-      --name="{{ item.name }}"
-      --interface="{{ item.interfaces['br_vxlan'].device }}"
-      --interface-type="{{ item.interfaces['br_vxlan'].interface_type }}"
-      --bridge-opts="{{ item.interfaces['br_vxlan'].bridge_opts }}"
-      --ip-address="{{ item.interfaces['br_vxlan'].ip_address }}"
-      --netmask="{{ item.interfaces['br_vxlan'].netmask }}"
-  register: result
-  failed_when: result.rc != 0
-  when:
-    - item.interfaces['br_vxlan'] is defined
-    - "('compute' in item.roles) or ('network' in item.roles)"
+- name: "Add network interfaces to '{{ item.name }}'"
+  include_tasks: tasks/register-cobbler-interfaces.yml
+  vars:
+    system_name: "{{ item.name }}"
+  loop: "{{ item.interfaces }}"
+  loop_control:
+    loop_var: interface
+  tags: register-cobbler-interfaces

@@ -46,6 +46,3 @@
     firewall-cmd --permanent --direct --get-rules ipv4 filter INPUT
   args:
     executable: /bin/bash
-  register: result
-
-- debug: var=result

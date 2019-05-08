@@ -46,8 +46,8 @@ onpc_valid_roles:
     - swift
 
 # The default gateway for the infra is assumed to be the master
-# node.
-onpc_default_gateway: 172.31.0.54
+# node primary network interface.
+onpc_default_gateway: 172.31.0.55
 
 # The default proxy server for the infra is assumed to be the gateway
 # node. The proxy server can either work transparently

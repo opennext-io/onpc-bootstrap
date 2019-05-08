@@ -53,7 +53,7 @@ cobbler_systems:
     netboot: true
     interfaces:
       # Primary (management) interface 
-      - device: eth0
+      - device: eno1
         dns_name: "{{ 'opennext01' + '.' + onpc_infra_domain }}"
         if_gateway: "{{ onpc_default_gateway }}"
         ip_address: 172.31.0.48
@@ -62,18 +62,18 @@ cobbler_systems:
         netmask: 255.255.255.0
         static: true
       # Secondary interface 
-      - device: eth1
+      - device: eno2
         interface_type: bridge_slave 
         interface_master: br-vlan
         mac_address: "00:25:90:d9:d3:7f" 
         static: true
       # Container/Host management VLAN interface
-      - device: eth0.10
+      - device: eno1.10
         interface_type: bridge_slave
         interface_master: br-mgmt
         static: true
       # OpenStack Networking (tunnel/overlay) VLAN interface
-      - device: eth1.30
+      - device: eno2.30
         interface_type: bridge_slave
         interface_master: br-vxlan
         static: true
@@ -81,7 +81,7 @@ cobbler_systems:
       # The compute, infra and network nodes must have an IP address 
       # on this bridge.
       - device: br-mgmt
-        bridge_opts: 'stp=no'
+        bridge_opts: 'STP=no'
         if_gateway: 172.29.236.1
         interface_type: bridge
         ip_address: 172.29.236.48
@@ -91,14 +91,14 @@ cobbler_systems:
       # The compute and network nodes must have an IP address
       # on this bridge.
       - device: br-vxlan
-        bridge_opts: 'stp=no'
+        bridge_opts: 'STP=no'
         interface_type: bridge
         ip_address: 172.29.240.48
         netmask: 255.255.252.0
         static: true
       # OpenStack Networking VLAN network bridge
       - device: br-vlan
-        bridge_opts: 'stp=no'
+        bridge_opts: 'STP=no'
         interface_type: bridge
         static: true
 
@@ -117,7 +117,7 @@ cobbler_systems:
     netboot: true
     state: present
     interfaces:
-      - device: eth0
+      - device: eno1
         dns_name: "{{ 'opennext08' + '.' + onpc_infra_domain }}"
         if_gateway: "{{ onpc_default_gateway }}"
         ip_address: 172.31.0.57
@@ -125,44 +125,44 @@ cobbler_systems:
         management: true
         netmask: 255.255.255.0
         static: true
-      - device: eth1
+      - device: eno2
         interface_type: bridge_slave 
         interface_master: br-vlan
         mac_address: "ac:1f:6b:46:94:ed" 
         static: true
-      - device: eth0.10
+      - device: eno1.10
         interface_type: bridge_slave 
         interface_master: br-mgmt 
         static: true
-      - device: eth0.20
+      - device: eno1.20
         interface_type: bridge_slave 
         interface_master: br-storage 
         static: true
-      - device: eth1.30
+      - device: eno2.30
         interface_type: bridge_slave 
         interface_master: br-vxlan
         static: true
       - device: br-mgmt
-        bridge_opts: 'stp=no'
+        bridge_opts: 'STP=no'
         if_gateway: 172.29.236.1
         interface_type: bridge
         ip_address: 172.29.236.57
         netmask: 255.255.252.0
         static: true
       - device: br-storage
-        bridge_opts: 'stp=no'
+        bridge_opts: 'STP=no'
         interface_type: bridge
         ip_address: 172.29.244.57
         netmask: 255.255.252.0
         static: true
       - device: br-vxlan
-        bridge_opts: 'stp=no'
+        bridge_opts: 'STP=no'
         interface_type: bridge
         ip_address: 172.29.240.57
         netmask: 255.255.252.0
         static: true
       - device: br-vlan
-        bridge_opts: 'stp=no'
+        bridge_opts: 'STP=no'
         interface_type: bridge
         static: true
 
@@ -181,7 +181,7 @@ cobbler_systems:
     netboot: true
     state: present
     interfaces:
-      - device: eth0
+      - device: eno1
         dns_name: "{{ 'opennext09' + '.' + onpc_infra_domain }}"
         if_gateway: "{{ onpc_default_gateway }}"
         ip_address: 172.31.0.58
@@ -189,26 +189,26 @@ cobbler_systems:
         management: true
         netmask: 255.255.255.0
         static: true
-      - device: eth1
+      - device: eno2
         mac_address: "0c:c4:7a:6c:99:07" 
         static: true
-      - device: eth0.10
+      - device: eno1.10
         interface_type: bridge_slave 
         interface_master: br-mgmt 
         static: true
-      - device: eth0.20
+      - device: eno1.20
         interface_type: bridge_slave 
         interface_master: br-storage 
         static: true
       - device: br-mgmt
-        bridge_opts: 'stp=no'
+        bridge_opts: 'STP=no'
         if_gateway: 172.29.236.1
         interface_type: bridge
         ip_address: 172.29.236.58
         netmask: 255.255.252.0
         static: true
       - device: br-storage
-        bridge_opts: 'stp=no'
+        bridge_opts: 'STP=no'
         interface_type: bridge
         ip_address: 172.29.244.58
         netmask: 255.255.252.0

@@ -54,10 +54,10 @@ cobbler_systems:
     interfaces:
       # Primary (management) interface 
       - device: eno1
-        dns_name: "{{ 'opennext01' + '.' + onpc_infra_domain }}"
+        dns_name: "{{ 'infra' + '.' + onpc_infra_domain }}"
         if_gateway: "{{ onpc_default_gateway }}"
         ip_address: 172.31.0.48
-        mac_address: "00:25:90:d9:d3:7e" 
+        mac_address: "ac:1f:6b:47:3f:c8"
         management: true
         netmask: 255.255.255.0
         static: true
@@ -65,7 +65,7 @@ cobbler_systems:
       - device: eno2
         interface_type: bridge_slave 
         interface_master: br-vlan
-        mac_address: "00:25:90:d9:d3:7f" 
+        mac_address: "ac:1f:6b:47:3f:c9" 
         static: true
       # Container/Host management VLAN interface
       - device: eno1.10
@@ -118,7 +118,7 @@ cobbler_systems:
     state: present
     interfaces:
       - device: eno1
-        dns_name: "{{ 'opennext08' + '.' + onpc_infra_domain }}"
+        dns_name: "{{ 'compute' + '.' + onpc_infra_domain }}"
         if_gateway: "{{ onpc_default_gateway }}"
         ip_address: 172.31.0.57
         mac_address: "ac:1f:6b:46:94:ec" 
@@ -182,10 +182,10 @@ cobbler_systems:
     state: present
     interfaces:
       - device: eno1
-        dns_name: "{{ 'opennext09' + '.' + onpc_infra_domain }}"
+        dns_name: "{{ 'ceph' + '.' + onpc_infra_domain }}"
         if_gateway: "{{ onpc_default_gateway }}"
         ip_address: 172.31.0.58
-        mac_address: "0c:c4:7a:6c:99:06" 
+        mac_address: "0c:c4:7a:6c:99:06"
         management: true
         netmask: 255.255.255.0
         static: true

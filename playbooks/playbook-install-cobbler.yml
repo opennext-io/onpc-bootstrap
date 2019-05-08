@@ -1,0 +1,80 @@
+---
+# Copyright (c) 2018, OpenNext SAS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Install Cobbler server
+  hosts: localhost
+  connection: local
+  become: true
+  become_user: root
+
+  vars_files:
+    - vars/main.yml
+    - vars/systems.yml
+    - vars/users.yml
+    - vars/partitions.yml
+    - vars/cobbler.yml
+
+  pre_tasks:
+    - assert:
+        that: "{{ oncp_master_root_public_key | length > 0 }}" 
+        msg: "user 'root' public key is undefined"
+
+    - name: Create directory for ISOs download
+      file:
+        state: directory
+        path: /var/tmp/isos
+
+    - name: Check ISO not already downloaded
+      stat:
+        path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
+      register: result
+      tags: always
+
+    - name: Download distros ISOs
+      get_url:
+        url: "{{ item.url }}"
+        dest: "/var/tmp/isos/{{ item.name }}"
+        timeout: 600   # big files might take a while to download
+        mode: 0440
+      register: download_result
+      until: download_result is succeeded
+      retries: 5 
+      delay: 15
+      failed_when: download_result is failure
+      with_items:
+        - { name: CentOS-7-x86_64-DVD-1810.iso, url: "http://mirror.plusserver.com/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso" }
+      when: result.stat.exists == false
+      tags: download-distros
+
+  roles:
+    - role: ../roles/cobbler
+      cobbler_default_password: change!me
+      cobbler_server: "{{ ansible_default_ipv4.address }}"
+      cobbler_next_server: "{{ ansible_default_ipv4.address }}"
+      cobbler_subnet: "{{ ansible_default_ipv4.network }}"
+      cobbler_netmask: "{{ ansible_default_ipv4.netmask }}"
+      cobbler_dynamic_bootp_start: "{{ ansible_default_ipv4.network | ipmath(100) }}"
+      cobbler_dynamic_bootp_end: "{{ ansible_default_ipv4.network | ipmath(120) }}"
+      cobbler_routers: "{{ ansible_default_ipv4.gateway }}"
+      cobbler_domain_name_servers: "8.8.8.8,8.8.4.4"
+      cobbler_subnet_mask: "{{ ansible_default_ipv4.netmask }}"
+      cobbler_install_web: true
+      cobbler_web_user_pwd:
+        - user_name: cobbler
+          password: change@me
+      cobbler_default_time_zone: "Europe/Paris"
+      cobbler_root_public_keys:
+        - "{{ oncp_master_root_public_key }}"
+      tags: install-cobbler

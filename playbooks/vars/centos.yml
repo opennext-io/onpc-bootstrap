@@ -32,6 +32,8 @@ packages_install:
   - lsof
   - lvm2
   - curl
+  - wget
+  - dig
   - ethtool
   - iputils
   - lvm2

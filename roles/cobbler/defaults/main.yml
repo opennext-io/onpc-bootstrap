@@ -15,8 +15,11 @@ cobbler_dynamic_bootp_end: 192.168.168.172
 cobbler_routers: 192.168.168.1
 cobbler_domain_name_servers: 192.168.168.1
 cobbler_subnet_mask: 255.255.255.0
-
-
+# As per OSA documentation, firewalld on the deployment
+# host should be disabled for CentOS.
+# See https://docs.openstack.org/project-deploy-guide/openstack-ansible/rocky/deploymenthost.html
+# For further details.
+cobbler_firewalld_enabled: False
 
 # cobbler web
 cobbler_install_web: true

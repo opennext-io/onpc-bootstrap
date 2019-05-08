@@ -30,12 +30,12 @@
     name: "{{ master_packages_remove }}"
     state: absent
   tags:
-    - remove-packages
+    - remove-master-packages
 
 - name: Install packages
   package:
-    name: "{{ master_packages_remove }}"
+    name: "{{ master_packages_install }}"
     state: present
     update_cache: "{{ (ansible_pkg_mgr in ['apt', 'zypper']) | ternary('yes', 'omit') }}"
   tags:
-    - install-packages
+    - install-master-packages

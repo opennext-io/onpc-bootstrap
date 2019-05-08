@@ -7,6 +7,15 @@
 
 - name: configure firewalld for Cobbler
   include: firewalld.yml
+  when: "cobbler_firewalld_enabled"
+
+- name: Disable firewalld
+  service:
+    name: firewalld
+    enabled: false
+    masked: true
+    state: stopped
+  when: "not cobbler_firewalld_enabled"
 
 - name: install cobbler on CentOS
   include: centos.yml

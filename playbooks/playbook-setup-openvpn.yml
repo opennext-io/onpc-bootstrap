@@ -14,7 +14,7 @@
 # limitations under the License.
 
 - name: Setup Openvpn server
-  hosts: localhost
+  hosts: bastion_host
   connection: local
   become: true
   become_user: root

@@ -32,8 +32,10 @@
         - syslinux
         - tftp-server
         - yum-utils
-        - cobbler
+        - bind
+        - bind-utils
         - fence-agents
+        - cobbler
 
 - name: install related packages
   yum:

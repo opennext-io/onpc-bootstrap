@@ -56,7 +56,7 @@ cobbler_systems:
       - device: eno1
         dns_name: "{{ 'infra' + '.' + onpc_infra_domain }}"
         if_gateway: "{{ onpc_default_gateway }}"
-        ip_address: 172.31.0.48
+        ip_address: 172.31.0.56
         mac_address: "ac:1f:6b:47:3f:c8"
         management: true
         netmask: 255.255.255.0
@@ -68,7 +68,7 @@ cobbler_systems:
         mac_address: "ac:1f:6b:47:3f:c9" 
         static: true
       # Container/Host management VLAN interface
-      - device: eno1.10
+      - device: eno2.10
         interface_type: bridge_slave
         interface_master: br-mgmt
         static: true
@@ -82,9 +82,8 @@ cobbler_systems:
       # on this bridge.
       - device: br-mgmt
         bridge_opts: 'STP=no'
-        if_gateway: 172.29.236.1
         interface_type: bridge
-        ip_address: 172.29.236.48
+        ip_address: 172.29.236.56
         netmask: 255.255.252.0
         static: true
       # OpenStack Networking VXLAN (tunnel/overlay) network bridge.
@@ -93,7 +92,7 @@ cobbler_systems:
       - device: br-vxlan
         bridge_opts: 'STP=no'
         interface_type: bridge
-        ip_address: 172.29.240.48
+        ip_address: 172.29.240.56
         netmask: 255.255.252.0
         static: true
       # OpenStack Networking VLAN network bridge
@@ -130,11 +129,11 @@ cobbler_systems:
         interface_master: br-vlan
         mac_address: "ac:1f:6b:46:94:ed" 
         static: true
-      - device: eno1.10
+      - device: eno2.10
         interface_type: bridge_slave 
         interface_master: br-mgmt 
         static: true
-      - device: eno1.20
+      - device: eno2.20
         interface_type: bridge_slave 
         interface_master: br-storage 
         static: true
@@ -144,7 +143,6 @@ cobbler_systems:
         static: true
       - device: br-mgmt
         bridge_opts: 'STP=no'
-        if_gateway: 172.29.236.1
         interface_type: bridge
         ip_address: 172.29.236.57
         netmask: 255.255.252.0
@@ -202,7 +200,6 @@ cobbler_systems:
         static: true
       - device: br-mgmt
         bridge_opts: 'STP=no'
-        if_gateway: 172.29.236.1
         interface_type: bridge
         ip_address: 172.29.236.58
         netmask: 255.255.252.0

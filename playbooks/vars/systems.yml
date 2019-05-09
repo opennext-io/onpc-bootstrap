@@ -190,11 +190,11 @@ cobbler_systems:
       - device: eno2
         mac_address: "0c:c4:7a:6c:99:07" 
         static: true
-      - device: eno1.10
+      - device: eno2.10
         interface_type: bridge_slave 
         interface_master: br-mgmt 
         static: true
-      - device: eno1.20
+      - device: eno2.20
         interface_type: bridge_slave 
         interface_master: br-storage 
         static: true

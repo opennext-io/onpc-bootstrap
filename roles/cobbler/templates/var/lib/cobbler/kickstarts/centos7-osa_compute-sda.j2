@@ -101,6 +101,10 @@ $SNIPPET('log_ks_post_nochroot')
 %end
 
 %post
+systemctl disable NetworkManagea.service
+systemctl enable network.service
+systemctl mask NetworkManager.service
+
 $SNIPPET('log_ks_post')
 {% if onpc_users_list is defined and onpc_users_list | length > 0 %}
 ## Import ssh keys

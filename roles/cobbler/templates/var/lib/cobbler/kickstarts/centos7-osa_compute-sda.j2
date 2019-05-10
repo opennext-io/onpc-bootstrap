@@ -93,6 +93,8 @@ bridge-utils
 iputils
 lsof
 lvm2
+bind-utils
+wget
 $SNIPPET('func_install_if_enabled')
 %end
 
@@ -101,10 +103,6 @@ $SNIPPET('log_ks_post_nochroot')
 %end
 
 %post
-systemctl disable NetworkManagea.service
-systemctl enable network.service
-systemctl mask NetworkManager.service
-
 $SNIPPET('log_ks_post')
 {% if onpc_users_list is defined and onpc_users_list | length > 0 %}
 ## Import ssh keys
@@ -113,12 +111,15 @@ sshkey --username={{ user.name}} "{{ user.key }}"
 {% endfor %}
 {% endif %}
 sed -i -e 's|^# %wheel\tALL=(ALL)\tNOPASSWD: ALL|%wheel\tALL=(ALL)\tNOPASSWD: ALL|; s|^Defaults requiretty|#&|' /etc/sudoers
-# Install OpenStack RDO packages 
-#rpm -Uvh https://rdoproject.org/repos/openstack-rocky/rdo-release-rocky.rpm
 # Start yum configuration
 $yum_config_stanza
 # End yum configuration
 $SNIPPET('post_install_kernel_options')
+## NetworkManager is incompatible with Linux Bridge
+systemctl stop NetworkManager.service
+systemctl disable NetworkManager.service
+systemctl mask NetworkManager.service
+systemctl enable network.service
 $SNIPPET('post_install_network_config')
 $SNIPPET('func_register_if_enabled')
 $SNIPPET('download_config_files')

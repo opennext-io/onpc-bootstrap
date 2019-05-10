@@ -61,6 +61,10 @@
 - name: change 'disable' to 'no' in /etc/xinetd.d/tftp
   lineinfile: dest=/etc/xinetd.d/tftp regexp="disable" line="disable = no" backup=yes
 
+- name: template /etc/named.conf
+  template: src=etc/named.conf.j2 dest=/etc/named.conf backup=yes
+  notify: restart named
+
 #----------------
 # begin add snippets and kickstarts
 #----------------
@@ -123,6 +127,7 @@
     - rsyncd
     - tftp
     - httpd
+    - named
     - cobblerd
 
 - name: cobbler get-loaders

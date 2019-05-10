@@ -67,7 +67,7 @@
       cobbler_dynamic_bootp_start: "{{ ansible_default_ipv4.network | ipmath(100) }}"
       cobbler_dynamic_bootp_end: "{{ ansible_default_ipv4.network | ipmath(120) }}"
       cobbler_routers: "{{ ansible_default_ipv4.gateway }}"
-      cobbler_domain_name_servers: "8.8.8.8,8.8.4.4"
+      cobbler_domain_name_servers: "8.8.8.8, 8.8.4.4"
       cobbler_subnet_mask: "{{ ansible_default_ipv4.netmask }}"
       cobbler_install_web: true
       cobbler_manage_dns: 1

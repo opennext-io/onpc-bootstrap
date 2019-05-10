@@ -1,0 +1,24 @@
+options {
+          listen-on port 53 { 127.0.0.1; 172.31.0.55; 172.29.236.1; };
+          directory       "/var/named";
+          dump-file       "/var/named/data/cache_dump.db";
+          statistics-file "/var/named/data/named_stats.txt";
+          memstatistics-file "/var/named/data/named_mem_stats.txt";
+          allow-query     { localhost; 172.31.0.0/24; 172.29.236.0/22; };
+          {% if cobbler_domain_name_servers is defined %}
+          {% set sel=[] %}
+          {% for server in cobbler_domain_name_servers %}
+          {% set _ = sel.append(server + ';') %}
+          {% endfor %}
+          forwarders      { sel | join() };
+          {% endif %}
+          recursion yes;
+};
+
+logging {
+        channel default_debug {
+                file "data/named.run";
+                severity dynamic;
+        };
+};
+

@@ -23,6 +23,7 @@
     - vars/main.yml
     - vars/users.yml
     - vars/partitions.yml
+    - vars/networks.yml
     - vars/cobbler.yml
 
   pre_tasks:

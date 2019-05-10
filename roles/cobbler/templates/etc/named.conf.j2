@@ -1,17 +1,32 @@
+// {{ ansible_managed }}
 options {
-          listen-on port 53 { 127.0.0.1; 172.31.0.55; 172.29.236.1; };
+{% if ansible_br_mgmt is defined %}
+          listen-on port 53 { 127.0.0.1; {{ ansible_default_ipv4.address }}; {{ ansible_br_mgmt.ipv4.address }}; };
+{% else %}
+          listen-on port 53 { 127.0.0.1; {{ ansible_default_ipv4 }}; };
+{% endif %}
           directory       "/var/named";
           dump-file       "/var/named/data/cache_dump.db";
           statistics-file "/var/named/data/named_stats.txt";
           memstatistics-file "/var/named/data/named_mem_stats.txt";
-          allow-query     { localhost; 172.31.0.0/24; 172.29.236.0/22; };
-          {% if cobbler_domain_name_servers is defined %}
-          {% set sel=[] %}
-          {% for server in cobbler_domain_name_servers %}
-          {% set _ = sel.append(server + ';') %}
-          {% endfor %}
-          forwarders      { sel | join() };
-          {% endif %}
+{% set default_netmask = ansible_default_ipv4.network ~ '/' ~  ansible_default_ipv4.netmask %}
+{% if ansible_br_mgmt is defined %}
+{% set br_mgmt_netmask = ansible_br_mgmt.ipv4.network ~ '/' ~ ansible_br_mgmt.ipv4.netmask %} 
+          allow-query     { localhost; {{ default_netmask | ipaddr('net') }}; {{ br_mgmt_netmask | ipaddr('net') }}; };
+{% else %}
+          allow-query     { localhost; {{ default_netmask | ipaddr('net') }}; };
+{% endif %}
+{% if cobbler_domain_name_servers is defined %}
+{% set servers = cobbler_domain_name_servers.split(',') %}
+{% set sel='{ ' %}
+{% for server in servers %}
+{% set sel = sel ~ server ~ '; ' %}
+{% if loop.last %}
+{% set sel = sel ~ ' };' %}
+          forwarders      {{ sel }}
+{% endif %}
+{% endfor %}
+{% endif %}
           recursion yes;
 };
 
@@ -21,4 +36,5 @@ logging {
                 severity dynamic;
         };
 };
+
 

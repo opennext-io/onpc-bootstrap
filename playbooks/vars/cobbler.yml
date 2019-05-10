@@ -40,3 +40,8 @@ cobbler_profiles:
   - profile_name: swift-centos-7-x86_64
     distro_name: centos-7-x86_64
     kickstart_file_name: centos7-osa_swift-sda.ks
+
+manage_forward_zones:
+  - {{ onpc_infra_domain }}
+manage_reverse_zones:
+  - {{ management_network.split('.')[:-2] | join('.') }}

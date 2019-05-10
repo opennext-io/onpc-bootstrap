@@ -35,13 +35,14 @@
     - vars/systems.yml
     - vars/users.yml
     - vars/partitions.yml
+    - vars/networks.yml
     - vars/cobbler.yml
   
   tasks:
     - name: Set common facts
-      include_tasks: tasks/setup_common_facts.yml
+      include_tasks: tasks/setup-common-facts.yml
       tags: setup-common-facts
-      
+
     - name: Register Cobbler mgmt classes
       include_tasks: tasks/register-cobbler-mgmt-classes.yml
       tags: register-cobbler-mgmt-classes

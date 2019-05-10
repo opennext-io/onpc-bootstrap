@@ -13,26 +13,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#
 # The default gateway for the infra is assumed to be the
 # management interface (br-mgmt) of the master node.
-- name: Set onpc_default_gateway fact
+- name: Set onpc_default_gateway_cidr fact
   set_fact:
-    - onpc_default_gateway: "{{ management_network | ipaddr('net') | ipaddr('1').split('/')[0] }}"
+    onpc_default_gateway_cidr: "{{ management_network | ipaddr('net') | ipaddr('1') }}"
+
+- name: Set onpc_default_gateway 
+  set_fact:
+    onpc_default_gateway: "{{ onpc_default_gateway_cidr.split('/')[0] }}"
   
 # The default proxy server for the infra is assumed to be the default
 # gateway.
 - name: Set onpc_proxy_server facts
   set_fact:
-    - onpc_proxy_server: "{{ onpc_proxy_server | default(onpc_default_gateway) }}"
-    - onpc_proxy_port: "{{ onpc_transparent_proxy | ternary('3128', '8000') }}"
+    onpc_proxy_server: "{{ onpc_proxy_server | default(onpc_default_gateway) }}"
+    onpc_proxy_port: "{{ onpc_transparent_proxy | ternary('3128', '8000') }}"
   when: "onpc_limited_connectivity"
 
 # The default time server is assumed to be the default gateway.
 - name: Set onpc_time_server
   set_fact:
-    - onpc_time_server: "{{ time_server | default(onpc_default_gateway) }}"
+    onpc_time_server: "{{ time_server | default(onpc_default_gateway) }}"
 
 # The default DNS server is assumed to be the default gateway.
 - name: Set onpc_dns_server
   set_fact:
-    - onpc_dns_server: "{{ dns_server | default(onpc_default_gateway) }}"
+    onpc_dns_server: "{{ dns_server | default(onpc_default_gateway) }}"

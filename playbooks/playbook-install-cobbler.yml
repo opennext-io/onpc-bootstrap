@@ -59,7 +59,6 @@
 
   roles:
     - role: ../roles/cobbler
-      cobbler_default_password: change!me
       cobbler_server: "{{ ansible_default_ipv4.address }}"
       cobbler_next_server: "{{ ansible_default_ipv4.address }}"
       cobbler_subnet: "{{ ansible_default_ipv4.network }}"
@@ -67,14 +66,5 @@
       cobbler_dynamic_bootp_start: "{{ ansible_default_ipv4.network | ipmath(100) }}"
       cobbler_dynamic_bootp_end: "{{ ansible_default_ipv4.network | ipmath(120) }}"
       cobbler_routers: "{{ ansible_default_ipv4.gateway }}"
-      cobbler_domain_name_servers: "8.8.8.8, 8.8.4.4"
       cobbler_subnet_mask: "{{ ansible_default_ipv4.netmask }}"
-      cobbler_install_web: true
-      cobbler_manage_dns: 1
-      cobbler_web_user_pwd:
-        - user_name: cobbler
-          password: change@me
-      cobbler_default_time_zone: "Europe/Paris"
-      cobbler_root_public_keys:
-        - "{{ oncp_master_root_public_key }}"
       tags: install-cobbler

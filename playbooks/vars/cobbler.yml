@@ -41,7 +41,17 @@ cobbler_profiles:
     distro_name: centos-7-x86_64
     kickstart_file_name: centos7-osa_swift-sda.ks
 
-manage_forward_zones:
+cobbler_default_password: change!me
+cobbler_domain_name_servers: "8.8.8.8, 8.8.4.4"
+cobbler_install_web: true
+cobbler_manage_dns: 1
+cobbler_web_user_pwd:
+  - user_name: cobbler
+    password: change@me
+cobbler_default_time_zone: "Europe/Paris"
+cobbler_root_public_keys:
+        - "{{ oncp_master_root_public_key }}" 
+cobbler_forward_zones:
   - "{{ onpc_infra_domain }}"
-manage_reverse_zones:
+cobbler_reverse_zones:
   - "{{ management_network.split('.')[:-2] | join('.') }}"

@@ -263,8 +263,21 @@ manage_rsync: 0
 # if using BIND (named) for DNS management in /etc/cobbler/modules.conf
 # and manage_dns is enabled (above), this lists which zones are managed
 # See the Wiki (https://github.com/cobbler/cobbler/wiki/Dns-management) for more info
-manage_forward_zones: []
+
+{% if cobbler_forward_zones is defined and cobbler_forward_zones | length > 0 %}
+manage_forward_zones:
+{% for zone in cobbler_forward_zones %}
+  - {{ zone }}
+{% else %}
+  manage_forward_zones: []
+{% endif %}
+{% if cobbler_reverse_zone is defined and cobbler_reverse_zones | length > 0 %}
+manage_reverse_zones:
+{% for rev_zone in cobbler_forward_zones %}
+  - {{ rev_zone }}
+{% else %}
 manage_reverse_zones: []
+{% endif %}
 
 # if using cobbler with manage_dhcp, put the IP address
 # of the cobbler server here so that PXE booting guests can find it

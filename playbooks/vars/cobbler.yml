@@ -42,6 +42,6 @@ cobbler_profiles:
     kickstart_file_name: centos7-osa_swift-sda.ks
 
 manage_forward_zones:
-  - {{ onpc_infra_domain }}
+  - "{{ onpc_infra_domain }}"
 manage_reverse_zones:
-  - {{ management_network.split('.')[:-2] | join('.') }}
+  - "{{ management_network.split('.')[:-2] | join('.') }}"

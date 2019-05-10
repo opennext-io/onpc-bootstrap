@@ -45,9 +45,9 @@ onpc_valid_roles:
     - monitoring
     - swift
 
-# The default gateway for the infra is assumed to be the master
-# node primary network interface.
-onpc_default_gateway: 172.31.0.55
+# The default gateway for the infra is assumed to be the
+# management interface on the master node.
+onpc_default_gateway: "{{ management_network | ipaddr('net') | ipaddr('1').split('/')[0] }}"
 
 # The default proxy server for the infra is assumed to be the gateway
 # node. The proxy server can either work transparently

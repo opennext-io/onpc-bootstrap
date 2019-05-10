@@ -37,14 +37,14 @@ logging {
         };
 };
 
-#for $zone in $manage_forward_zones
+#for $zone in $forward_zones
 zone "${zone}." {
     type master;
     file "$zone";
 };
 
 #end for
-#for $zone, $arpa in $manage_reverse_zones
+#for $zone, $arpa in $reverse_zones
 zone "${arpa}." {
     type master;
     file "$zone";

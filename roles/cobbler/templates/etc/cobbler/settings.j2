@@ -268,6 +268,7 @@ manage_rsync: 0
 manage_forward_zones:
 {% for zone in cobbler_forward_zones %}
   - {{ zone }}
+{% endfor %}
 {% else %}
   manage_forward_zones: []
 {% endif %}
@@ -275,6 +276,7 @@ manage_forward_zones:
 manage_reverse_zones:
 {% for rev_zone in cobbler_forward_zones %}
   - {{ rev_zone }}
+{% endfor %}
 {% else %}
 manage_reverse_zones: []
 {% endif %}

@@ -45,23 +45,15 @@ onpc_valid_roles:
     - monitoring
     - swift
 
-# The default gateway for the infra is assumed to be the
-# management interface on the master node.
-onpc_default_gateway: "{{ management_network | ipaddr('net') | ipaddr('1').split('/')[0] }}"
+# onpc_limited_connectivity should be set to 'True' in
+# environments with no external (Internet) connectivity
+# besides the master node.
+onpc_limited_connectivity: True
 
-# The default proxy server for the infra is assumed to be the gateway
-# node. The proxy server can either work transparently
-# (eg. TCP port 3128 for MAAS). If not, the onpc_proxy_server variable
-# must be uncommented (default proxy port is 8000).
-#
-#onpc_proxy_server: "{{ proxy_server | default(onpc_default_gateway) }}"
-#onpc_proxy_port: 8000
-
-# The default time server is assumed to be the gateway node.
-onpc_time_server: "{{ time_server | default(onpc_default_gateway) }}"
-
-# The default DNS server is assumed to be the gateway node.
-onpc_dns_server: "{{ dns_server | default(onpc_default_gateway) }}"
+# The proxy server (squid) installed on the master node
+# can either work transparently on TCP port 3128 or not
+# transparently on port 8000.
+onpc_transparent_proxy: True
 
 ## Use a Slack channel for sending alerts.
 # onpc_slack_alerts:

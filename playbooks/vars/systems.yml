@@ -54,12 +54,12 @@ cobbler_systems:
     interfaces:
       # Primary (management) interface 
       - device: eno1
-        dns_name: "{{ 'infra' + '.' + onpc_infra_domain }}"
-        if_gateway: "{{ onpc_default_gateway }}"
-        ip_address: 172.31.0.56
+      # dns_name: "{{ 'infra' + '.' + onpc_infra_domain }}"
+      # if_gateway: "{{ onpc_default_gateway }}"
+      # ip_address: 172.31.0.56
         mac_address: "ac:1f:6b:47:3f:c8"
         management: true
-        netmask: 255.255.255.0
+      #  netmask: 255.255.255.0
         static: true
       # Secondary interface 
       - device: eno2
@@ -85,6 +85,7 @@ cobbler_systems:
         interface_type: bridge
         ip_address: 172.29.236.56
         netmask: 255.255.252.0
+        dns_name: "{{ 'infra' + '.' + onpc_infra_domain }}"
         static: true
       # OpenStack Networking VXLAN (tunnel/overlay) network bridge.
       # The compute and network nodes must have an IP address
@@ -108,7 +109,6 @@ cobbler_systems:
     gateway: "{{ onpc_default_gateway }}"
     name_servers:
       - "{{ onpc_dns_server }}"
-      - 172.29.236.1
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     roles:
@@ -117,19 +117,19 @@ cobbler_systems:
     state: present
     interfaces:
       - device: eno1
-        dns_name: "{{ 'compute' + '.' + onpc_infra_domain }}"
-        if_gateway: "{{ onpc_default_gateway }}"
-        ip_address: 172.31.0.57
-        mac_address: "ac:1f:6b:46:94:ec" 
+      # dns_name: "{{ 'compute' + '.' + onpc_infra_domain }}"
+      # if_gateway: "{{ onpc_default_gateway }}"
+      # ip_address: 172.31.0.57
+        mac_address: "ac:1f:6b:46:94:ec"
         management: true
-        netmask: 255.255.255.0
+      # netmask: 255.255.255.0
         static: true
       - device: eno2
         interface_type: bridge_slave 
         interface_master: br-vlan
         mac_address: "ac:1f:6b:46:94:ed" 
         static: true
-      - device: eno2.10
+      - device: eno1.10
         interface_type: bridge_slave 
         interface_master: br-mgmt 
         static: true
@@ -146,6 +146,8 @@ cobbler_systems:
         interface_type: bridge
         ip_address: 172.29.236.57
         netmask: 255.255.252.0
+        dns_name: "{{ 'compute' + '.' + onpc_infra_domain }}"
+        if_gateway: "{{ onpc_default_gateway }}"
         static: true
       - device: br-storage
         bridge_opts: 'STP=no'

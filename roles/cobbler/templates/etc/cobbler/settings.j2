@@ -272,9 +272,9 @@ manage_forward_zones:
 {% else %}
   manage_forward_zones: []
 {% endif %}
-{% if cobbler_reverse_zone is defined and cobbler_reverse_zones | length > 0 %}
+{% if cobbler_reverse_zones is defined and cobbler_reverse_zones | length > 0 %}
 manage_reverse_zones:
-{% for rev_zone in cobbler_forward_zones %}
+{% for rev_zone in cobbler_reverse_zones %}
   - {{ rev_zone }}
 {% endfor %}
 {% else %}

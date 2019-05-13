@@ -54,4 +54,4 @@ cobbler_root_public_keys:
 cobbler_forward_zones:
   - "{{ onpc_infra_domain }}"
 cobbler_reverse_zones:
-  - "{{ management_network.split('.')[:-2] | join('.') }}"
+  - "{{ management_network.split('.')[:-1] | join('.') }}"

@@ -69,3 +69,15 @@
       cobbler_routers: "{{ ansible_default_ipv4.gateway }}"
       cobbler_subnet_mask: "{{ ansible_default_ipv4.netmask }}"
       tags: install-cobbler
+  
+  post_tasks:
+    - name: Sync Cobbler database
+      cobbler_sync:
+        host: localhost
+        username: "{{ cobbler_user }}"
+        password: "{{ cobbler_password }}"
+        use_ssl: False
+      run_once: yes
+      register: result
+      failed_when: result.failed
+      tags: cobbler-sync

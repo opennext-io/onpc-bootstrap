@@ -74,6 +74,11 @@
             backup=yes
   when: cobbler_root_public_keys is defined
 
+- name: post_install_network_config snippnet
+  template: src=var/lib/cobbler/snippets/post_install_network_config.j2
+            dest=/var/lib/cobbler/snippets/post_install_network_config
+            backup=yes
+
 - name: post_install_network_config_ignore_interface snippnet
   template: src=var/lib/cobbler/snippets/post_install_network_config_ignore_interface.j2
             dest=/var/lib/cobbler/snippets/post_install_network_config_ignore_interface

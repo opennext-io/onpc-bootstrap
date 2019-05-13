@@ -101,6 +101,10 @@ rm -f /etc/sysconfig/network
 mv /etc/sysconfig/network.cobbler /etc/sysconfig/network
         #end if
     #end if
+    ##
+    ## Force NOZEROCONF to get read off 169.255 routes
+    ##
+echo "NOZEROCONF=yes" >> /etc/sysconfig/network
     ## =============================================================================
     ## now create the config file for each interface
     #for $iname in $ikeys
@@ -142,6 +146,7 @@ mv /etc/sysconfig/network.cobbler /etc/sysconfig/network
         ## Things every interface get, no matter what
         ## ===================================================================
 echo "DEVICE=$iname" > $devfile
+echo "NM_CONTROLLED=no" >> $devfile
 echo "ONBOOT=yes" >> $devfile
             #if $mac != "" and $iface_type not in ("master","bond","bridge","bonded_bridge_slave")
             ## virtual interfaces don't get MACs

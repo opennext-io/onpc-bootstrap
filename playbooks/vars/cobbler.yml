@@ -43,6 +43,8 @@ cobbler_profiles:
 
 cobbler_default_password: change!me
 cobbler_domain_name_servers: "8.8.8.8, 8.8.4.4"
+cobbler_bootp_range_start: 100
+cobbler_bootp_range_end: 120
 cobbler_install_web: true
 cobbler_manage_dns: 1
 cobbler_web_user_pwd:

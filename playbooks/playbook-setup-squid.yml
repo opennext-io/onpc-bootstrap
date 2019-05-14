@@ -44,10 +44,12 @@
     - name: Set common facts
       include_tasks: tasks/setup-common-facts.yml
       tags: setup-common-facts
-  role:
-    - role: squid
+
+  roles:
+    - role: ../roles/squid
       squid_acl_localnet:
-        - "{{ onpc_default_gateway_cidr }}"
+        - "{{ management_network }}"
+        - "{{ infra_network }}"
       squid_pri_domain_name: "{{ onpc_infra_domain }}"
       squid_transparent_proxy: "{{ onpc_transparent_proxy }}"
       squid_transparent_proxy_ferm: "{{ onpc_transparent_proxy | ternary(True, False) }}"

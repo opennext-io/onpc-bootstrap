@@ -64,8 +64,8 @@
       cobbler_next_server: "{{ ansible_default_ipv4.address }}"
       cobbler_subnet: "{{ ansible_default_ipv4.network }}"
       cobbler_netmask: "{{ ansible_default_ipv4.netmask }}"
-      cobbler_dynamic_bootp_start: "{{ ansible_default_ipv4.network | ipmath(100) }}"
-      cobbler_dynamic_bootp_end: "{{ ansible_default_ipv4.network | ipmath(120) }}"
+      cobbler_dynamic_bootp_start: "{{ ansible_default_ipv4.network | ipmath(cobbler_bootp_range_start) }}"
+      cobbler_dynamic_bootp_end: "{{ ansible_default_ipv4.network | ipmath(cobbler_bootp_range_end) }}"
       cobbler_routers: "{{ ansible_default_ipv4.gateway }}"
       cobbler_subnet_mask: "{{ ansible_default_ipv4.netmask }}"
       tags: install-cobbler

@@ -47,12 +47,14 @@ onpc_valid_roles:
 
 # onpc_limited_connectivity should be set to 'True' in
 # environments with no external (Internet) connectivity
-# besides the master node.
+# besides the master node. The master node setup will
+# install squid as a proxy server for the environment
+# onpc_limited_connectivity is set to true.
 onpc_limited_connectivity: True
 
 # The proxy server (squid) installed on the master node
-# can either work transparently on TCP port 3128 or not
-# transparently on port 8000.
+# can either work transparently on TCP port 3128 (default)
+# or as an explicit proxy bound to port 8000.
 onpc_transparent_proxy: True
 
 ## Use a Slack channel for sending alerts.

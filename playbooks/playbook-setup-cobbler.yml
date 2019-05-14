@@ -13,18 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# 
-# In order to import a distribution, you will need a DVD ISO for your
-# distribution. NOTE: You must use a full DVD, and not a "Live CD" ISO.
-# For this example, we'll be using the CentOS 7 x86_64 ISO, available
-# for download here.
-# http://isoredirect.centos.org/centos/7/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso
-#
-# Once this file is downloaded, mount it somewhere:
-#
-# $ mount -t iso9660 -o loop,ro /path/to/isos/CentOS-7-x86_64-DVD-1810.iso /mnt
-
-- name: Setup Cobbler server
+- name: Install Cobbler server
   hosts: localhost
   connection: local
   become: true
@@ -32,36 +21,56 @@
 
   vars_files:
     - vars/main.yml
-    - vars/systems.yml
     - vars/users.yml
     - vars/partitions.yml
     - vars/networks.yml
     - vars/cobbler.yml
+
+  pre_tasks:
+    - assert:
+        that: "{{ oncp_master_root_public_key | length > 0 }}" 
+        msg: "user 'root' public key is undefined"
+
+    - name: Create directory for ISOs download
+      file:
+        state: directory
+        path: /var/tmp/isos
+
+    - name: Check ISO not already downloaded
+      stat:
+        path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
+      register: result
+      tags: always
+
+    - name: Download distros ISOs
+      get_url:
+        url: "{{ item.url }}"
+        dest: "/var/tmp/isos/{{ item.name }}"
+        timeout: 600   # big files might take a while to download
+        mode: 0440
+      register: download_result
+      until: download_result is succeeded
+      retries: 5 
+      delay: 15
+      failed_when: download_result is failure
+      with_items:
+        - { name: CentOS-7-x86_64-DVD-1810.iso, url: "http://mirror.plusserver.com/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso" }
+      when: result.stat.exists == false
+      tags: download-distros
+
+  roles:
+    - role: ../roles/cobbler
+      cobbler_server: "{{ ansible_default_ipv4.address }}"
+      cobbler_next_server: "{{ ansible_default_ipv4.address }}"
+      cobbler_subnet: "{{ ansible_default_ipv4.network }}"
+      cobbler_netmask: "{{ ansible_default_ipv4.netmask }}"
+      cobbler_dynamic_bootp_start: "{{ ansible_default_ipv4.network | ipmath(100) }}"
+      cobbler_dynamic_bootp_end: "{{ ansible_default_ipv4.network | ipmath(120) }}"
+      cobbler_routers: "{{ ansible_default_ipv4.gateway }}"
+      cobbler_subnet_mask: "{{ ansible_default_ipv4.netmask }}"
+      tags: install-cobbler
   
-  tasks:
-    - name: Set common facts
-      include_tasks: tasks/setup-common-facts.yml
-      tags: setup-common-facts
-
-    - name: Register Cobbler mgmt classes
-      include_tasks: tasks/register-cobbler-mgmt-classes.yml
-      tags: register-cobbler-mgmt-classes
-
-    - name: Register Cobbler distros
-      include_tasks: tasks/register-cobbler-distros.yml
-      loop: "{{ cobbler_distros | default([]) }}"
-      tags: register-cobbler-distros
-
-    - name: Register Cobbler profiles
-      include_tasks: tasks/register-cobbler-profiles.yml
-      loop: "{{ cobbler_profiles | default([])}}"
-      tags: register-cobbler-profiles
-
-    - name: Register Cobbler systems
-      include_tasks: tasks/register-cobbler-systems.yml
-      loop: "{{ cobbler_systems }}"
-      tags: register-cobbler-systems
-    
+  post_tasks:
     - name: Sync Cobbler database
       cobbler_sync:
         host: localhost

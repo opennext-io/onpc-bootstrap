@@ -23,6 +23,13 @@
   vars_files:
     - vars/networks.yml
 
+  pre_tasks:
+    - name: Verify Ansible version meets requirements
+      assert:
+        that: "ansible_version.full is version_compare('2.7', '>=')"
+        msg: >-
+          "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
+          
   roles:
     - role: ../roles/openvpn
       openvpn_server_hostname: 80.93.82.55

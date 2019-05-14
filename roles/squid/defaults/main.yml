@@ -96,6 +96,7 @@ squid_http_access:
       - 'all'
 
 squid_http_port: '3128'
+squid_http_bind: '0.0.0.0'
 
 squid_icp_access: 'all'
 

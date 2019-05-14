@@ -45,9 +45,9 @@ icp_access allow {{ squid_icp_access }}
 icp_port {{ squid_icp_port }}
 {% endif %}
 {% if (squid_transparent_proxy is defined and not squid_transparent_proxy) or squid_transparent_proxy is not defined %}
-http_port {{ squid_http_port }}
+http_port {{ squid_http_bind ~ ':' ~ squid_http_port }}
 {% elif squid_transparent_proxy is defined and squid_transparent_proxy %}
-http_port {{ squid_http_port }} transparent
+http_port {{ squid_http_bind ~ ':' ~ squid_http_port }} transparent
 {% endif %}
 {% if squid_cache_peering %}
 {%   for item in squid_cache_peer %}

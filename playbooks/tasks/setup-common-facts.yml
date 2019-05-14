@@ -31,6 +31,10 @@
   vars:
     value: "{{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.netmask }}"
 
+- name: Set infra_master_address address fact
+  set_fact:
+    infra_master_address: "{{ ansible_default_ipv4.address }}"
+
 # The default proxy server for the infra is assumed to be the default
 # gateway.
 - name: Set onpc_proxy_server facts

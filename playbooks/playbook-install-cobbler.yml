@@ -27,9 +27,20 @@
     - vars/cobbler.yml
 
   pre_tasks:
-    - assert:
-        that: "{{ oncp_master_root_public_key | length > 0 }}" 
+    - name: Verify Ansible version meets requirements
+      assert:
+        that: "ansible_version.full is version_compare('2.7', '>=')"
+        msg: >-
+          "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
+    
+    - name: Verify oncp_master_root_public_key is properly defined
+      assert:
+        that: "{{ oncp_master_root_public_key | length > 0 }}"
         msg: "user 'root' public key is undefined"
+
+    - name: Set common facts
+      include_tasks: tasks/setup-common-facts.yml
+      tags: setup-common-facts
 
     - name: Create directory for ISOs download
       file:

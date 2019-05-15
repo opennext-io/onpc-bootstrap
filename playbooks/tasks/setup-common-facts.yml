@@ -60,3 +60,4 @@
 - name: Set onpc_dns_server
   set_fact:
     onpc_dns_server: "{{ dns_server | default(onpc_default_gateway) }}"
+    

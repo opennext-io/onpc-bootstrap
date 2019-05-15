@@ -11,7 +11,13 @@
 
 - include: config_squid.yml
 
-- include: config_squid_transparent_proxy.yml
+- include: squid_transparent_proxy_ferm.yml
   when: >
         squid_transparent_proxy and
         squid_transparent_proxy_ferm
+
+- include: squid_transparent_proxy_iptables.yml
+  when: >
+        squid_transparent_proxy and
+        squid_transparent_proxy_iptables
+

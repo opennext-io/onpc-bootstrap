@@ -9,13 +9,9 @@
   include: firewalld.yml
   when: "cobbler_firewalld_enabled"
 
-- name: Disable firewalld
-  service:
-    name: firewalld
-    enabled: false
-    masked: true
-    state: stopped
-  when: "not cobbler_firewalld_enabled"
+- name: configure iptables for Cobbler
+  include: iptables.yml
+  when: "cobbler_iptables_enabled"
 
 - name: install cobbler on CentOS
   include: centos.yml

@@ -15,7 +15,7 @@
 
 - name: Get cobbler systems 
   cobbler_system:
-    host: localhost
+    host: "{{ infra_master_address }}"
     username: "{{ cobbler_user }}" 
     password: "{{ cobbler_password }}" 
     use_ssl: False

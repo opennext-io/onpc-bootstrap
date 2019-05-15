@@ -22,7 +22,7 @@ master_packages_install:
   - python-dev
   - sudo
 
-master_packages_remove:
+master_packages_remove: []
 
 packages_install:
   - bridge-utils

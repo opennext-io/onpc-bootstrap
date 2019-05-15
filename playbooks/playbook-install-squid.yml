@@ -52,7 +52,10 @@
         - "{{ infra_network }}"
       squid_pri_domain_name: "{{ onpc_infra_domain }}"
       squid_transparent_proxy: "{{ onpc_transparent_proxy }}"
-      squid_transparent_proxy_ferm: "{{ onpc_transparent_proxy | ternary(True, False) }}"
       squid_http_port: "{{ onpc_proxy_port }}"
-      squid_http_bind: "{{ infra_master_address }}"
+      squid_http_bind: "{{ onpc_default_gateway }}"
+      squid_http_interface: "{{ management_master_interface }}"
       when: onpc_limited_connectivity
+  
+  post_tasks:
+    

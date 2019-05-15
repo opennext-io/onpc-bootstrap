@@ -41,6 +41,8 @@ cobbler_profiles:
     distro_name: centos-7-x86_64
     kickstart_file_name: centos7-osa_swift-sda.ks
 
+cobbler_firewalld_enabled: False
+cobbler_iptables_enabled: True
 cobbler_default_password: change!me
 cobbler_domain_name_servers: "8.8.8.8, 8.8.4.4"
 cobbler_bootp_range_start: 100

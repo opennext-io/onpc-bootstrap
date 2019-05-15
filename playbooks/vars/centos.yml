@@ -21,7 +21,8 @@ master_packages_install:
   - '@Development Tools'
   - https://rdoproject.org/repos/openstack-rocky/rdo-release-rocky.rpm
 
-master_packages_remove: []
+master_packages_remove:
+  - firewalld
 
 packages_install:
   - openssh-server
@@ -46,6 +47,7 @@ packages_remove:
   - centos-release-ceph-jewel
   - centos-release-qemu-ev
   - centos-release-storage-common
+  - firewalld
 
 rc_local: /etc/rc.d/rc.local
 rc_local_insert_before: "^touch /var/lock/subsys/local$"

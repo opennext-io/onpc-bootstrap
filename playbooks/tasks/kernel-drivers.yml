@@ -58,7 +58,7 @@
     state: present
   when: ansible_distribution | lower == 'centos'
 
-- name: stop and mask firewall
+- name: stop and mask firewalld service
   systemd:
     name: firewalld
     state: stopped

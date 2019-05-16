@@ -1,5 +1,4 @@
 ---
-# Copyright 2015, Rackspace US, Inc.
 # Copyright 2018 (c), OpenNext SAS.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,20 +21,26 @@
     - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
     - "{{ ansible_distribution | lower }}.yml"
     - "{{ ansible_os_family | lower }}.yml"
-  tags:
-    - always
+  tags: always
     
-- name: Remove known problem packages
+- name: Remove OSA nodes known problem packages
   package:
     name: "{{ packages_remove }}"
     state: absent
-  tags:
-    - remove-packages
+  tags: remove-packages
 
-- name: Install packages
-  package:
-    name: "{{ packages_install }}"
+- name: Install OSA nodes packages (RedHat/CentOS)
+  yum:
+    name: "{{ master_packages_install }}"
     state: present
-    update_cache: "{{ (ansible_pkg_mgr in ['apt', 'zypper']) | ternary('yes', 'omit') }}"
-  tags:
-    - install-node-packages
+    update_cache: true
+  when: ansible_os_family == "RedHat"
+  tags: install-nodes-packages
+
+- name: Install OSA nodes packages (Debian/Ubuntu)
+  apt:
+    name: "{{ master_packages_install }}"
+    state: present
+    update_cache: true
+  when: ansible_os_family == "Debian"
+  tags: install-nodes-packages

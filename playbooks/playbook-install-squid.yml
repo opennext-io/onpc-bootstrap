@@ -24,7 +24,7 @@
 #
 # $ mount -t iso9660 -o loop,ro /path/to/isos/CentOS-7-x86_64-DVD-1810.iso /mnt
 
-- name: Setup Cobbler server
+- name: Install Squid proxy server
   hosts: localhost
   connection: local
   become: true

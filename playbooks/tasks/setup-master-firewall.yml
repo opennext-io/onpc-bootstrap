@@ -31,3 +31,31 @@
     name: "{{ iptables_service }}"
     enabled: true
     state: started
+
+# Set default rules with weight 10 and disregard all unmanaged rules
+- name: Set default master ACCEPT iptables rules
+  iptables_raw:
+    name: default_master_accept_rules
+    weight: 10
+    backup: yes
+    keep_unmanaged: no
+    rules: |
+      -P INPUT ACCEPT
+      -P FORWARD ACCEPT
+      -P OUTPUT ACCEPT
+      -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+      -A INPUT -p icmp -j ACCEPT
+      -A INPUT -i lo -j ACCEPT
+      -A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+      -A INPUT -p udp -m state --state NEW -m udp --dport 123 -j ACCEPT
+
+# Set default rules with weight 10 and disregard all unmanaged rules
+- name: Set default master REJECT iptables rules
+  iptables_raw:
+    name: default_master_reject_rules
+    weight: 95
+    backup: yes
+    keep_unmanaged: no
+    rules: |
+      -A INPUT -j REJECT --reject-with icmp-host-prohibited
+      -A FORWARD -j REJECT --reject-with icmp-host-prohibited

@@ -37,16 +37,18 @@
     - name: Check for a supported Operating System plateforms
       assert:
         that:
-          - (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'xenial') or
-            (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic') or
-            (ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7')
+          - ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
         msg: >
-          The only supported platforms for this release are Ubuntu 16.04 LTS (Xenial), Ubuntu 18.04 LTS (Bionic) and CentOS 7(WIP)
-      when: (check_operating_system | default(True))| bool
-      tags: check-operating-system
+          The only supported Linux distribution to install the ONPC master node is CentOS 7
     - import_tasks: tasks/setup-common-facts.yml
       tags: always
     - import_tasks: tasks/install-master-packages.yml
       tags: install-master-packages
     - import_tasks: tasks/setup-master-firewall.yml
       tags: setup-master-firewall
+    - import_playbook: playbook-install-cobbler.yml
+      when: "onpc_install_cobbler is defined and onpc_install_cobbler"
+      tags: install-cobbler
+    - import_playbook: playbook-install-squid.yml
+      when: "onpc_limited_connectivity is defined and onpc_limited_connectivity"
+      tags: install-squid

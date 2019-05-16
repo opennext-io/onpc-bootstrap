@@ -54,4 +54,3 @@
       squid_http_port: "{{ onpc_proxy_port }}"
       squid_http_bind: "{{ onpc_default_gateway }}"
       squid_http_interface: "{{ management_master_interface }}"
-      when: onpc_limited_connectivity

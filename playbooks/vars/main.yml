@@ -45,11 +45,23 @@ onpc_valid_roles:
     - monitoring
     - swift
 
+# Cobbler is the only fully supported and functional way
+# to deploy an OpenStack environment with ONPC/OSA.
+# Other node provisioning tools (such as MAAS) has been
+# used with varios degrees of succuess and as such are
+# fully tested nor supported out-of-the-box. Some tweaking
+# in the master install / setup playbooks may be required.
+onpc_install_cobbler: True
+
 # onpc_limited_connectivity should be set to 'True' in
 # environments with no external (Internet) connectivity
 # besides the master node. The master node setup will
-# install squid as a proxy server for the environment
-# onpc_limited_connectivity is set to true.
+# install Squid as a proxy server for the environment
+# when onpc_limited_connectivity is set to True.
+# If onpc_limited_connectivity is set to False, Squid
+# will not be installed which requires all nodes of the
+# OpenStack environment to have full access to the Internet
+# to download packages.
 onpc_limited_connectivity: True
 
 # The proxy server (squid) installed on the master node

@@ -31,14 +31,14 @@
 
 - name: Enable Squid ports
   shell: |
-    iptables -A INPUT -i "{{squid_http_interface}}" -p tcp --dport "{{squid_http_port}}" -j ACCEPT
-    iptables -A INPUT -i "{{squid_http_interface}}" -p udp --dport "{{squid_http_port}}" -j ACCEPT"
+    iptables -A INPUT -i "{{ squid_http_interface }}" -p tcp --dport "{{ squid_http_port }}" -j ACCEPT
+    iptables -A INPUT -i "{{ squid_http_interface }}" -p udp --dport "{{ squid_http_port }}" -j ACCEPT
   args:
     executable: /bin/bash
 
 - name: Enable Squid port redirect
   shell: |
-    iptables -A PREROUTING -t nat -i "{{squid_http_interface}}" -p tcp ! -d "{{squid_http_bind}}" --dport 80 -j REDIRECT --to-port "{{squid_http_port}}"
+    iptables -A PREROUTING -t nat -i "{{ squid_http_interface }}" -p tcp ! -d "{{ squid_http_bind }}" --dport 80 -j REDIRECT --to-port "{{ squid_http_port }}"
   args:
     executable: /bin/bash
   when: "squid_transparent_proxy is defined and squid_transparent_proxy"

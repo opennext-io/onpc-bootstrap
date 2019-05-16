@@ -40,7 +40,7 @@
 
     - name: Set common facts
       include_tasks: tasks/setup-common-facts.yml
-      tags: setup-common-facts
+      tags: always
 
     - name: Create directory for ISOs download
       file:

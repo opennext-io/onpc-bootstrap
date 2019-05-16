@@ -13,6 +13,37 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Check that onpc_bootstrap_scenario is not set with mutually exclusive options
+  assert:
+    that: not item.conditional
+    msg: "{{ item.msg }}"
+  with_items:
+    - conditional: "{{ (onpc_bootstrap_scenario is search('distro')) and (onpc_bootstrap_scenario is search('source')) }}"
+      msg: "The scenario key words 'distro' and 'source' are mutually exclusive."
+    - conditional: "{{ (onpc_bootstrap_scenario is search('lxc')) and (onpc_bootstrap_scenario is search('nspawn')) }}"
+      msg: "The scenario key words 'lxc' and 'nspawn' are mutually exclusive."
+    - conditional: "{{ (onpc_bootstrap_scenario is search('lxc')) and (onpc_bootstrap_scenario is search('metal')) }}"
+      msg: "The scenario key words 'lxc' and 'metal' are mutually exclusive."
+    - conditional: "{{ (onpc_bootstrap_scenario is search('metal')) and (onpc_bootstrap_scenario is search('nspawn')) }}"
+      msg: "The scenario key words 'metal' and 'nspawn' are mutually exclusive."
+    - conditional: "{{ (onpc_bootstrap_scenario is search('metal')) and (onpc_bootstrap_scenario is search('haproxy')) }}"
+      msg: "The scenario key words 'metal' and 'haproxy' are mutually exclusive."
+    - conditional: "{{ (onpc_bootstrap_scenario is search('metal')) and (onpc_bootstrap_scenario is search('horizon')) }}"
+      msg: "The scenario key words 'metal' and 'horizon' are mutually exclusive."
+  tags: check-bootstrap-scenario
+
+- name: Check that the master inventory is not set with mutually exclusive roles
+  assert:
+    that:
+      - not item.conditional
+    msg: "{{ item.msg }}"
+  with_items:
+    - conditional: "{{ ('storage' in groups and 'ceph' in groups) }}"
+      msg: "Node role 'storage' (which defaults LVM iSCSI storage) and 'ceph' role are currently mutually exclusive."
+    - conditional: "{{ 'swift' in groups and 'ceph' in groups }}"
+      msg: "Node role 'swift' and 'ceph' role are currently mutually exclusive."
+  tags: check-bootstrap-inventory
+
 - name: Verify that the container network is properly defined
   assert:
     that: "management_network is defined and management_network.split('/') | length == 2"

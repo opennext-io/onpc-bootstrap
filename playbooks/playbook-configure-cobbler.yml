@@ -47,7 +47,7 @@
           
     - name: Set common facts
       include_tasks: tasks/setup-common-facts.yml
-      tags: setup-common-facts
+      tags: always
 
     - name: Register Cobbler mgmt classes
       include_tasks: tasks/register-cobbler-mgmt-classes.yml

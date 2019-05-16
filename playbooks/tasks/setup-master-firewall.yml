@@ -21,12 +21,12 @@
     iptables_service: iptables
   when: ansible_os_family == "RedHat"
 
-- name: Install iptables-persistent (Debian/Ubuntu)
+- name: Install iptables packages
   package:
     name: "{{ iptables_package }}"
     state: present
 
-- name: Enable iptables
+- name: Enable iptables service
   service:
     name: "{{ iptables_service }}"
     enabled: true

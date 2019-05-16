@@ -33,24 +33,20 @@
         that: "ansible_version.full is version_compare('2.7', '>=')"
         msg: >-
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
-    - import_tasks: tasks/setup_common_facts.yml
-      tags: setup-common_facts
-    - import_tasks: tasks/setup_master_firewall.yml
-      tags: setup-master-firewall
+      tags: check-ansible-version
+    - name: Check for a supported Operating System plateforms
+      assert:
+        that:
+          - (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'xenial') or
+            (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'bionic') or
+            (ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7')
+        msg: >
+          The only supported platforms for this release are Ubuntu 16.04 LTS (Xenial), Ubuntu 18.04 LTS (Bionic) and CentOS 7(WIP)
+      when: (check_operating_system | default(True))| bool
+      tags: check-operating-system
+    - import_tasks: tasks/setup-common-facts.yml
+      tags: always
     - import_tasks: tasks/install-master-packages.yml
       tags: install-master-packages
-    - import_tasks: tasks/setup-master-facts.yml
-      tags: always
-    - import_tasks: tasks/check-deploy-params.yml
-      tags: check-deploy-params 
-    - import_tasks: tasks/check-deploy-requirements.yml
-      tags: check_deploy_requirements
-    - import_tasks: tasks/import-osa-repo.yml
-      tags: import-osa-repo
-    - import_tasks: tasks/import-lma-repos.yml
-      tags: import-lma-repo
-    - include_tasks: tasks/bootstrap-ansible.yml
-    - import_tasks: tasks/setup-common-files.yml
-      tags: setup-common-files
-    - import_tasks: tasks/setup-master-files.yml
-      tags: setup-master-files
+    - import_tasks: tasks/setup-master-firewall.yml
+      tags: setup-master-firewall

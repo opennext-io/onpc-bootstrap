@@ -40,10 +40,9 @@
         that: "ansible_version.full is version_compare('2.7', '>=')"
         msg: >-
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
-    
     - name: Set common facts
       include_tasks: tasks/setup-common-facts.yml
-      tags: setup-common-facts
+      tags: always
 
   roles:
     - role: ../roles/squid
@@ -56,6 +55,3 @@
       squid_http_bind: "{{ onpc_default_gateway }}"
       squid_http_interface: "{{ management_master_interface }}"
       when: onpc_limited_connectivity
-  
-  post_tasks:
-    

@@ -6,7 +6,7 @@
 # left there by the OpenStack-Ansible playbooks to specify the API endpoint and
 # auth parameters to use.
 #
-- name: OpenStack services setup
+- name: Setup initial OpenStack configuration
   hosts: utility_all[0]
   become: true
   become_user: root

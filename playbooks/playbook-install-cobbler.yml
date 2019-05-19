@@ -39,7 +39,7 @@
         msg: "user 'root' public key is undefined"
 
     - name: Set common facts
-      include_tasks: tasks/setup-common-facts.yml
+      import_tasks: tasks/setup-common-facts.yml
       tags: always
 
     - name: Create directory for ISOs download

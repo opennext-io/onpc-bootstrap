@@ -39,9 +39,9 @@
   set_fact:
     infra_master_interface: "{{ ansible_default_ipv4.interface }}"
 
-- name: Set management_master_interface fact
+- name: Set mgmt_master_interface fact
   set_fact:
-    management_master_interface: "{{ ansible_br_mgmt.device }}"
+    mgmt_master_interface: "{{ ansible_br_mgmt.device }}"
 
 # The default proxy server for the infra is assumed to be the default
 # gateway.

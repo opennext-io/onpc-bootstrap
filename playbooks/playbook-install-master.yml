@@ -46,9 +46,3 @@
       tags: install-master-packages
     - import_tasks: tasks/setup-master-firewall.yml
       tags: setup-master-firewall
-    - import_playbook: playbook-install-cobbler.yml
-      when: "onpc_install_cobbler is defined and onpc_install_cobbler"
-      tags: install-cobbler
-    - import_playbook: playbook-install-squid.yml
-      when: "onpc_limited_connectivity is defined and onpc_limited_connectivity"
-      tags: install-squid

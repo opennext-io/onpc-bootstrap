@@ -39,7 +39,7 @@
       tags: import-osa-repo
     - import_tasks: tasks/import-lma-repos.yml
       tags: import-lma-repos
-    - include_tasks: tasks/bootstrap-ansible.yml
+    - import_tasks: tasks/bootstrap-ansible.yml
       tags: bootstrap-ansible
     - import_tasks: tasks/setup-common-files.yml
       tags: setup-common-files

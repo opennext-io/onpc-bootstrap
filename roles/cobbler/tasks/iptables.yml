@@ -1,8 +1,8 @@
 ---
 - name: Set cobbler TFTP iptables rules
   iptables_raw:
-    name: Cobbler_tftp_rules
-    backup: yes
+    name: cobbler_tftp
+    weight: 30
     keep_unmanaged: no
     rules: |
       -A INPUT -i "{{ infra_master_interface }}" -m state --state NEW -m tcp -p tcp --dport 69 -j ACCEPT
@@ -10,8 +10,8 @@
 
 - name: Set Cobbler HTTP(s) iptables rules
   iptables_raw:
-    name: cobbler_http_rules
-    backup: yes
+    name: cobbler_http
+    weight: 40
     keep_unmanaged: no
     rules: |
       -A INPUT -i "{{ infra_master_interface }}" -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
@@ -19,8 +19,8 @@
 
 - name: Set Cobbler XML-RPC iptables rules
   iptables_raw:
-    name: cobbler_xml_rpc_rules
-    backup: yes
+    name: cobbler_xml_rpc
+    weight: 50
     keep_unmanaged: no
     rules: |
       -A INPUT -i "{{ infra_master_interface }}" -m state --state NEW -m tcp -p tcp --dport 25150 -j ACCEPT

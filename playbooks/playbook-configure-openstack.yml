@@ -28,5 +28,5 @@
   - include_tasks: tasks/setup-user-images.yml
     with_items: "{{ images }}"
     tags: create-images
-  - include_tasks: tasks/setup-user-networks.yml
+  - import_tasks: tasks/setup-user-networks.yml
     tags: create-network

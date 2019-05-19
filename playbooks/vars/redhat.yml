@@ -16,7 +16,8 @@
 
 master_packages_install:
   - git
-  - pip
+  - epel-release
+  - python-pip 
   - python-devel
   - '@Development Tools'
   - https://rdoproject.org/repos/openstack-rocky/rdo-release-rocky.rpm

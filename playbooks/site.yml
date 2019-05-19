@@ -19,8 +19,16 @@
   vars:
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
   
+  vars_files:
+    - vars/main.yml
+  
   tasks:
-    - import_playbook: playbook_setup_master.yml
-      tags: setup-master
-    - import_playbook: playbook-setup-nodes.yml
-      tags: setup-nodes
+    - include: playbook-install-master.yml
+    - include: playbook-install-cobbler.yml
+      when: onpc_install_cobbler is defined and onpc_install_cobbler
+    - include: playbook-configure-cobbler.yml
+      when: onpc_install_cobbler is defined and onpc_install_cobbler
+    - include: playbook-install-squid.yml
+      when: onpc_limited_connectivity is defined and onpc_limited_connectivity
+    - include: playbook-setup-osa-environment.yml
+    - include: playbook-install-osa-nodes.yml

@@ -46,11 +46,11 @@
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
           
     - name: Set common facts
-      include_tasks: tasks/setup-common-facts.yml
+      import_tasks: tasks/setup-common-facts.yml
       tags: always
 
     - name: Register Cobbler mgmt classes
-      include_tasks: tasks/register-cobbler-mgmt-classes.yml
+      import_tasks: tasks/register-cobbler-mgmt-classes.yml
       tags: register-cobbler-mgmt-classes
 
     - name: Register Cobbler distros

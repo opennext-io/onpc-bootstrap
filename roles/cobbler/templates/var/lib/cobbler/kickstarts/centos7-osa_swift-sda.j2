@@ -104,10 +104,10 @@ $SNIPPET('log_ks_post_nochroot')
 $SNIPPET('log_ks_post')
 {% if onpc_users_list is defined and onpc_users_list | length > 0 %}
 ## Import ssh keys
-{% for user in onpc_users_list %}
-sshkey --username={{ user.name}} "{{ user.key }}"
-{% endfor %}
-{% endif %}
+##{% for user in onpc_users_list %}
+##sshkey --username={{ user.name}} "{{ user.key }}"
+##{% endfor %}
+##{% endif %}
 sed -i -e 's|^# %wheel\tALL=(ALL)\tNOPASSWD: ALL|%wheel\tALL=(ALL)\tNOPASSWD: ALL|; s|^Defaults requiretty|#&|' /etc/sudoers
 # Start yum configuration
 $yum_config_stanza

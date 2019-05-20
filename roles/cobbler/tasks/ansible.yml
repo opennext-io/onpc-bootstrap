@@ -3,4 +3,4 @@
   copy: src=etc/ansible/cobbler.py dest=/etc/ansible/cobbler.py mode=755
 
 - name: copy /etc/ansible/cobbler.ini
-  copy: src=etc/ansible/cobbler.ini dest=/etc/ansible/cobbler.ini mode=644
+  template: src=etc/ansible/cobbler.ini.j2 dest=/etc/ansible/cobbler.ini mode=644

@@ -6,8 +6,8 @@
     weight: 60
     table: nat
     rules: |
-      -A PREROUTING -i "{{ squid_mgmt_interface }}" -p tcp --dport 80 -j ACCEPT
-      -A PREROUTING -i "{{ squid_mgmt_interface }}" -p tcp --dport 80 -j REDIRECT --to-ports "{{ squid_http_port }}"
-      -A INPUT -i "{{ squid_mgmt_interface }}" -p tcp -m state --state NEW -m tcp --dport "{{ squid_http_port }}" -j ACCEPT
+      -A PREROUTING -i "{{ squid_http_interface }}" -p tcp --dport 80 -j ACCEPT
+      -A PREROUTING -i "{{ squid_http_interface }}" -p tcp --dport 80 -j REDIRECT --to-ports "{{ squid_http_port }}"
+      -A INPUT -i "{{ squid_http_interface }}" -p tcp -m state --state NEW -m tcp --dport "{{ squid_http_port }}" -j ACCEPT
       -A POSTROUTING -j MASQUERADE
   tags: squid-iptables-rules 

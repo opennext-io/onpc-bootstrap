@@ -1,0 +1,12 @@
+## begin "Add user ssh keys"
+# Start add_user_ssh_keys generated code
+{% if onpc_users_list is defined and onpc_users_list | length > 0 %}
+{% for user in onpc_users_list %}
+# Begin "Add ssh key for {{user.name}}"
+mkdir -m 700 /home/{{user.name}}/.ssh
+echo {{user.key}} >> /home/{{user.name}}/.ssh/authorized_keys
+chmod 600 /home/{{user.name}}/.ssh/authorized_keys
+{% endfor %}
+# End "Add ssh key for {{user.name}}"
+{% endif %}
+# End add_user_ssh_keys generated code

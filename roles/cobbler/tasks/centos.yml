@@ -68,9 +68,9 @@
 #----------------
 # begin add snippets and kickstarts
 #----------------
-- name: add_public_key_for_root snippnet
-  template: src=var/lib/cobbler/snippets/add_public_key_for_root.j2
-            dest=/var/lib/cobbler/snippets/add_public_key_for_root
+- name: add_root_ssh_keys snippnet
+  template: src=var/lib/cobbler/snippets/add_root_ssh_keys.j2
+            dest=/var/lib/cobbler/snippets/add_root_ssh_keys
             backup=yes
   when: cobbler_root_public_keys is defined
 

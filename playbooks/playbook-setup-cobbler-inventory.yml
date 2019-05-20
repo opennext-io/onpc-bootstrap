@@ -34,7 +34,6 @@
     - vars/main.yml
     - vars/systems.yml
     - vars/users.yml
-    - vars/partitions.yml
     - vars/networks.yml
     - vars/cobbler.yml
   

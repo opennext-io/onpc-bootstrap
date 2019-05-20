@@ -23,7 +23,7 @@
 ## Debug and Verbose options (pay attention to high log verbosity when debug set to true).
 debug: "{{ onpc_debug_enabled | default(false) }}"
 service_region: "{{ onpc_region_name }}"
-haproxy_ssl: "{{ onpc_haproxy_ssl_enabled }}"
+haproxy_ssl: "{{ haproxy_ssl_enabled }}"
 
 ## Installation method for OpenStack services
 # Default option (source) is to install the OpenStack services using PIP

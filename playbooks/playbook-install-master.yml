@@ -24,7 +24,6 @@
     - vars/main.yml
     - vars/networks.yml
     - vars/services.yml
-    - vars/partitions.yml
     - vars/users.yml
 
   tasks:

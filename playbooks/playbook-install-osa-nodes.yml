@@ -21,7 +21,6 @@
   environment: "{{ onpc_proxy_environment | default({}) }}"
   vars_files:
     - vars/main.yml
-    - vars/partitions.yml
     - vars/networks.yml
 
   tasks:

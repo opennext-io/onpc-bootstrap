@@ -16,16 +16,14 @@
 
 - name: Setup OSA environment
   hosts: localhost
-  connection: local
   become: true
   become_user: root
-  environment: "{{ onpc_proxy_environment | default({}) }}"
+  connection: local
 
   vars_files:
     - vars/main.yml
     - vars/networks.yml
     - vars/services.yml
-    - vars/partitions.yml
     - vars/users.yml
 
   tasks:

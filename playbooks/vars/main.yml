@@ -26,8 +26,6 @@ onpc_cpu_overcommit: 8.0
 onpc_nova_domain: openstacklocal
 onpc_infra_domain: "{{ ansible_domain | default('openstack.local') }}"
 onpc_region_name: RegionOne
-onpc_haproxy_ssl_enabled: True
-onpc_osa_partitions_check: True
 onpc_osa_networks_check: True
 onpc_multidomain_support: False
 

@@ -31,7 +31,7 @@
   set_fact:
     first_controller_node_name: "{{ infra_hosts_list | sort | first }}"
 
-- name: Set mandatory hosts list facts if not explicitely specified
+- name: Set optional hosts list facts
   set_fact:
     network_hosts_list: "{% if network_hosts_list | length == 0  %}{{ infra_hosts_list}}{% endif %}"
     monitoring_hosts_list: "{% if monitoring_hosts_list | length == 0  %}{{ infra_hosts_list}}{% else %}{{ monitoring_hosts_list }}{% endif %}"
@@ -52,7 +52,7 @@
     nfs_hosts_dict: "{% set sel = [] %}{% for host in infra_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'hostname': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
     rsyslog_hosts_dict: "{% set sel = [] %}{% for host in rsyslog_hosts_list %}{% set l = sel.append({'name': host.split('.')[0] | lower, 'hostname': host, 'ip_v4': hostvars[host]['ansible_br_mgmt']['ipv4']['address']}) %}{% endfor %}{{ sel }}"
 
-- name: Set NFS backing store host fact
+- name: Set optional NFS backing store host fact
   set_fact:
     glance_nfs_store_host: "{{ nfs_hosts_dict[0].ip_v4 }}"
   when:
@@ -69,59 +69,56 @@
     onpc_services_list: "{{ onpc_services_list + ['swift'] }}"
   when: swift_hosts_list is defined and swift_hosts_list | length > 0
 
-- name: Set onpc_partions_list
-  set_fact:
-    onpc_partitions_list: >-
-        {%- set partitions_list = [] %}
-        {%- for partition in onpc_osa_partitions %}
-        {%- if (partition.get('name', '') | regex_search('^ceph', ignorecase=true)) and ('ceph' in onpc_services_list) %}
-            {{- partitions_list.append(partition) }}
-        {%- elif (partition.get('name', '') | regex_search('^swift', ignorecase=true)) and ('swift' in onpc_services_list) %}
-            {{- partitions_list.append(partition) }}
-        {%- elif (partition.get('name', '') | regex_search('^openstack', ignorecase=true)) %}
-            {{- partitions_list.append(partition) }}
-        {%- elif (partition.get('name', '') | regex_search('^cinder', ignorecase=true)) %}
-            {{- partitions_list.append(partition) }}
-        {%- elif (partition.get('name', '') | regex_search('^root$', ignorecase=true)) %}
-            {{- partitions_list.append(partition) }}
-        {%- endif %}
-        {%- endfor %}
-        {{- partitions_list | join(',') }}
-
-- set_fact:
-    _internal_vip_address: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['address'].split('.')[:-1] + ['100'] }}"
+#- name: Set onpc_partions_list
+#  set_fact:
+#    onpc_partitions_list: >-
+#        {%- set partitions_list = [] %}
+#        {%- for partition in onpc_osa_partitions %}
+#        {%- if (partition.get('name', '') | regex_search('^ceph', ignorecase=true)) and ('ceph' in onpc_services_list) %}
+#            {{- partitions_list.append(partition) }}
+#        {%- elif (partition.get('name', '') | regex_search('^swift', ignorecase=true)) and ('swift' in onpc_services_list) %}
+#            {{- partitions_list.append(partition) }}
+#        {%- elif (partition.get('name', '') | regex_search('^openstack', ignorecase=true)) %}
+#            {{- partitions_list.append(partition) }}
+#        {%- elif (partition.get('name', '') | regex_search('^cinder', ignorecase=true)) %}
+#            {{- partitions_list.append(partition) }}
+#        {%- elif (partition.get('name', '') | regex_search('^root$', ignorecase=true)) %}
+#            {{- partitions_list.append(partition) }}
+#        {%- endif %}
+#        {%- endfor %}
+#        {{- partitions_list | join(',') }}
 
 - name: Set reserved_ips facts
   set_fact:
     reserved_ips: "{% set sel = [] %}{% for net in onpc_osa_networks %}{% for rsv in net['reserved'] %}{% set l = sel.append(rsv) %}{% endfor %}{% endfor %}{{ sel }}"
-
+  
 - name: Set internal_vip_address facts
   set_fact:
-    internal_vip_address: "{{ _internal_vip_address | join('.') }}"
-
-- set_fact:
-    _internal_vip_netmask: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['network'] }}/{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['netmask'] }}"
+    internal_vip_address: "{{ value | join('.') }}"
+  vars:
+    value: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['address'].split('.')[:-1] + ['100'] }}"
 
 - name: Set internal_vip_cidr fact
   set_fact:
-    internal_vip_cidr: "{{ internal_vip_address }}/{{ _internal_vip_netmask | ipaddr('prefix') }}"
+    internal_vip_cidr: "{{ internal_vip_address }}/{{ value | ipaddr('prefix') }}"
+  vars:
+    value: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['network'] }}/{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['ipv4']['netmask'] }}"
 
 - name: Set internal_vip_interface fact
   set_fact:
     internal_vip_interface: "{{ hostvars[first_controller_node_name]['ansible_facts']['br_mgmt']['device'] }}"
 
-- set_fact:
-    _external_vip_address: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['address'].split('.')[:-1] + ['100'] }}"
-
 - name: Set external_vip_address facts
   set_fact:
-    external_vip_address: "{{ _external_vip_address | join('.') }}"
+    external_vip_address: "{{ value | join('.') }}"
+  vars:
+    value: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['address'].split('.')[:-1] + ['100'] }}"
 
-- set_fact:
-    _external_vip_netmask: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['network'] }}/{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['netmask'] }}"
 - name: Set external_vip_cidr fact
   set_fact:
-    external_vip_cidr: "{{ external_vip_address}}/{{ _external_vip_netmask | ipaddr('prefix') }}"
+    external_vip_cidr: "{{ external_vip_address}}/{{ value | ipaddr('prefix') }}"
+  vars:
+    value: "{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['network'] }}/{{ hostvars[first_controller_node_name]['ansible_facts']['default_ipv4']['netmask'] }}"
 
 - name: Set external_vip_interface fact
   set_fact:

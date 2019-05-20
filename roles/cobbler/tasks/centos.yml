@@ -71,8 +71,12 @@
 - name: add_root_ssh_keys snippnet
   template: src=var/lib/cobbler/snippets/add_root_ssh_keys.j2
             dest=/var/lib/cobbler/snippets/add_root_ssh_keys
-            backup=yes
   when: cobbler_root_public_keys is defined
+
+- name: add_users_ssh_keys snippnet
+  template: src=var/lib/cobbler/snippets/add_users_ssh_keys.j2
+            dest=/var/lib/cobbler/snippets/add_users_ssh_keys
+  when: onpc_users_list is defined
 
 - name: post_install_network_config snippnet
   template: src=var/lib/cobbler/snippets/post_install_network_config.j2

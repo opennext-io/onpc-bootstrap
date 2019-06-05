@@ -1,9 +1,9 @@
 # {{ ansible_managed }}
 ---
 # The infra nodes that will be running the magnum services
-{% if 'magnum' in onpc_services_list %}
+{% if 'magnum' in openstack_services_list %}
 magnum-infra_hosts:
-{% for h in infrastructure_hosts_dict %}
+{% for h in infra_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}

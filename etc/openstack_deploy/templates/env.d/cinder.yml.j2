@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 ---
-{% if 'ceph' in onpc_services_list %}
+{% if 'ceph' in openstack_services_list %}
 # When using LVM or any iSCSI-based cinder backends, such as NetApp with
 # iSCSI protocol, the cinder-volume service *must* run on metal (default).
 # Reference: https://bugs.launchpad.net/ubuntu/+source/lxc/+bug/1226855

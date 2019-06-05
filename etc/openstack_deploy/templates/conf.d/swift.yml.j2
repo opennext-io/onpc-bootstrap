@@ -2,9 +2,9 @@
 # {{ ansible_managed }}
 ---
 # The nodes that will be running the Swift services
-{% if 'swift' in onpc_services_list %}
+{% if 'swift' in openstack_services_list %}
 swift-proxy_hosts:
-{% for h in infrastructure_hosts_dict %}
+{% for h in infra_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:

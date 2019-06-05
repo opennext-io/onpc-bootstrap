@@ -1,7 +1,8 @@
 # {{ ansible_managed }}
 ---
 # Copyright 2014, Rackspace US, Inc.
-# Copyright 2018, OpenNext SAS. 
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+ 
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -106,7 +107,7 @@ haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | default('/etc/openstack_
 #glance_default_store: file
 
 ## Ceph pool name for Glance to use
-{% if 'ceph' in onpc_services_list%}
+{% if 'ceph' in openstack_services_list%}
 glance_default_store: rbd
 glance_rbd_store_pool: images
 glance_rbd_store_chunk_size: 8
@@ -125,7 +126,7 @@ glance_rbd_store_pool: images
 # it must be escaped with an additional dollar sign ($$), not a backslash. For
 # example, a password of "super$ecure" would need to be entered as
 # "super$$ecure" below.  See Launchpad Bug #1259729 for more details.
-{% elif 'swift' in onpc_services_list %}
+{% elif 'swift' in openstack_services_list %}
 glance_default_store: swift
 glance_swift_store_auth_version: 3
 {%- raw %}
@@ -150,7 +151,7 @@ neutron_plugin_base:
 ## Common Nova Overrides
 # When nova_libvirt_images_rbd_pool is defined, ceph will be installed on nova
 # hosts.
-{% if 'ceph' in onpc_services_list %}
+{% if 'ceph' in openstack_services_list %}
 nova_libvirt_images_rbd_pool: vms
 {% endif %}
 
@@ -167,12 +168,12 @@ nova_nova_conf_overrides:
 cinder_cinder_conf_overrides:
   DEFAULT:
     image_volume_cache_enabled: true
-{% if 'ceph' in onpc_services_list %}
+{% if 'ceph' in openstack_services_list %}
   ceph:
     image_volume_cache_enabled: true
 {% endif %}
 
-{% if 'ceph' in onpc_services_list %}
+{% if 'ceph' in openstack_services_list %}
 cinder_default_volume_type: rbddriver
 {% else %}
 cinder_default_volume_type: LVM_iSCSI
@@ -212,8 +213,8 @@ tempest_run: {{ onpc_run_tempest_tests }}
 ## This is used by apt-cacher-ng to download apt packages:
 # proxy_env_url: http://username:pa$$w0rd@10.10.10.9:9000/
 
-{% if onpc_proxy_server is defined 0 %}
-proxy_env_url: "http://{{ onpc_proxy_server }}:{{ onpc_proxy_port }}/"
+{% if proxy_server_addr is defined 0 %}
+proxy_env_url: "http://{{ proxy_server_addr }}:{{ proxy_port }}/"
 ## (1) This sets up a permanent environment, used during and after deployment:
 {%- raw %}
 # no_proxy_env: "localhost,127.0.0.1,{{ internal_lb_vip_address }},{{ external_lb_vip_address }},{% for host in groups['all_containers'] %}{{ hostvars[host]['container_address'] }}{% if not loop.last %},{% endif %}{% endfor %}"

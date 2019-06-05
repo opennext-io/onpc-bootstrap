@@ -1,5 +1,6 @@
 ---
-# Copyright (c) 2019, Patrick Petit
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -72,7 +73,7 @@
   when:
     - partition_mountpoint | length > 0 
     - partition_fstype | length > 0
-    - (partition_roles | length == 0) or (partition_roles | intersect(onpc_node_roles) | length > 0)
+    - (partition_roles | length == 0) or (partition_roles | intersect(node_roles) | length > 0)
 #
 # TODO: Same checks should be performed for volume groups
 #

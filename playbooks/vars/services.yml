@@ -14,7 +14,7 @@
 # limitations under the License.
 
 onpc_scenario_list: "{{ (onpc_bootstrap_scenario.split('_') | reject('equalto', '')) | list }}"
-onpc_services_list: >-
+openstack_services_list: >-
   {%- set scenario_list = onpc_scenario_list %}
   {%- set service_list = ['keystone', 'cinder', 'glance', 'neutron', 'nova'] %}
   {%- set service_list_extra = scenario_list | difference(['distro', 'lxc', 'nspawn', 'metal', 'source', 'starter', 'standard', 'extended', 'coe']) %}

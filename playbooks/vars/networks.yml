@@ -1,5 +1,6 @@
 ---
-# Copyright (c) 2019, Patrick Petit
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,40 +30,44 @@ management_network: 172.29.236.0/22
 tunnel_network: 172.29.240.0/22
 storage_network: 172.29.244.0/22
 external_network: 172.29.248.0/22
-#lbaas_network: 172.29.252.0/22
+api_network: 192.168.1.0/24
 
-onpc_osa_networks:
+management_interface: br-mgmt
+tunnel_interface: br-vxlan
+storage_interface: br-storage
+external_interface: br-vlan
+api_interface: br-api
+
+external_vip_addr: 192.168.1.100
+internal_vip_addr: 172.29.236.100
+default_gateway_addr: 172.29.236.1
+
+osa_provider_networks:
   - name: management
     cidr: "{{ management_network }}"
-    interface: br-mgmt
+    interface: "{{ management_interface }}"
     reserved:
       - "172.29.236.1,172.29.236.50"
       - "172.29.236.100"
   - name: tunnel
     cidr: "{{ tunnel_network }}"
-    interface: br-vxlan
+    interface: "{{ tunnel_interface }}"
     reserved:
       - "172.29.240.1,172.29.240.50"
       - "172.29.240.100"
     roles: ['network', 'compute']
   - name: storage
     cidr: "{{ storage_network }}"
-    interface: br-storage
+    interface: "{{ storage_interface }}"
     reserved:
       - "172.29.244.1,172.29.244.50"
       - "172.29.244.100"
     roles: ['storage', 'compute', 'ceph']
   - name: external
     cidr: "{{ external_network }}"
-    interface: br-vlan
+    interface: "{{ external_interface }}"
     reserved:
       - "172.29.248.1,172.29.248.50"
       - "172.29.248.100"
     roles: ['network', 'compute']
-#  - name: lbaas
-#    cidr: "{{ lbaas_network }}"
-#    interface: br-lbaas
-#    reserved:
-#      - "172.29.252.1,172.29.252.50"
-#      - "172.29.252.100"
-#    roles: ['network', 'compute']
+  

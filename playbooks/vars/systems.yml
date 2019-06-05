@@ -38,9 +38,9 @@ cobbler_systems:
     comment: "This node is an infra node"
     hostname: "{{ 'infra' + '.' + onpc_infra_domain }}"
     profile: Infra-CentOS-7-x86_64
-    gateway: "{{ onpc_default_gateway }}"
+    gateway: "{{ default_gateway_addr }}"
     name_servers:
-      - "{{ onpc_dns_server }}"
+      - "{{ dns_server_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     roles:
@@ -51,7 +51,7 @@ cobbler_systems:
     state: present
     netboot: true
     interfaces:
-      # Primary (management) interface 
+      # Primary physical interface 
       - device: eno1
         dns_name: "{{ 'infra' + '.' + onpc_infra_domain }}"
         ip_address: 172.31.0.56
@@ -59,43 +59,56 @@ cobbler_systems:
         management: true
         netmask: 255.255.255.0
         static: true
-      # Secondary interface 
+      # Secondary physical interface 
       - device: eno2
         interface_type: bridge_slave 
-        interface_master: br-vlan
+        interface_master: "{{ external_interface }}"
         mac_address: "ac:1f:6b:47:3f:c9" 
+        static: true
+      # OpenStack APIs VLAN interface
+      - device: eno2.1
+        interface_type: bridge_slave
+        interface_master: "{{ api_interface }}"
         static: true
       # Container/Host management VLAN interface
       - device: eno2.10
         interface_type: bridge_slave
-        interface_master: br-mgmt
+        interface_master: "{{ management_interface }}"
         static: true
       # OpenStack Networking (tunnel/overlay) VLAN interface
       - device: eno2.30
         interface_type: bridge_slave
-        interface_master: br-vxlan
+        interface_master: "{{ tunnel_interface }}"
+        static: true
+      # OpenStack APIs network bridge
+      # The HAProxy nodes must have an IP address on this bridge.
+      - device: "{{ api_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: 192.168.1.56
+        netmask: "{{ api_network | ipaddr('netmask') }}"
         static: true
       # Container / Host management network bridge
       # The compute, infra and network nodes must have an IP address 
       # on this bridge.
-      - device: br-mgmt
+      - device: "{{ management_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         ip_address: 172.29.236.56
-        if_gateway: "{{ onpc_default_gateway }}"
-        netmask: 255.255.252.0
+        if_gateway: "{{ default_gateway_addr }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
         static: true
       # OpenStack Networking VXLAN (tunnel/overlay) network bridge.
       # The compute and network nodes must have an IP address
       # on this bridge.
-      - device: br-vxlan
+      - device: "{{ tunnel_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         ip_address: 172.29.240.56
-        netmask: 255.255.252.0
+        netmask: "{{ tunnel_network | ipaddr('netmask') }}"
         static: true
       # OpenStack Networking VLAN network bridge
-      - device: br-vlan
+      - device: "{{ external_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         static: true
@@ -104,9 +117,9 @@ cobbler_systems:
     comment: "This node is a compute node"
     hostname: "{{ 'compute' + '.' + onpc_infra_domain }}"
     profile: Compute-CentOS-7-x86_64
-    gateway: "{{ onpc_default_gateway }}"
+    gateway: "{{ default_gateway_addr }}"
     name_servers:
-      - "{{ onpc_dns_server }}"
+      - "{{ dns_server_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     roles:
@@ -123,41 +136,41 @@ cobbler_systems:
         static: true
       - device: eno2
         interface_type: bridge_slave 
-        interface_master: br-vlan
+        interface_master: "{{ external_interface }}"
         mac_address: "ac:1f:6b:46:94:ed" 
         static: true
       - device: eno1.10
         interface_type: bridge_slave 
-        interface_master: br-mgmt 
+        interface_master: "{{ management_interface }}" 
         static: true
       - device: eno2.20
         interface_type: bridge_slave 
-        interface_master: br-storage 
+        interface_master: "{{ storage_interface }}" 
         static: true
       - device: eno2.30
         interface_type: bridge_slave 
-        interface_master: br-vxlan
+        interface_master: "{{ tunnel_interface }}"
         static: true
-      - device: br-mgmt
+      - device: "{{ management_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         ip_address: 172.29.236.57
-        netmask: 255.255.252.0
-        if_gateway: "{{ onpc_default_gateway }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
+        if_gateway: "{{ default_gateway_addr }}"
         static: true
-      - device: br-storage
+      - device: "{{ storage_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         ip_address: 172.29.244.57
-        netmask: 255.255.252.0
+        netmask: "{{ storage_network | ipaddr('netmask') }}"
         static: true
-      - device: br-vxlan
+      - device: "{{ tunnel_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         ip_address: 172.29.240.57
-        netmask: 255.255.252.0
+        netmask: "{{ tunnel_network | ipaddr('netmask') }}"
         static: true
-      - device: br-vlan
+      - device: "{{ external_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         static: true
@@ -166,9 +179,9 @@ cobbler_systems:
     comment: "This node is a ceph node"
     hostname: "{{ 'ceph' + '.' + onpc_infra_domain }}"
     profile: Ceph-CentOS-7-x86_64
-    gateway: "{{ onpc_default_gateway }}"
+    gateway: "{{ default_gateway_addr }}"
     name_servers:
-      - "{{ onpc_dns_server }}"
+      - "{{ dns_server_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     roles:
@@ -188,23 +201,23 @@ cobbler_systems:
         static: true
       - device: eno2.10
         interface_type: bridge_slave 
-        interface_master: br-mgmt 
+        interface_master: "{{ management_interface }}" 
         static: true
       - device: eno2.20
         interface_type: bridge_slave 
-        interface_master: br-storage 
+        interface_master: "{{ storage_interface }}" 
         static: true
-      - device: br-mgmt
+      - device: "{{ management_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         ip_address: 172.29.236.58
-        if_gateway: "{{ onpc_default_gateway }}"
-        netmask: 255.255.252.0
+        if_gateway: "{{ default_gateway_addr }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
         static: true
-      - device: br-storage
+      - device: "{{ storage_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         ip_address: 172.29.244.58
-        netmask: 255.255.252.0
+        netmask: "{{ storage_network | ipaddr('netmask') }}"
         static: true
         

@@ -5,8 +5,8 @@
     weight: 30
     keep_unmanaged: no
     rules: |
-      -A INPUT -i "{{ infra_master_interface }}" -m state --state NEW -m tcp -p tcp --dport 69 -j ACCEPT
-      -A INPUT -i "{{ infra_master_interface }}" -m state --state NEW -m udp -p udp --dport 69 -j ACCEPT
+      -A INPUT -i "{{ master_infra_interface }}" -m state --state NEW -m tcp -p tcp --dport 69 -j ACCEPT
+      -A INPUT -i "{{ master_infra_interface }}" -m state --state NEW -m udp -p udp --dport 69 -j ACCEPT
 
 - name: Set Cobbler HTTP(s) iptables rules
   iptables_raw:
@@ -14,8 +14,8 @@
     weight: 40
     keep_unmanaged: no
     rules: |
-      -A INPUT -i "{{ infra_master_interface }}" -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
-      -A INPUT -i "{{ infra_master_interface }}" -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+      -A INPUT -i "{{ master_infra_interface }}" -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+      -A INPUT -i "{{ master_infra_interface }}" -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
 
 - name: Set Cobbler XML-RPC iptables rules
   iptables_raw:
@@ -23,5 +23,5 @@
     weight: 50
     keep_unmanaged: no
     rules: |
-      -A INPUT -i "{{ infra_master_interface }}" -m state --state NEW -m tcp -p tcp --dport 25150 -j ACCEPT
-      -A INPUT -i "{{ infra_master_interface }}" -m state --state NEW -m tcp -p tcp --dport 25151 -j ACCEPT
+      -A INPUT -i "{{ master_infra_interface }}" -m state --state NEW -m tcp -p tcp --dport 25150 -j ACCEPT
+      -A INPUT -i "{{ master_infra_interface }}" -m state --state NEW -m tcp -p tcp --dport 25151 -j ACCEPT

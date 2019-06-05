@@ -1,9 +1,9 @@
 # {{ ansible_managed }}
 ---
 # Barbican (key manager) hosts
-{% if 'barbican' in onpc_services_list %}
+{% if 'barbican' in openstack_services_list %}
 key-manager_hosts:
-{% for h in infrastructure_hosts_dict %}
+{% for h in infra_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}

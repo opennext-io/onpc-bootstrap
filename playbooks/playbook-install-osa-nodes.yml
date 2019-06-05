@@ -1,5 +1,6 @@
 ---
-# Copyright (c) 2019, Patrick Petit
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +15,7 @@
 # limitations under the License.
 
 - name: Check the ONPC deployment nodes
-  hosts: "{{ onpc_node_roles | join(',') }}"
+  hosts: "{{ node_roles | join(',') }}"
   become: true
   become_user: root
   gather_facts: true
@@ -29,7 +30,7 @@
     - import_tasks: tasks/setup-node-facts.yml
       tags: always
     - import_tasks: tasks/check-node-requirements.yml
-      when: onpc_managed_node | bool == True
+      when: managed_node | bool == True
       tags: check-node-requirements
     - include_tasks: tasks/check-node-partition.yml
       vars:
@@ -37,34 +38,34 @@
       with_items: "{{ onpc_osa_partitions }}"
       when:
         - onpc_osa_partitions_check is defined and onpc_osa_partitions_check | bool == True
-        - onpc_managed_node | bool == True
+        - managed_node | bool == True
       tags: check-node-partitions
     - include_tasks: tasks/check-node-network.yml
       vars:
         network_setup: "{{ item }}"
-      with_items: "{{ onpc_osa_networks }}"
+      with_items: "{{ osa_provider_networks }}"
       when:
-        - onpc_osa_networks_check is defined and onpc_osa_networks_check | bool == True
-        - onpc_managed_node | bool == True
+        - onpc_provider_networks_check is defined and onpc_provider_networks_check | bool == True
+        - managed_node | bool == True
       tags: check-node-interfaces
     - import_tasks: tasks/install-node-packages.yml
-      when: onpc_managed_node | bool == True
+      when: managed_node | bool == True
       tags: install-node-packages
 # (Note (PP): Commented until proven necessary.
 # Kernel tuning is already taken care of by OpenStack-Ansible
 #    - import_tasks: tasks/configure-kernel.yml
-#      when: onpc_managed_node | bool == True
+#      when: managed_node | bool == True
 #      tags: configure-node-kernel
     - import_tasks: tasks/import-root-public-key.yml
       vars:
        public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
-      when: onpc_managed_node | bool == True
+      when: managed_node | bool == True
       tags: import-root-public-key 
 
     - include_role:
       name: ../roles/chrony
       vars:
-        chrony_server: "{{ onpc_time_server | default('pool.ntp.org') }} prefer iburst"
+        chrony_server: "{{ time_server_addr | default('pool.ntp.org') }} prefer iburst"
       when:
-        - onpc_managed_node | bool == True
+        - managed_node | bool == True
       tags: configure-node-chrony

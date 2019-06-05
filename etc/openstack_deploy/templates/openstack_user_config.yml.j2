@@ -4,7 +4,7 @@ cidr_networks: &cidr_networks
   container: {{ management_network }}
   tunnel: {{ tunnel_network }}
   storage: {{ storage_network }}
-{% if 'octavia' in onpc_services_list %}
+{% if 'octavia' in openstack_services_list %}
   lbaas: {{ lbaas_network }}
 {% endif %}
 
@@ -14,15 +14,15 @@ used_ips:
 {% endfor %}
 
 global_overrides:
-  internal_lb_vip_address: {{ internal_vip_address }}
+  internal_lb_vip_address: {{ internal_vip_addr }}
   external_lb_vip_address: {{ external_vip_address }}
-  management_bridge: "br-mgmt"
-  tunnel_bridge: "br-vxlan"
-  storage_bridge: "br-storage"
+  management_bridge: "{{ management_interface }}"
+  tunnel_bridge: "{{ tunnel_interface }}"
+  storage_bridge: "{{ storage_interface }}"
   lb_name: haproxy
   provider_networks:
     - network:
-        container_bridge: "br-mgmt"
+        container_bridge: "{{ management_interface }}"
         container_interface: "eth1"
         container_type: "veth"
         ip_from_q: "container"
@@ -33,7 +33,7 @@ global_overrides:
           - all_containers
           - hosts
     - network:
-        container_bridge: "br-storage"
+        container_bridge: "{{ storage_interface }}"
         container_interface: "eth2"
         container_type: "veth"
         container_mtu: "9000"
@@ -44,13 +44,13 @@ global_overrides:
           - cinder_api
           - cinder_volume
           - nova_compute
-{% if 'swift' in onpc_services_list %}
+{% if 'swift' in openstack_services_list %}
           - swift_proxy
-{% elif 'ceph' in onpc_services_list %}
+{% elif 'ceph' in openstack_services_list %}
           - ceph_osd
 {% endif %}
     - network:
-        container_bridge: "br-vxlan"
+        container_bridge: "{{ tunnel_interface }}"
         container_type: "veth"
         container_interface: "eth10"
         container_mtu: "9000"
@@ -61,7 +61,7 @@ global_overrides:
         group_binds:
           - neutron_linuxbridge_agent
     - network:
-        container_bridge: "br-vlan"
+        container_bridge: "{{ external_interface }}"
         container_type: "veth"
         container_interface: "eth11"
         type: "vlan"
@@ -70,7 +70,7 @@ global_overrides:
         group_binds:
           - neutron_linuxbridge_agent
     - network:
-        container_bridge: "br-vlan"
+        container_bridge: "{{ external_interface }}"
         container_type: "veth"
         container_interface: "eth12"
         host_bind_override: "eth12"
@@ -78,7 +78,7 @@ global_overrides:
         net_name: "flat"
         group_binds:
           - neutron_linuxbridge_agent
-{% if 'octavia' in onpc_services_list %}
+{% if 'octavia' in openstack_services_list %}
     - network:
         container_bridge: "br-lbaas"
         container_type: "veth"
@@ -93,14 +93,14 @@ global_overrides:
           - octavia-housekeeping
           - octavia-health-manager
 {% endif %}
-{% if 'swift' in onpc_services_list %}
+{% if 'swift' in openstack_services_list %}
   swift:
     part_power: 8
     repl_number: 3
     min_part_hours: 1
 {%- raw %}
-    storage_network: "{{ (container_tech != 'nspawn') | ternary('br-storage', ansible_default_ipv4['alias']) }}"
-    replication_network: "{{ (container_tech != 'nspawn') | ternary('br-storage', ansible_default_ipv4['alias']) }}"
+    storage_network: "{{ (container_tech != 'nspawn') | ternary(storage_interface, ansible_default_ipv4['alias']) }}"
+    replication_network: "{{ (container_tech != 'nspawn') | ternary(storage_interface, ansible_default_ipv4['alias']) }}"
 {% endraw %}
     statsd_host: localhost
     statsd_port: 8125
@@ -116,7 +116,7 @@ global_overrides:
 
 # Infrastructure (memcached, galera, rabbitmq, ...) hosts
 _infrastructure_hosts: &infrastructure_hosts
-{% for h in infrastructure_hosts_dict %}
+{% for h in infra_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
@@ -160,7 +160,7 @@ storage_hosts:
 
 # The hosts that run the Cinder API service
 storage-infra_hosts:
-{% for h in infrastructure_hosts_dict %}
+{% for h in infra_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
@@ -204,7 +204,11 @@ repo-infra_hosts: *infrastructure_hosts
 # When using HAProxy for load balancing, this tells the playbooks
 # where to install and configure this service.
 # Dedicated hardware is best for improved performance and security.
-haproxy_hosts: *infrastructure_hosts
+haproxy_hosts:
+% for h in haproxy_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+{% endfor %}
 
 ###
 ### OpenStack mandatory services
@@ -231,7 +235,7 @@ image_hosts:
 {% for h in image_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
-{% if 'ceph' not in onpc_services_list and 'swift' not in onpc_services_list %}
+{% if 'ceph' not in openstack_services_list and 'swift' not in openstack_services_list %}
     container_vars:
       limit_container_types: glance
       glance_nfs_client:

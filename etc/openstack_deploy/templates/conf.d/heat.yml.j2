@@ -1,9 +1,9 @@
 # {{ ansible_managed }}
 ---
 # The host that run the Orchestration services (Heat API, Heat Engine)
-{% if 'heat' in onpc_services_list %}
+{% if 'heat' in openstack_services_list %}
 orchestration_hosts:
-{% for h in infrastructure_hosts_dict %}
+{% for h in infra_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}

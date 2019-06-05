@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 ---
 # Logging (Elasticsearch, Fluentd, Kibana) serices hosts
-{% if 'logging' in onpc_services_list %}
+{% if 'logging' in openstack_services_list %}
 elastic_hosts: &logging_cluster
 {% for h in logging_hosts_dict %}
   {{ h.name }}:

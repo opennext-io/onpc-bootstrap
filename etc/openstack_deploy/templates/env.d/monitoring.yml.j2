@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 ---
-{% if 'monitoring' in onpc_services_list %}
+{% if 'monitoring' in openstack_services_list %}
 component_skel:
   influxdb:
     belongs_to:

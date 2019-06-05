@@ -1,5 +1,6 @@
 ---
-# Copyright (c) 2019, Patrick Petit
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,7 +46,7 @@
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
           
     - name: Set common facts
-      import_tasks: tasks/setup-common-facts.yml
+      import_tasks: tasks/setup-networking-facts.yml
       tags: always
 
     - name: Register Cobbler mgmt classes
@@ -69,7 +70,7 @@
     
     - name: Sync Cobbler database
       cobbler_sync:
-        host: "{{ infra_master_address }}"
+        host: "{{ master_infra_addr }}"
         username: "{{ cobbler_user }}"
         password: "{{ cobbler_password }}"
         use_ssl: False

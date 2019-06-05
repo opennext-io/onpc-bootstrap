@@ -1,9 +1,9 @@
 # {{ ansible_managed }}
 ---
 # aodh (telemetry alarm service) hosts
-{% if 'aodh' in onpc_services_list %}
+{% if 'aodh' in openstack_services_list %}
 metering-alarm_hosts:
-{% for h in infrastructure_hosts_dict %}
+{% for h in infra_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}

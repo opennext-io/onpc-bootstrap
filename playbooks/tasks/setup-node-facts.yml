@@ -1,6 +1,5 @@
 ---
-# OSA disks and partitions configuration
-# Copyright (c) 2019, Patrick Petit
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Set onpc_node_roles fact
+- name: Set node_roles fact
   set_fact:
-    onpc_node_roles: "{{ onpc_valid_roles | intersect(group_names) | unique | list }}"
+    node_roles: "{{ onpc_valid_roles | intersect(group_names) | unique | list }}"
 
-- name: Set onpc_managed_node fact
+- name: Set managed_node fact
   set_fact:
-    onpc_managed_node: "{{ onpc_node_roles | length > 0 | ternary (True, False) }}"
+    managed_node: "{{ node_roles | length > 0 | ternary (True, False) }}"

@@ -26,6 +26,7 @@
     - vars/networks.yml
     - vars/services.yml
     - vars/users.yml
+    - vars/swift.yml
 
   tasks:
     - name: Verify Ansible version meets requirements

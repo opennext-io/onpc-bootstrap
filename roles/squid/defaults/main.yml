@@ -56,7 +56,7 @@ squid_cache_peer: []
  #   #enter domain name for hostname above
  #   domain: '{{ squid_pri_domain_name }}'
  #   type: sibling
- #   proxy_port: '{{ squid_http_port }}'
+ #   proxy_server_port: '{{ squid_http_port }}'
  #   icp_port: '{{ squid_icp_port }}'
  #   options: default
  #   # do not enter FQDN...hostname only
@@ -64,7 +64,7 @@ squid_cache_peer: []
  #   # enter domain name for hostname above
  #   domain: '{{ squid_pri_domain_name }}'
  #   type: sibling
- #   proxy_port: '{{ squid_http_port }}'
+ #   proxy_server_port: '{{ squid_http_port }}'
  #   icp_port: '{{ squid_icp_port }}'
  #   options: default
 

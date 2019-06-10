@@ -52,9 +52,9 @@ http_port {{ squid_http_bind ~ ':' ~ squid_http_port }} transparent
 {% if squid_cache_peering %}
 {%   for item in squid_cache_peer %}
 {%     if item.host != ansible_hostname and item.domain is defined %}
-cache_peer {{ item.host }}.{{ item.domain}} {{ item.type }} {{ item.proxy_port}} {{ item.icp_port }} {{ item.options }}
+cache_peer {{ item.host }}.{{ item.domain}} {{ item.type }} {{ item.proxy_server_port}} {{ item.icp_port }} {{ item.options }}
 {%     elif item.host != ansible_hostname and item.domain is not defined %}
-cache_peer {{ item.host }} {{ item.type }} {{ item.proxy_port}} {{ item.icp_port }} {{ item.options }}
+cache_peer {{ item.host }} {{ item.type }} {{ item.proxy_server_port}} {{ item.icp_port }} {{ item.options }}
 {%     endif %}
 {%   endfor %}
 {% endif %}

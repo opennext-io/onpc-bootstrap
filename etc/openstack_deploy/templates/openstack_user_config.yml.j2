@@ -15,7 +15,7 @@ used_ips:
 
 global_overrides:
   internal_lb_vip_address: {{ internal_vip_addr }}
-  external_lb_vip_address: {{ external_vip_address }}
+  external_lb_vip_address: {{ external_vip_addr }}
   management_bridge: "{{ management_interface }}"
   tunnel_bridge: "{{ tunnel_interface }}"
   storage_bridge: "{{ storage_interface }}"
@@ -205,7 +205,7 @@ repo-infra_hosts: *infrastructure_hosts
 # where to install and configure this service.
 # Dedicated hardware is best for improved performance and security.
 haproxy_hosts:
-% for h in haproxy_hosts_dict %}
+{% for h in haproxy_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}

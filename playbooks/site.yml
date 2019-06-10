@@ -27,9 +27,9 @@
     - include: playbook-install-master.yml
     - include: playbook-install-cobbler.yml
       when: onpc_install_cobbler is defined and onpc_install_cobbler
-    - include: playbook-configure-cobbler.yml
+    - include: playbook-provision-cobbler.yml
       when: onpc_install_cobbler is defined and onpc_install_cobbler
     - include: playbook-install-squid.yml
-      when: onpc_limited_connectivity is defined and onpc_limited_connectivity
+      when: onpc_proxy_mode is defined and onpc_proxy_mode | length > 0
     - include: playbook-setup-osa-environment.yml
     - include: playbook-install-osa-nodes.yml

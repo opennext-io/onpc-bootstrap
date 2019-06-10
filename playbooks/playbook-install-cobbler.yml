@@ -33,12 +33,19 @@
         msg: >-
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
     
+    - name: Check for supported Operating System platforms
+      assert:
+        that:
+          - ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
+        msg: >
+          The only supported Linux distribution to install Cobbler is CentOS 7
+
     - name: Verify oncp_master_root_public_key is properly defined
       assert:
         that: "{{ oncp_master_root_public_key | length > 0 }}"
         msg: "user 'root' public key is undefined"
 
-    - name: Set common facts
+    - name: Set networking facts
       import_tasks: tasks/setup-networking-facts.yml
       tags: always
 

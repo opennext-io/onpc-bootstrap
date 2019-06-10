@@ -44,3 +44,8 @@
     update_cache: true
   when: ansible_os_family == "Debian"
   tags: install-master-packages
+
+- name: Install jinja2 pip package
+  pip:
+    name: jinja2
+    state: latest

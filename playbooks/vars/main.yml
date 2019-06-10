@@ -18,7 +18,7 @@ onpc_openstack_release: 18.1.3
 onpc_openstack_branch: stable/rocky
 onpc_lma_branch: master
 onpc_bootstrap_scenario: "{{ lookup('env','SCENARIO') | default('lxc_starter', true) }}"
-onpc_bootstrap_config_path: /opt/onpc-bootstrap/etc/openstack_deploy
+onpc_bootstrap_config_path: ../etc/openstack_deploy
 onpc_install_method: "{{ lookup('env', 'INSTALL_METHOD') | default('source', true)  }}"
 onpc_bootstrap_container_tech: "{{ (onpc_bootstrap_scenario is search('nspawn')) | ternary('nspawn', 'lxc') }}"
 onpc_debug_enabled: False
@@ -55,21 +55,32 @@ onpc_valid_roles:
 # in the master install / setup playbooks may be required.
 onpc_install_cobbler: True
 
-# onpc_limited_connectivity should be set to 'True' in
-# environments with no external (Internet) connectivity
-# besides the master node. The master node setup will
-# install Squid as a proxy server for the environment
-# when onpc_limited_connectivity is set to True.
-# If onpc_limited_connectivity is set to False, Squid
-# will not be installed which requires all nodes of the
-# OpenStack environment to have full access to the Internet
-# to download packages.
-onpc_limited_connectivity: True
-
-# The proxy server (squid) installed on the master node
-# can either work transparently on TCP port 3128 (default)
-# or as an explicit proxy bound to port 8000.
-onpc_transparent_proxy: True
+# In situations where the Internet access is blocked from
+# the target nodes, a proxy server (Squid) can be
+# installed on the master node to remedy this problem.
+# Internet access is required to be able to get the
+# needed resources during the deployment phase such as
+# packages, LXC container images, Ansible roles and so
+# so on.
+# Check https://docs.openstack.org/openstack-ansible/latest/user/limited-connectivity
+# for additional details.
+#
+# Three proxy modes are supported.
+# - transparent: Internet access is mediated through the
+#                proxy in a transparent manner. No proxy
+#                settings is needed to access the Internet
+#                from the target nodes.
+# - transient: Internet access is mediated through the
+#              proxy only during the deployment phase.
+#              Target nodes clients such as wget will not
+#              be able to access external resources after
+#              deployment.
+# - permanent: Internet access is mediated through the
+#              proxy during and after deployment.
+#              Caution must apply for large deployment because
+#              The maximum length of no_proxy should not exceed
+#              1024 characters.
+onpc_proxy_mode: transparent
 
 ## Use a Slack channel for sending alerts.
 # onpc_slack_alerts:

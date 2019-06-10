@@ -38,7 +38,7 @@
 
 - name: Find conf.d templates for multinode
   find:
-    paths: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/conf.d"
+    paths: "../etc/openstack_deploy/templates/conf.d"
     patterns: '^.*\.j2$'
     use_regex: yes
   register: onpc_confd_templates
@@ -56,7 +56,7 @@
 
 - name: Drop the openstack_user_config.yml for multinode 
   template:
-    src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/openstack_user_config.yml.j2"
+    src: "../etc/openstack_deploy/templates/openstack_user_config.yml.j2"
     dest: "/etc/openstack_deploy/openstack_user_config.yml"
     backup: yes
     group: root
@@ -65,7 +65,7 @@
 
 - name: Drop the user_variables.yml for multinode 
   template:
-    src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables.yml.j2"
+    src: "../etc/openstack_deploy/templates/user_variables.yml.j2"
     dest: "/etc/openstack_deploy/user_variables.yml"
     backup: yes
     group: root
@@ -79,34 +79,33 @@
     backup: yes
     group: root
     mode: 0644
-  when:
-    - "item.conditional | bool"
+  when: item.conditional | bool
   with_items:
-    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_ceph.yml.j2"
+    - src: "../etc/openstack_deploy/templates/user_variables_ceph.yml.j2"
       dest: user_variables_ceph.yml
       conditional: "{{ 'ceph' in openstack_services_list }}"
-    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_swift.yml.j2"
+    - src: "../etc/openstack_deploy/templates/user_variables_swift.yml.j2"
       dest: user_variables_swift.yml
       conditional: "{{ 'swift' in openstack_services_list }}"
-    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_designate.yml.j2"
+    - src: "../etc/openstack_deploy/templates/user_variables_designate.yml.j2"
       dest: user_variables_designate.yml
       conditional: "{{ 'designate' in openstack_services_list }}"
-    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_ceilometer.yml.j2"
+    - src: "../etc/openstack_deploy/templates/user_variables_ceilometer.yml.j2"
       dest: user_variables_ceilometer.yml
       conditional: "{{ 'ceilometer' in openstack_services_list }}"
-    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_aodh.yml.j2"
+    - src: "../etc/openstack_deploy/templates/user_variables_aodh.yml.j2"
       dest: user_variables_aodh.yml
       conditional: "{{ 'aodh' in openstack_services_list }}"
-    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_gnocchi.yml.j2"
+    - src: "../etc/openstack_deploy/templates/user_variables_gnocchi.yml.j2"
       dest: user_variables_gnocchi.yml
       conditional: "{{ 'gnocchi' in openstack_services_list }}"
-    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_octavia.yml.j2"
+    - src: "../etc/openstack_deploy/templates/user_variables_octavia.yml.j2"
       dest: user_variables_octavia.yml
       conditional: "{{ 'octavia' in openstack_services_list }}"
-    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_magnum.yml.j2"
+    - src: "../etc/openstack_deploy/templates/user_variables_magnum.yml.j2"
       dest: user_variables_magnum.yml
       conditional: "{{ 'magnum' in openstack_services_list }}"
-    - src: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/user_variables_heat.yml.j2"
+    - src: "../etc/openstack_deploy/templates/user_variables_heat.yml.j2"
       dest: user_variables_heat.yml
       conditional: "{{ 'heat' in openstack_services_list }}"
   tags: drop-extra-user-variables

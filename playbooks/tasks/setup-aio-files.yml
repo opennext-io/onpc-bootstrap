@@ -16,7 +16,7 @@
 
 - name: Find the conf.d templates for aio
   find:
-    paths: "/opt/onpc-bootstrap/etc/openstack_deploy/templates/conf.d"
+    paths: "../etc/openstack_deploy/templates/conf.d"
     patterns: '^.*\.aio$'
     use_regex: yes
   register: onpc_confd_templates

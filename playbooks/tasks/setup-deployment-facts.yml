@@ -119,7 +119,7 @@
     monitoring_hosts_list: "{{ (monitoring_hosts_list | length == 0)  | ternary(infra_hosts_list, monitoring_hosts_list) }}"
     logging_hosts_list: "{{ (logging_hosts_list | length == 0) | ternary(infra_hosts_list, logging_hosts_list) }}"
     image_hosts_list: "{{ (image_hosts_list | length == 0) | ternary(infra_hosts_list, image_hosts_list) }}"
-    haproxy_host_list: "{{ (haproxy_hosts_list | length == 0) | ternary(infra_hosts_list, haproxy_hosts_list) }}"
+    haproxy_hosts_list: "{{ (haproxy_hosts_list | length == 0) | ternary(infra_hosts_list, haproxy_hosts_list) }}"
 
 - name: Set first controller node fact
   set_fact:
@@ -149,7 +149,7 @@
       {%-   set _ = sel.append(rec) %}
       {%- endfor %}
       {{- sel | list }}
-    ceph_osd_hosts_dict: >-
+    ceph_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in ceph_hosts_list %}
       {%-   set _name = host.split('.')[0] %}
@@ -247,12 +247,12 @@
     - swift_hosts_list is not defined or swift_hosts_list | length == 0
     - ceph_hosts_list is not defined or ceph_hosts_list | length == 0
 
-- name: Set openstack_services_list for Ceph
+- name: Extend openstack_services_list with Ceph
   set_fact:
     openstack_services_list: "{{ openstack_services_list + ['ceph'] }}"
   when: ceph_hosts_list is defined and ceph_hosts_list | length > 0
 
-- name: Set openstack_services_list for Swift
+- name: Extend openstack_services_list with Swift
   set_fact:
     openstack_services_list: "{{ openstack_services_list + ['swift'] }}"
   when: swift_hosts_list is defined and swift_hosts_list | length > 0

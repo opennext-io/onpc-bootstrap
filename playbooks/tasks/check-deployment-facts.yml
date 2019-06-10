@@ -109,15 +109,3 @@
     msg: >
       "The 'monitoring' service is enabled and the monitoring hosts list is not defined or empty"
   when: "'monitoring' in openstack_services_list"
-
-- name: Verify that the internal VIP CIDR is a valid IP address 
-  assert:
-    that: "{{ internal_vip_cidr | ipaddr  | length > 0}}"
-    msg: >
-      "The variable 'internal_vip_cidr' is not defined or empty"
-
-- name: Verify that the external VIP CIDR is a valid IP address 
-  assert:
-    that: "{{ external_vip_cidr | ipaddr | length > 0}}"
-    msg: >
-      "The variable 'external_vip_cidr' is not defined or empty"

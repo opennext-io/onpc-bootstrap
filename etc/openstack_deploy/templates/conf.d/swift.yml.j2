@@ -29,7 +29,6 @@ swift_hosts:
         drives:
 {% for p in swift_partitions %}
           - name: {{ p.mountpoint.split('/')[-1] | join }}
-  {% endif %}
 {% endfor %}
 {% endfor %}
 {% endif %}

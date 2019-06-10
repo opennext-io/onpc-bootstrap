@@ -40,12 +40,19 @@
 - name: Set proxy_server_addr facts
   set_fact:
     proxy_server_addr: "{{ onpc_proxy_server | default(default_gateway_addr) }}"
-    proxy_port: "{{ onpc_transparent_proxy | ternary('3128', '8000') }}"
-  when: "onpc_limited_connectivity"
-
+    proxy_server_port: "{{ item.port }}"
+    proxy_is_transparent: "{{ item.transparent }}"
+  with_items:
+    - conditional: "{{ onpc_proxy_mode is defined and onpc_proxy_mode == 'transparent' }}"
+      port: 3128
+      transparent: True
+    - conditional: "{{ onpc_proxy_mode is defined and onpc_proxy_mode != 'transparent' }}"
+      port: 8000
+      transparent: False
+  
 - name: Set time_server_addr fact
   set_fact:
-    time_server_addr: "{{ onpc_time_server | default(default_gateway_addr) }"
+    time_server_addr: "{{ onpc_time_server | default(default_gateway_addr) }}"
 
 - name: Set dns_server_addr fact
   set_fact:
@@ -53,9 +60,9 @@
 
 - name: Ensure that internal_vip_addr is properly defined 
   assert:
-    that: "{{ internal_vip_address | ipaddr(management_network) }}"
+    that: "{{ internal_vip_addr | ipsubnet(management_network) }}"
     msg: >
-      "The variable 'internal_vip_address' is not properly defined"
+      "The variable 'internal_vip_addr' is not properly defined"
 
 - name: Set internal_vip_network facts
   set_fact:
@@ -71,9 +78,9 @@
 
 - name: Ensure that external_vip_addr is properly defined 
   assert:
-    that: "{{ external_vip_address | ipaddr(api_network) }}"
+    that: "{{ external_vip_addr | ipsubnet(api_network) }}"
     msg: >
-      "The variable 'external_vip_address' is not properly defined"
+      "The variable 'external_vip_addr' is not properly defined"
 
 - name: Set external_vip_network facts
   set_fact:

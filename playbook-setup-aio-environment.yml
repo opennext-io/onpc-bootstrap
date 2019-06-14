@@ -1,0 +1,48 @@
+---
+# Copyright 2015, Rackspace US, Inc.
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Setup the ONPC deployment environment
+  hosts: localhost
+  become: true
+  become_user: root
+  connection: local
+  environment: "{{ proxy_env | default({}) }}"
+  vars_files:
+    - vars/main.yml
+  vars:
+    ansible_connection: local
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    bootstrap_host_services: "{{ onpc_services_list }}"
+    bootstrap_host_container_tech: "{{ onpc_bootstrap_container_tech }}"
+  
+  tasks:
+    - name: Verify Ansible version meets requirements
+      assert:
+        that: "ansible_version.full is version_compare('2.7', '>=')"
+      msg: >
+        "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
+      tags: always    
+    - import_tasks: tasks/import-osa-repos.yml
+      tags: import-osa-repo
+    - import_tasks: tasks/import-onpc-repos.yml
+      tags: import-onpc-repos
+    - import_tasks: tasks/bootstrap-ansible.yml
+      tags: bootstrap-ansible
+    - import_tasks: tasks/setup-common-files.yml
+      tags: setup-common-files
+    - import_tasks: tasks/setup-aio-files.yml
+      tags: setup-aio-files

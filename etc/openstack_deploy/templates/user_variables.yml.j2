@@ -30,7 +30,7 @@ haproxy_ssl: true
 # Default option (source) is to install the OpenStack services using PIP
 # packages. An alternative method (distro) is to use the distribution cloud
 # repositories to install OpenStack using distribution packages
-install_method: "{{ lookup('env','INSTALL_METHOD') | default('source', true) }}"
+install_method: "{{ onpc_install_method }}"
 
 # The container backing store is set to 'lvm' with 'copy-on-write' method
 # Options are: [machinectl, overlayfs, btrfs, zfs, dir, lvm]
@@ -77,8 +77,8 @@ haproxy_keepalived_internal_vip_cidr: "{{ internal_vip_cidr }}"
 haproxy_keepalived_external_interface: "{{ external_vip_interface }}"
 haproxy_keepalived_internal_interface: "{{ internal_vip_interface }}"
 
-## HAProxy SSL certificates, keys, and CA certificates from your own trusted certificate authority.
 {% if haproxy_ssl is defined and haproxy_ssl | bool %}
+## HAProxy SSL certificates, keys, and CA certificates from your own trusted certificate authority.
 haproxy_user_ssl_cert: {{ haproxy_ssl_cert_path | default('/etc/openstack_deploy/ssl/openstack_cert.crt') }}
 haproxy_user_ssl_key: {{ haproxy_ssl_key_path | default('/etc/openstack_deploy/ssl/openstack_key.key') }}
 haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | default('/etc/openstack_deploy/ssl/openstack_ca.pem') }}
@@ -106,14 +106,14 @@ haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | default('/etc/openstack_
 # this automation if you wish for a different default back-end.
 #glance_default_store: file
 
+{% if 'ceph' in onpc_services_list%}
 ## Ceph pool name for Glance to use
-{% if 'ceph' in openstack_services_list%}
 glance_default_store: rbd
 glance_rbd_store_pool: images
 glance_rbd_store_chunk_size: 8
 glance_ceph_client: glance
 glance_rbd_store_pool: images
-
+{% elif 'swift' in onpc_services_list %}
 ## Common Glance Overrides when using a Swift back-end
 # By default when 'glance_default_store' is set to 'swift' the playbooks will
 # expect to use the Swift back-end that is configured in the same inventory.
@@ -126,7 +126,6 @@ glance_rbd_store_pool: images
 # it must be escaped with an additional dollar sign ($$), not a backslash. For
 # example, a password of "super$ecure" would need to be entered as
 # "super$$ecure" below.  See Launchpad Bug #1259729 for more details.
-{% elif 'swift' in openstack_services_list %}
 glance_default_store: swift
 glance_swift_store_auth_version: 3
 {%- raw %}
@@ -148,10 +147,10 @@ neutron_plugin_base:
   - metering
   - neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPluginv2
 
+{% if 'ceph' in onpc_services_list %}
 ## Common Nova Overrides
 # When nova_libvirt_images_rbd_pool is defined, ceph will be installed on nova
 # hosts.
-{% if 'ceph' in openstack_services_list %}
 nova_libvirt_images_rbd_pool: vms
 {% endif %}
 
@@ -168,19 +167,19 @@ nova_nova_conf_overrides:
 cinder_cinder_conf_overrides:
   DEFAULT:
     image_volume_cache_enabled: true
-{% if 'ceph' in openstack_services_list %}
+{% if 'ceph' in onpc_services_list %}
   ceph:
     image_volume_cache_enabled: true
 {% endif %}
 
-{% if 'ceph' in openstack_services_list %}
+{% if 'ceph' in onpc_services_list %}
 cinder_default_volume_type: rbddriver
 {% else %}
 cinder_default_volume_type: LVM_iSCSI
 {% endif %}
 
-## Tempest settings
 {% if onpc_bootstrap_container_tech == 'nspawn' %}
+## Tempest settings
 tempest_public_subnet_cidr: "{{ management_network }}"
 tempest_public_subnet_allocation_pools: "172.29.239.110-172.29.239.200"
 {% else %}

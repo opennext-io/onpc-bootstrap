@@ -1,10 +1,10 @@
 # {{ ansible_managed }}
 ---
 # Ceph services hosts
-{% if 'ceph' in openstack_services_list %}
+{% if 'ceph' in onpc_services_list %}
 # The infra nodes where the Ceph Mon services will run
 ceph-mon_hosts:
-{% for h in infra_hosts_dict %}
+{% for h in controller_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
@@ -27,7 +27,7 @@ ceph-osd_hosts:
           rbd_store_chunk_size: 8
           report_discard_supported: true
           rados_connect_timeout = -1
-{% raw %}
+{%- raw %}
           rbd_user: "{{ cinder_ceph_client }}"
           rbd_secret_uuid: "{{ cinder_ceph_client_uuid }}"
 {% endraw %}
@@ -35,7 +35,7 @@ ceph-osd_hosts:
 
 # The nodes that the Ceph RadosGW object gateways will be running on
 ceph-rgw_hosts:
-{% for h in infra_hosts_dict %}
+{% for h in controller_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}

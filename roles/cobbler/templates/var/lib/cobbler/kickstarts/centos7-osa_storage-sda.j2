@@ -61,18 +61,11 @@ part swap --fstype=swap --recommended --ondrive=sda
 part pv.01 --size=24000 --maxsize=64000 --grow --ondrive=sda
 # System partitions
 volgroup system_vg pv.01
-logvol / --fstype=xfs --name=root_lv --vgname=system_vg --size=16384
+logvol / --fstype=xfs --name=root_lv --vgname=system_vg --size=16000
 logvol /var/log --fstype=xfs --name=varlog_lv --vgname=system_vg --size=32000 --grow
-logvol /tmp --fstype=xfs --name=tmp_lv --vgname=system_vg --size=2000
-logvol /opt --fstype=xfs --name=opt_lv --vgname=system_vg --size=4000
-# OpenStack partition
-part pv.02 --size=32000 --maxsize=82000 --grow --ondrive=sda
-# Openstack partitions
-volgroup openstack_vg pv.02
-logvol /openstack --fstype=xfs --name=ost_lv --vgname=openstack_vg --percent=20
-logvol /openstack/log --fstype xfs --name=log_lv --vgname=openstack_vg --percent=80
+logvol /var/lib/lxc --fstype=xfs --name=lxc_lv --vgname=system_vg --size=4000
 # Cinder storage
-part pv.03 --size=1000 --grow
+part pv.02 --size=1000 --grow
 volgroup cinder_volumes pv.03
 
 %pre

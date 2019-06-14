@@ -1,0 +1,86 @@
+---
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Ensure that the deployment scenario doesn't have mutually exclusive keywords
+  assert:
+    that: not item.conditional
+    msg: "{{ item.msg }}"
+  with_items:
+    - conditional: "{{ (onpc_bootstrap_scenario is search('distro')) and (onpc_bootstrap_scenario is search('source')) }}"
+      msg: "Keywords 'distro' and 'source' are mutually exclusive."
+    - conditional: "{{ (onpc_bootstrap_scenario is search('lxc')) and (onpc_bootstrap_scenario is search('nspawn')) }}"
+      msg: "Keywords 'lxc' and 'nspawn' are mutually exclusive."
+    - conditional: "{{ (onpc_bootstrap_scenario is search('lxc')) and (onpc_bootstrap_scenario is search('metal')) }}"
+      msg: "Keywords 'lxc' and 'metal' are mutually exclusive."
+    - conditional: "{{ (onpc_bootstrap_scenario is search('metal')) and (onpc_bootstrap_scenario is search('nspawn')) }}"
+      msg: "Keywords 'metal' and 'nspawn' are mutually exclusive."
+    - conditional: "{{ (onpc_bootstrap_scenario is search('metal')) and (onpc_bootstrap_scenario is search('haproxy')) }}"
+      msg: "Keywords 'metal' and 'haproxy'  are mutually exclusive."
+    - conditional: "{{ (onpc_bootstrap_scenario is search('metal')) and (onpc_bootstrap_scenario is search('horizon')) }}"
+      msg: "Keywords 'metal' and 'horizon' are mutually exclusive."
+    - conditional: "{{ (onpc_bootstrap_scenario is search('ceph')) and (onpc_bootstrap_scenario is search('nfs')) }}"
+      msg: "Keywords 'ceph' and 'nfs' are mutually exclusive."
+    - conditional: "{{ (onpc_bootstrap_scenario is search('swift')) and (onpc_bootstrap_scenario is search('nfs')) }}"
+      msg: "Keywords 'swift' and 'nfs' are mutually exclusive."
+  tags: check-bootstrap-scenario
+
+- name: Ensure that the inventory is not set with mutually exclusive roles
+  assert:
+    that: not item.conditional
+    msg: "{{ item.msg }}"
+  with_items:
+    - conditional: "{{ ('storage' in groups and 'ceph' in groups) }}"
+      msg: "Roles 'storage' and 'ceph' are mutually exclusive."
+    - conditional: "{{ 'swift' in groups and 'ceph' in groups }}"
+      msg: "Roles 'swift' and 'ceph' are mutually exclusive."
+  tags: check-bootstrap-inventory
+
+- name: Verify that the required hosts lists are properly defined
+  assert:
+    that: item.list is defined and item.list | length > 0
+    msg: "{{ item.msg }}"
+  with_items:
+    - conditional: True
+      list: "{{ controller_hosts_list }}"
+      msg: "The controller hosts list is not properly defined"
+    - conditional: True
+      list: "{{ compute_hosts_list }}"
+      msg: "The compute hosts list is not properly defined"
+    - conditional: "{{ 'ceph' not in onpc_services_list }}"
+      list: "{{ storage_hosts_list }}"
+      msg: "The storage hosts list is not properly defined"
+    - conditional: "{{ 'haproxy' in onpc_services_list }}"
+      list: "{{ haproxy_hosts_list }}"
+      msg: "The haproxy hosts list is not properly defined"
+    - conditional: "{{ 'rsyslog' in onpc_services_list }}"
+      list: "{{ rsyslog_hosts_list }}"
+      msg: "The rsyslog hosts list is not properly defined"
+    - conditional: "{{ 'nfs' in onpc_services_list }}"
+      list: "{{ nfs_hosts_list }}"
+      msg: "The nfs hosts list is not properly defined"
+    - conditional: "{{ 'ceph' in onpc_services_list }}"
+      list: "{{ ceph_hosts_list }}"
+      msg: "The ceph hosts list is not properly defined"
+    - conditional: "{{ 'monitoring' in onpc_services_list }}"
+      list: "{{ monitoring_hosts_list }}"
+      msg: "The monitoring hosts list is not properly defined"
+    - conditional: "{{ 'logging' in onpc_services_list }}"
+      list: "{{ logging_hosts_list }}"
+      msg: "The logging hosts list is not properly defined"
+    - conditional: "{{ 'swift' in onpc_services_list }}"
+      list: "{{ swift_hosts_list }}"
+      msg: "The swift hosts list is not properly defined"
+  when: item.conditional

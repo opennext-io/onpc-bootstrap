@@ -64,9 +64,9 @@ volgroup system_vg pv.01
 logvol / --fstype=xfs --name=root_lv --vgname=system_vg --size=16384
 logvol /var/log --fstype=xfs --name=varlog_lv --vgname=system_vg --size=32000 --grow
 logvol /tmp --fstype=xfs --name=tmp_lv --vgname=system_vg --size=2000
-logvol /opt --fstype=xfs --name=opt_lv --vgname=system_vg --size=4000
+logvol /var/lib/lxc --fstype=xfs --name=lxc_lv --vgname=system_vg --size=24000
 # OpenStack partition
-part pv.02 --size=32000 --maxsize=82000 --grow --ondrive=sda
+part pv.02 --size=32000 --maxsize=64000 --grow --ondrive=sda
 # Openstack partitions
 volgroup openstack_vg pv.02
 logvol /openstack --fstype=xfs --name=ost_lv --vgname=openstack_vg --percent=20

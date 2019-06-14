@@ -26,7 +26,7 @@ keepalived_ping_address: "{{ proxy_server_addr }}"
 
 ## HAProxy load-balancing extra congig for the monitoring and logging services
 haproxy_extra_services:
-{% if 'monitoring' in openstack_services_list %}
+{% if 'monitoring' in onpc_services_list %}
   - service:
       haproxy_service_name: influxdb_admin
       haproxy_ssl: False
@@ -141,7 +141,7 @@ haproxy_extra_services:
         - "httpchk GET /health HTTP/1.1\\r\\nAuthorization:\\ Basic\\ {{ [sensu_api_user_name, ':', sensu_api_password] | join | b64encode }}"
 {% endraw %}
 {% endif %}
-{% if 'logging' in openstack_services_list %}
+{% if 'logging' in onpc_services_list %}
   - service:
       haproxy_service_name: elasticsearch
       haproxy_ssl: False

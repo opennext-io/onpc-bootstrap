@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 ---
 # Monitoring (InfluxDB, Sensu, Grafana, Collectd, ...) serices hosts
-{% if 'monitoring' in openstack_services_list %}
+{% if 'monitoring' in onpc_services_list %}
 influxdb_hosts: &monitoring_cluster
 {% for h in monitoring_hosts_dict %}
  {{ h.name }}:

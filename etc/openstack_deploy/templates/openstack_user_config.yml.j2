@@ -4,7 +4,7 @@ cidr_networks: &cidr_networks
   container: {{ management_network }}
   tunnel: {{ tunnel_network }}
   storage: {{ storage_network }}
-{% if 'octavia' in openstack_services_list %}
+{% if 'octavia' in onpc_services_list %}
   lbaas: {{ lbaas_network }}
 {% endif %}
 
@@ -44,9 +44,9 @@ global_overrides:
           - cinder_api
           - cinder_volume
           - nova_compute
-{% if 'swift' in openstack_services_list %}
+{% if 'swift' in onpc_services_list %}
           - swift_proxy
-{% elif 'ceph' in openstack_services_list %}
+{% elif 'ceph' in onpc_services_list %}
           - ceph_osd
 {% endif %}
     - network:
@@ -78,7 +78,7 @@ global_overrides:
         net_name: "flat"
         group_binds:
           - neutron_linuxbridge_agent
-{% if 'octavia' in openstack_services_list %}
+{% if 'octavia' in onpc_services_list %}
     - network:
         container_bridge: "br-lbaas"
         container_type: "veth"
@@ -93,7 +93,7 @@ global_overrides:
           - octavia-housekeeping
           - octavia-health-manager
 {% endif %}
-{% if 'swift' in openstack_services_list %}
+{% if 'swift' in onpc_services_list %}
   swift:
     part_power: 8
     repl_number: 3
@@ -114,9 +114,10 @@ global_overrides:
           default: True
 {% endif %} 
 
+{% if controller_hosts_dict is defined and controller_hosts_dict | length > 0 %}
 # Infrastructure (memcached, galera, rabbitmq, ...) hosts
 _infrastructure_hosts: &infrastructure_hosts
-{% for h in infra_hosts_dict %}
+{% for h in controller_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
@@ -124,43 +125,27 @@ _infrastructure_hosts: &infrastructure_hosts
       container_tech: "{{ onpc_bootstrap_container_tech }}"
 {% endfor %}
 
-# The compute hypervisor hosts
-compute_hosts: &compute_hosts
-{% for h in compute_hosts_dict %}
-  {{ h.name }}:
-    ip: {{ h.ip_v4 }}
-{% endfor %}
+# The shared infrastructure software (MariaDB/Galera and RabbitMQ)
+shared-infra_hosts: *infrastructure_hosts
 
-# The server(s) that run the rsyslog service (optional)
-{% if rsyslog_hosts_dict is defined and rsyslog_hosts_dict | length > 0 %}
-log_hosts:
-  "{{ rsyslog_hosts_dict[0]['name'] }}":
-    ip: "{{ rsyslog_hosts_dict[0]['ip_v4'] }}"
-{% endif %}
+# The OpenStack API services such as Nova API and Glance API
+os-infra_hosts: *infrastructure_hosts
 
-# The Cinder storage LVM/iSCSI hosts
-storage_hosts:
-{% for h in storage_hosts_dict %}
-  {{ h.name }}:
-    ip: {{ h.ip_v4 }}
-    container_vars:
-      cinder_backends:
-        limit_container_types: cinder_volume
-        lvm:
-          volume_backend_name: LVM_iSCSI
-          volume_driver: cinder.volume.drivers.lvm.LVMVolumeDriver
-          volume_group: cinder-volumes
-          iscsi_ip_address: {{ h.ip_v4 }}
-          lvm_type: thin
-          extra_volume_types:
-            - low-iops
-            - high-iops
-            - ultra-high-iops
-{% endfor %}
+# OpenStack-Ansible repository cache (apt, python packages, etc)
+repo-infra_hosts: *infrastructure_hosts
+
+# The servers that run the Keystone (OpenStack Identity) Service
+identity_hosts: *infrastructure_hosts
+
+# Nova API services
+compute-infra_hosts: *infrastructure_hosts
+
+# The Horizon (OpenStack Dashboard) service
+dashboard_hosts: *infrastructure_hosts
 
 # The hosts that run the Cinder API service
 storage-infra_hosts:
-{% for h in infra_hosts_dict %}
+{% for h in controller_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
@@ -187,55 +172,71 @@ storage-infra_hosts:
           cinder_volume_types:
             - ultra-high-iops
 {% endfor %}
+{% endif %}
 
-##
-## Infrastructure middleware
-##
+{% if compute_hosts_dict is defined and compute_hosts_dict | length > 0 %}
+# The compute hypervisor hosts
+compute_hosts: &compute_hosts
+{% for h in compute_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+{% endfor %}
+{% endif %}
 
-# The shared infrastructure software (MariaDB/Galera and RabbitMQ)
-shared-infra_hosts: *infrastructure_hosts
+{% if rsyslog_hosts_dict is defined and rsyslog_hosts_dict | length > 0 %}
+# The server(s) that run the rsyslog service (optional)
+log_hosts:
+  "{{ rsyslog_hosts_dict[0]['name'] }}":
+    ip: "{{ rsyslog_hosts_dict[0]['ip_v4'] }}"
+{% endif %}
 
-# The OpenStack API services such as Nova API and Glance API
-os-infra_hosts: *infrastructure_hosts
+{% if storage_hosts_dict is defined and storage_hosts_dict | length > 0 %}
+# The Cinder storage LVM/iSCSI hosts
+storage_hosts:
+{% for h in storage_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+    container_vars:
+      cinder_backends:
+        limit_container_types: cinder_volume
+        lvm:
+          volume_backend_name: LVM_iSCSI
+          volume_driver: cinder.volume.drivers.lvm.LVMVolumeDriver
+          volume_group: cinder-volumes
+          iscsi_ip_address: {{ h.ip_v4 }}
+          lvm_type: thin
+          extra_volume_types:
+            - low-iops
+            - high-iops
+            - ultra-high-iops
+{% endfor %}
+{% endif %}
 
-# OpenStack-Ansible repository cache (apt, python packages, etc)
-repo-infra_hosts: *infrastructure_hosts
-
-# When using HAProxy for load balancing, this tells the playbooks
-# where to install and configure this service.
-# Dedicated hardware is best for improved performance and security.
+{% if haproxy_hosts_dict is defined and haproxy_hosts_dict | length > 0 %}
+# Where to install and configure HAProxy for load-balancing.
 haproxy_hosts:
 {% for h in haproxy_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
+{% endif %}
 
-###
-### OpenStack mandatory services
-###
-
-# The servers that run the Keystone (OpenStack Identity) Service
-identity_hosts: *infrastructure_hosts
-
-# Neutron L2/L3 agents and metadata services
+{% if network_hosts_dict is defined and network_hosts_dict | length > 0 %}
+# The nodes that run Neutron agents and services 
 network_hosts:
 {% for h in network_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
+{% endif %}
 
-# nova api services
-compute-infra_hosts: *infrastructure_hosts
-
-# The nodes that run the Horizon (OpenStack Dashboard) service
-dashboard_hosts: *infrastructure_hosts
-
+{% if image_hosts_dict is defined and image_hosts_dict | length > 0 %}
 # The nodes that run the Glance (OpenStack Image) service
 image_hosts:
 {% for h in image_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
-{% if 'ceph' not in openstack_services_list and 'swift' not in openstack_services_list %}
+{% if 'ceph' not in onpc_services_list and 'swift' not in onpc_services_list %}
     container_vars:
       limit_container_types: glance
       glance_nfs_client:
@@ -246,11 +247,4 @@ image_hosts:
           options: "_netdev,auto"
 {% endif %}
 {% endfor %}
-
-# The nodes that run the Neutron (OpenStack Networking) agents and services
-# (neutron server, L3 agent, ...)
-network_hosts:
-{% for h in network_hosts_dict %}
-  {{ h.name }}:
-    ip: {{ h.ip_v4 }}
-{% endfor %}
+{% endif %}

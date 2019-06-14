@@ -1,0 +1,290 @@
+---
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+onpc_openstack_release: 18.1.3
+onpc_openstack_branch: stable/rocky
+onpc_lma_branch: master
+onpc_debug_enabled: False
+onpc_low_end_profile: False
+onpc_cpu_overcommit: 8.0
+onpc_nova_domain: openstacklocal
+onpc_infra_domain: "{{ ansible_domain | default('openstack.local') }}"
+onpc_region_name: RegionOne
+onpc_multidomain_support: False
+
+# The variable onpc_environment_name is used to tag the monitoring metrics
+# and alerts. To be removed.
+# onpc_environment_name: "{{ environment_name | default(onpc_infra_domain, true) }}"
+onpc_run_tempest_tests: False
+onpc_valid_roles:
+    - controller
+    - storage
+    - ceph
+    - compute
+    - network
+    - logging
+    - monitoring
+    - swift
+    - image
+    - haproxy
+    - rsyslog
+    - nfs
+
+##
+## OpenStack environment bootstrap scenarios
+##
+onpc_bootstrap_scenario: "{{ lookup('env','SCENARIO') | default('distro_lxc_standard_ceph', true) }}"
+onpc_bootstrap_config_path: ../etc/openstack_deploy
+onpc_install_method: "{{ (onpc_bootstrap_scenario is search('distro')) | ternary('distro', 'source') }}"
+onpc_bootstrap_container_tech: "{{ (onpc_bootstrap_scenario is search('nspawn')) | ternary('nspawn', 'lxc') }}"
+onpc_scenario_list: "{{ (onpc_bootstrap_scenario.split('_') | reject('equalto', '')) | list }}"
+onpc_services_list: >-
+  {%- set scenario_list = onpc_scenario_list %}
+  {%- set service_list = ['keystone', 'cinder', 'glance', 'neutron', 'nova'] %}
+  {%- set service_list_extra = scenario_list | difference(['distro', 'lxc', 'nspawn', 'metal', 'source', 'starter', 'standard', 'extended', 'coe']) %}
+  {%- if 'ceph' in scenario_list %}
+  {%-   set _ = service_list.extend(['ceph']) %}
+  {%- endif %}
+  {%- if 'swift' in scenario_list %}
+  {%-   set _ = service_list.extend(['swift']) %}
+  {%- endif %}
+  {%- if 'metal' not in scenario_list %}
+  {%-   set _ = service_list.append('haproxy') %}
+  {%- endif %}
+  {%- if 'starter' in scenario_list %}
+  {%-   set _ = service_list.extend(['rsyslog', 'nfs']) %}
+  {%- endif %}
+  {%- if 'standard' in scenario_list %}
+  {%-   set _ = service_list.extend(['logging', 'monitoring']) %}
+  {%- endif %}
+  {%- if 'extended' in scenario_list %}
+  {%-   set _ = service_list.extend(['ceilometer', 'aodh', 'heat', 'barbican', 'designate', 'logging', 'monitoring']) %}
+  {%- endif %}
+  {%- if 'coe' in scenario_list %}
+  {%-   set _ = service_list.extend(['ceilometer', 'aodh', 'heat', 'magnum', 'barbican', 'designate','octavia', 'logging', 'monitoring']) %}
+  {%- endif %}
+  {%- set _ = service_list.extend(service_list_extra) %}
+  {{- (service_list | unique) | sort }}
+
+## 
+## Networks configuration
+##
+# management_network: used to provide access the internal services and containers
+# tunnel_network: used by tenants private networks 
+# storage_network: used by the storage services (optional)
+# external_network: used to provide access from external (Internet) network
+# lbaas_network: used by tenants for load balacing (octavia)
+
+# Adjust as per your environment to include any IP addresses that are already used by existing
+# physical hosts in the environment where OpenStack will be deployed (and ensuring that you've
+# included any reserved IP addresses for physical growth too). Single IP addresses or ranges
+# (start and end placed either side of a ',') can be placed under the 'reserved' stanza for each # OSA network.
+
+management_network: 172.29.236.0/22
+tunnel_network: 172.29.240.0/22
+storage_network: 172.29.244.0/22
+external_network: 172.29.248.0/22
+api_network: 192.168.1.0/24
+
+management_interface: br-mgmt
+tunnel_interface: br-vxlan
+storage_interface: br-storage
+external_interface: br-vlan
+api_interface: br-api
+
+external_vip_addr: 192.168.1.100
+internal_vip_addr: 172.29.236.100
+default_gateway_addr: 172.29.236.1
+
+onpc_provider_networks_check: True
+onpc_provider_networks:
+  management:
+    cidr: "{{ management_network }}"
+    interface: "{{ management_interface }}"
+    reserved:
+      - "172.29.236.1,172.29.236.50"
+      - "172.29.236.100"
+    roles: ['controller', 'network', 'image', '']
+  tunnel:
+    cidr: "{{ tunnel_network }}"
+    interface: "{{ tunnel_interface }}"
+    reserved:
+      - "172.29.240.1,172.29.240.50"
+      - "172.29.240.100"
+    roles: ['network', 'compute']
+  storage:
+    cidr: "{{ storage_network }}"
+    interface: "{{ storage_interface }}"
+    reserved:
+      - "172.29.244.1,172.29.244.50"
+      - "172.29.244.100"
+    roles: ['storage', 'compute', 'ceph']
+  external:
+    cidr: "{{ external_network }}"
+    interface: "{{ external_interface }}"
+    reserved:
+      - "172.29.248.1,172.29.248.50"
+      - "172.29.248.100"
+    roles: ['network', 'compute']
+  api:
+    cidr: "{{ api_network }}"
+    interface: "{{ api_interface }}"
+    reserved: []
+    roles: ['controller']
+
+##
+## Users with their ssh keys that should be populated on the target nodes
+#
+oncp_master_root_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') | default('') }}"
+onpc_users_list: [
+  {
+    name: centos,
+    password: 'change@me',
+    encrypted_password: '$1$xMkVZGyn$oORYOQ74r.WPrFNvStfeF0',
+    key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCoGCe7PlRSC7nBIEuGRF1ZX07TTNUYTN0uTAmjIINr8dsSb0jaQ+/Zqmzh/Wn9PSEh3w92IY1FE3IQFnvJUo5t+aDDqIYPF5BkcAzMZFtkLwheAegYUzYGve+iqvk2j0jb5jntRYcFagbJJoYZGCchvO0agJia5PMzMYdeGqdPuDD00ASyUUewVq/WViNou4Ob4+W1ffi+Y39kK9yN+nnxlrTyhuuNd/sLdfgRwKzrCc3P3fAYogGpsDEnXJ7SMVwvf21t5RO2JS/ucZmZsmezwv2TqtnsD8K0sH2apxiPqkcTpFNPFsGaavlQwuhBMSLMdORzCwiR/5oEc8Bit/n centos@master'
+  }
+]
+
+##
+## Target nodes distros to install
+##
+onpc_os_distros:
+  centos-7:
+#    device_or_iso_path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
+    url: "http://mirror.plusserver.com/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso"
+    arch: x86_64
+
+onpc_netboot_profiles:
+  infra-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_infra-sda.ks
+  ceph-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_ceph-sda.ks
+  compute-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_compute-sda.ks
+  storage-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_storage-sda.ks
+  swift-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_swift-sda.ks
+  monitoring-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_default-sda.ks
+  logging-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_default-sda.ks
+
+##
+## Target nodes configuration
+##
+# cardinality: number of target nodes to create
+# comment: self-explanatory description of node function
+# status: one of 'development', 'testing', 'acceptance', 'production'
+#         inventory group name.
+# profile: Cobbler profile (kickstart file) associated to the node.
+# roles: List of roles assigned to the target node
+# state: one of: present (create) or absent (delete)
+# netboot: one of true (netboot enabled) or false (netboot disabled)
+onpc_node_targets:
+  infra:
+    cardinality: 1
+    comment: "This is an infrastructure node"
+    profile: infra-centos-7-x86_64
+    roles:
+      - controller
+      - network
+      - image
+      - haproxy
+      - monitoring
+      - logging
+    state: present
+    status: production
+    netboot: true
+  compute:
+    cardinality: 1
+    comment: "This is a Nova compute node"
+    profile: compute-centos-7-x86_64
+    roles:
+      - compute
+    state: present
+    status: production
+    netboot: true
+  ceph:
+    cardinality: 1
+    comment: "This is a Ceph OSD node"
+    profile: ceph-centos-7-x86_64
+    roles:
+      - ceph
+    state: present
+    status: production
+    netboot: true
+
+##
+## Baremetal provisioning config
+##
+# Cobbler is the only fully supported and functional way
+# to deploy an OpenStack environment with ONPC.
+# Other node provisioning tools (such as MAAS) have been
+# tested with various degrees of success and are not
+# supported at this time.
+onpc_install_cobbler: True
+
+##
+## Proxy cache config
+##
+# In situations where the Internet access is blocked from
+# the target nodes, a proxy server (Squid) can be
+# installed on the master node to remedy this problem.
+# Internet access is required to be able to get the
+# needed resources during the deployment phase such as
+# packages, LXC container images, Ansible roles and so
+# so on.
+# Check https://docs.openstack.org/openstack-ansible/latest/user/limited-connectivity
+# for additional details.
+#
+# Three proxy modes are supported.
+# - transparent: Internet access is mediated through the
+#                proxy in a transparent manner. No proxy
+#                settings is needed to access the Internet
+#                from the target nodes.
+# - transient: Internet access is mediated through the
+#              proxy only during the deployment phase.
+#              Target nodes clients such as wget will not
+#              be able to access external resources after
+#              deployment.
+# - permanent: Internet access is mediated through the
+#              proxy during and after deployment.
+#              Caution must apply for large deployment because
+#              The maximum length of no_proxy should not exceed
+#              1024 characters.
+onpc_proxy_mode: transparent
+
+##
+## Sensu channels config
+##
+# Slack channel for sending alerts.
+# onpc_slack_alerts:
+#  channels:
+#    - name: ''
+#      uuid: ''
+
+# Use Sensu handlers for sending alerts
+onpc_sensu_alerts:
+  handlers:
+    - default

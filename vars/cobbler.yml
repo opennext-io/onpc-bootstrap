@@ -1,0 +1,36 @@
+---
+# Copyright 2019 (c), Patrick Petit.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+cobbler_user: cobbler
+cobbler_password: change@me
+
+cobbler_firewalld_enabled: False
+cobbler_iptables_enabled: True
+cobbler_default_password: change!me
+cobbler_domain_name_servers: "8.8.8.8, 8.8.4.4"
+cobbler_bootp_range_start: 100
+cobbler_bootp_range_end: 120
+cobbler_install_web: true
+cobbler_manage_dns: 1
+cobbler_web_user_pwd:
+  - user_name: cobbler
+    password: change@me
+cobbler_default_time_zone: "Europe/Paris"
+cobbler_root_public_keys:
+        - "{{ oncp_master_root_public_key }}" 
+cobbler_forward_zones:
+  - "{{ onpc_infra_domain }}"
+cobbler_reverse_zones:
+  - "{{ management_network.split('.')[:-1] | join('.') }}"

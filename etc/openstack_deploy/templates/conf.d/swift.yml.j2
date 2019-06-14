@@ -2,9 +2,9 @@
 # {{ ansible_managed }}
 ---
 # The nodes that will be running the Swift services
-{% if 'swift' in openstack_services_list %}
+{% if 'swift' in onpc_services_list %}
 swift-proxy_hosts:
-{% for h in infra_hosts_dict %}
+{% for h in controller_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
@@ -27,8 +27,10 @@ swift_hosts:
         region: 1
         weight: 100
         drives:
-{% for p in swift_partitions %}
+{% for p in h.partitions %}
+{%   if (p.get('name', '') | regex_search('^swift', igno_recase=true)) %}
           - name: {{ p.mountpoint.split('/')[-1] | join }}
+{%   endif %}
 {% endfor %}
 {% endfor %}
 {% endif %}

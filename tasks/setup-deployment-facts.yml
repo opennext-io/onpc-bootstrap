@@ -1,0 +1,283 @@
+---
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+   
+- name: Set hosts list facts by role
+  set_fact:
+    controller_hosts_list: >-
+      {%- set sel = [] %}
+      {%- if 'controller' in groups %}
+      {%- for host in groups['controller'] %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {%- endif %}
+      {{- sel | list }}
+    compute_hosts_list: >-
+      {%- set sel = [] %}
+      {%- if 'compute' in groups %}
+      {%- for host in groups['compute'] %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {%- endif %}
+      {{- sel | list }}
+    storage_hosts_list: >-
+      {%- set sel = [] %}
+      {%- if 'storage' in groups %}
+      {%- for host in groups['storage'] %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {%- endif %}
+      {{- sel | list }}
+    ceph_hosts_list: >-
+      {%- set sel = [] %}
+      {%- if 'ceph' in groups %}
+      {%- for host in groups['ceph'] %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {%- endif %}
+      {{- sel | list }}
+    network_hosts_list: >-
+     {%- set sel = [] %}
+      {%- if 'network' in groups %}
+      {%- for host in groups['network'] %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {%- endif %}
+      {{- sel | list }}
+    monitoring_hosts_list: >-
+      {%- set sel = [] %}
+      {%- if 'monitoring' in groups %}
+      {%- for host in groups['monitoring'] %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {%- endif %}
+      {{- sel | list }}
+    logging_hosts_list: >-
+      {%- set sel = [] %}
+      {%- if 'logging' in groups %}
+      {%- for host in groups['logging'] %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {%- endif %}
+      {{- sel | list }}
+    swift_hosts_list: >-
+      {%- set sel = [] %}
+      {%- if 'swift' in groups %}
+      {%- for host in groups['swift'] %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {%- endif %}
+      {{- sel | list }}
+    image_hosts_list: >-
+      {%- set sel = [] %}
+      {%- if 'image' in groups %}
+      {%- for host in groups['image'] %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {%- endif %}
+      {{- sel | list }}
+    nfs_hosts_list: >-
+      {%- set sel = [] %}
+      {%- if 'nfs' in groups %}
+      {%- for host in groups['nfs'] %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {%- endif %}
+      {{- sel | list }}
+    rsyslog_hosts_list: >
+      {%- set sel = [] %}
+      {%- if 'rsyslog' in groups %}
+      {%- for host in groups['rsyslog'] %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {%- endif %}
+      {{- sel | list }}
+    haproxy_hosts_list: >
+      {%- set sel = [] %}
+      {%- if 'haproxy' in groups %}
+      {%- for host in groups['haproxy'] %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {%- endif %}
+      {{- sel | list }}
+
+- name: Set default network and image hosts lists facts
+  set_fact:
+    network_hosts_list: "{{ (network_hosts_list | length == 0) | ternary(controller_hosts_list, network_hosts_list) }}"
+    image_hosts_list: "{{ (image_hosts_list | length == 0) | ternary(controller_hosts_list, image_hosts_list) }}"
+
+- name: Set default haproxy hosts lists fact
+  set_fact:
+    haproxy_hosts_list: "{{ (haproxy_hosts_list | length == 0) | ternary(controller_hosts_list, haproxy_hosts_list) }}"
+  when: "'haproxy' in onpc_services_list"
+
+- name: Set default rsyslog hosts lists fact
+  set_fact:
+    rsyslog_hosts_list: "{{ (rsyslog_hosts_list | length == 0) | ternary(controller_hosts_list, rsyslog_hosts_list) }}"
+  when: "'rsyslog' in onpc_services_list"
+
+- name: Set default nfs hosts lists facts
+  set_fact:
+    nfs_hosts_list: "{{ (nfs_hosts_list | length == 0) | ternary(controller_hosts_list, nfs_hosts_list) }}"
+  when: "'nfs' in onpc_services_list"
+
+- name: Set first controller node fact
+  set_fact:
+    first_controller_node_name: "{{ controller_hosts_list | sort | first }}"
+
+- name: Set first haproxy node fact
+  set_fact:
+    first_haproxy_node_name: "{{ haproxy_hosts_list | sort | first }}"
+
+- name: Set hosts dictionaries facts
+  set_fact:
+    controller_hosts_dict: >-
+      {%- set sel = [] %}
+      {%- for host in controller_hosts_list %}
+      {%-   set _name = host.split('.')[0] %}
+      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
+      {%-   set _ = sel.append(_rec) %}
+      {%- endfor %}
+      {{- sel | list }}
+    storage_hosts_dict: >-
+      {%- set sel = [] %}
+      {%- for host in storage_hosts_list %}
+      {%-   set _name = host.split('.')[0] %}
+      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
+      {%-   set _ = sel.append(_rec) %}
+      {%- endfor %}
+      {{- sel | list }}
+    ceph_hosts_dict: >-
+      {%- set sel = [] %}
+      {%- for host in ceph_hosts_list %}
+      {%-   set _name = host.split('.')[0] %}
+      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
+      {%-   set _ = sel.append(_rec) %}
+      {%- endfor %}
+      {{- sel | list }}
+    compute_hosts_dict: >-
+      {%- set sel = [] %}
+      {%- for host in compute_hosts_list %}
+      {%-   set _name = host.split('.')[0] %}
+      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
+      {%-   set _ = sel.append(_rec) %}
+      {%- endfor %}
+      {{- sel | list }}
+    network_hosts_dict: >-
+      {%- set sel = [] %}
+      {%- for host in network_hosts_list %}
+      {%-   set _name = host.split('.')[0] %}
+      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
+      {%-   set _ = sel.append(_rec) %}
+      {%- endfor %}
+      {{- sel | list }}
+    image_hosts_dict: >-
+      {%- set sel = [] %}
+      {%- for host in image_hosts_list %}
+      {%-   set _name = host.split('.')[0] %}
+      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
+      {%-   set _ = sel.append(_rec) %}
+      {%- endfor %}
+      {{- sel | list }}
+    monitoring_hosts_dict: >-
+      {%- set sel = [] %}
+      {%- for host in monitoring_hosts_list %}
+      {%-   set _name = host.split('.')[0] %}
+      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
+      {%-   set _ = sel.append(_rec) %}
+      {%- endfor %}
+      {{- sel | list }}
+    logging_hosts_dict: >-
+      {%- set sel = [] %}
+      {%- for host in logging_hosts_list %}
+      {%-   set _name = host.split('.')[0] %}
+      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
+      {%-   set _ = sel.append(_rec) %}
+      {%- endfor %}
+      {{- sel | list }}
+    swift_hosts_dict: >-
+      {%- set sel = [] %}
+      {%- for host in swift_hosts_list %}
+      {%-   set _name = host.split('.')[0] %}
+      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
+      {%-   set _ = sel.append(_rec) %}
+      {%- endfor %}
+      {{- sel | list }}
+    nfs_hosts_dict: >-
+      {%- set sel = [] %}
+      {%- for host in nfs_hosts_list %}
+      {%-   set _name = host.split('.')[0] %}
+      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
+      {%-   set _ = sel.append(_rec) %}
+      {%- endfor %}
+      {{- sel | list }}
+    rsyslog_hosts_dict: >-
+      {%- set sel = [] %}
+      {%- for host in rsyslog_hosts_list %}
+      {%-   set _name = host.split('.')[0] %}
+      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
+      {%-   set _ = sel.append(_rec) %}
+      {%- endfor %}
+      {{- sel | list }}
+    haproxy_hosts_dict: >-
+      {%- set sel = [] %}
+      {%- for host in haproxy_hosts_list %}
+      {%-   set _name = host.split('.')[0] %}
+      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
+      {%-   set _ = sel.append(_rec) %}
+      {%- endfor %}
+      {{- sel | list }}
+
+- name: Set NFS as glance backing store fact
+  set_fact:
+    glance_nfs_store_host: "{{ nfs_hosts_dict[0].ip_v4 }}"
+  when:
+    - "'nfs' in onpc_services_list"
+
+## Seems a good idea but creates service declaration method inconsistencies 
+#- name:  Add ceph to onpc_services_list
+#  set_fact:
+#    onpc_services_list: "{{ onpc_services_list + ['ceph'] }}"
+#  when: ceph_hosts_list is defined and ceph_hosts_list | length > 0
+
+#- name: Add swift to onpc_services_list
+#  set_fact:
+#    onpc_services_list: "{{ onpc_services_list + ['swift'] }}"
+#  when: swift_hosts_list is defined and swift_hosts_list | length > 0
+

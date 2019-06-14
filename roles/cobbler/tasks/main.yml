@@ -7,11 +7,11 @@
 
 - name: configure firewalld for Cobbler
   include: firewalld.yml
-  when: "cobbler_firewalld_enabled"
+  when: cobbler_firewalld_enabled
 
 - name: configure iptables for Cobbler
   include: iptables.yml
-  when: "cobbler_iptables_enabled"
+  when: cobbler_iptables_enabled
 
 - name: install cobbler on CentOS
   include: centos.yml

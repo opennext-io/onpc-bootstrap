@@ -61,7 +61,7 @@ part swap --fstype=swap --recommended --ondrive=sda
 part pv.01 --size=24000 --maxsize=64000 --grow --ondrive=sda
 # System partitions
 volgroup system_vg pv.01
-logvol / --fstype=xfs --name=root_lv --vgname=system_vg --size=16384
+logvol / --fstype=xfs --name=root_lv --vgname=system_vg --size=16000
 logvol /var/log --fstype=xfs --name=varlog_lv --vgname=system_vg --size=32000 --grow
 logvol /tmp --fstype=xfs --name=tmp_lv --vgname=system_vg --size=2000
 logvol /opt --fstype=xfs --name=opt_lv --vgname=system_vg --size=4000

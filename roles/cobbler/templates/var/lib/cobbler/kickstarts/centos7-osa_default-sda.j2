@@ -87,9 +87,8 @@ volgroup cinder_volumes pv.04
 # Swift storage
 part pv.05 --size=1000 --grow
 volgroup swift_vg pv.05
-{% for p in swift_partitions %}
-logvol {{p.mountpoint}} --fstype={{p.fstype}} --name={{p.name}} --vgname=swift_vg --size={{p.min_size}} --grow
-{% endfor %}
+logvol /srv/node/sdb --fstype=xfs --name=swift-sdb --vgname=swift_vg --percent=50 --fsoptions="noatime,nodiratime,nobarrier,logbufs=8"
+logvol /srv/node/sdc --fstype=xfs --name=swift-sdc  --vgname=swift_vg --percent=50 --fsoptions="noatime,nodiratime,nobarrier,logbufs=8"
 
 %pre
 $SNIPPET('log_ks_pre')

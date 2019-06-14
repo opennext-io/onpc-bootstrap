@@ -1,0 +1,119 @@
+---
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Ensure that the networking variables are properly defined
+  assert:
+    that: item.conditional
+    msg: "{{ item.msg }}"
+  with_items:
+    - conditional: "{{ management_network is defined and management_network | ipaddr }}"
+      msg: "The 'management_network' is not properly defined"
+    - conditional: "{{ tunnel_network is defined and tunnel_network | ipaddr }}"
+      msg: "The 'tunnel_network' is not properly defined"
+    - conditional: "{{ storage_network is defined and storage_network | ipaddr }}"
+      msg: "The 'storage_network' is not properly defined"
+    - conditional: "{{ external_network is defined and external_network | ipaddr }}"
+      msg: "The 'external_network' is not properly defined"
+    - conditional: "{{ api_network is defined and api_network | ipaddr }}"
+      msg: "The 'api_network' is not properly defined"
+    - conditional: "{{ external_vip_addr is defined and external_vip_addr | ipaddr }}"
+      msg: "The 'external_vip_addr' is not properly defined"
+    - conditional: "{{ internal_vip_addr is defined and internal_vip_addr | ipaddr }}"
+      msg: "The 'internal_vip_addr' is not properly defined"
+    - conditional: "{{ default_gateway_addr is defined and default_gateway_addr | ipaddr }}"
+      msg: "The 'default_gateway_addr' is not properly defined"
+    - conditional: "{{ internal_vip_addr | ipsubnet(management_network | ipaddr('prefix')) == management_network }}"
+      msg: "The 'internal_vip_addr' is not properly defined"
+    - conditional: "{{ external_vip_addr | ipsubnet(api_network | ipaddr('prefix')) == api_network }}"
+      msg: "The 'external_vip_addr' is not properly defined"
+    - conditional: "{{ default_gateway_addr | ipsubnet(management_network | ipaddr('prefix')) == management_network }}"
+      msg: "The 'default_gateway_addr' is not properly defined"
+
+- name: Set master_infra_network fact
+  set_fact:
+    master_infra_network: "{{ value | ipaddr('net') }}"
+  vars:
+    value: "{{ ansible_default_ipv4.network }}/{{ ansible_default_ipv4.netmask }}"
+
+- name: Set master_infra_addr fact
+  set_fact:
+    master_infra_addr: "{{ ansible_default_ipv4.address }}"
+
+- name: Set master_infra_interface fact
+  set_fact:
+    master_infra_interface: "{{ ansible_default_ipv4.interface }}"
+
+- name: Set master_mgmt_interface fact
+  set_fact:
+    master_mgmt_interface: "{{ ansible_br_mgmt.device }}"
+
+- name: Set proxy_server_addr facts
+  set_fact:
+    proxy_server_addr: "{{ onpc_proxy_server | default(default_gateway_addr) }}"
+    proxy_server_port: "{{ item.port }}"
+    proxy_is_transparent: "{{ item.transparent }}"
+  with_items:
+    - conditional: "{{ onpc_proxy_mode is defined and onpc_proxy_mode == 'transparent' }}"
+      port: 3128
+      transparent: True
+    - conditional: "{{ onpc_proxy_mode is defined and onpc_proxy_mode != 'transparent' }}"
+      port: 8000
+      transparent: False
+  when: item.conditional == True
+  
+- name: Set time_server_addr fact
+  set_fact:
+    time_server_addr: "{{ onpc_time_server | default(default_gateway_addr) }}"
+
+- name: Set dns_server_addr fact
+  set_fact:
+    dns_server_addr: "{{ onpc_dns_server | default(default_gateway_addr) }}"
+
+- name: Set internal_vip_network facts
+  set_fact:
+    internal_vip_network: "{{ management_network.split('/')[0] }}"
+
+- name: Set internal_vip_cidr fact
+  set_fact:
+    internal_vip_cidr: "{{ internal_vip_addr }}/{{ management_network | ipaddr('prefix') }}"
+
+- name: Set internal_vip_interface fact
+  set_fact:
+    internal_vip_interface: "{{ management_interface }}"
+
+- name: Set external_vip_network facts
+  set_fact:
+    external_vip_network: "{{ api_network.split('/')[0] }}"
+
+- name: Set external_vip_cidr fact
+  set_fact:
+    external_vip_cidr: "{{ external_vip_addr}}/{{ api_network | ipaddr('prefix') }}"
+
+- name: Set external_vip_interface fact
+  set_fact:
+    external_vip_interface: "{{ api_interface }}"
+
+- name: Set reserved_ips facts
+  set_fact:
+    reserved_ips: >-
+      {%- set sel = [] %}
+      {%- for key in onpc_provider_networks.keys() %}
+      {%-   for val in onpc_provider_networks[key]['reserved'] %}
+      {%-     set _ = sel.append(val) %}
+      {%-   endfor %}
+      {%- endfor %}
+      {{- sel | list }}
+      

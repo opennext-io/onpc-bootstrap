@@ -20,11 +20,11 @@
   register: result
   tags: always
 
-- set_fact:
+- name: Set registered_mgmt_classes facts
+  set_fact:
     registered_mgmt_classes: "{{ result.stdout_lines | map('trim') | list | default([]) }}"
   tags: always
 
-# Role infra is a meta role 
 - name: "Register cobbler mgmt classes"
   command: >
     cobbler mgmtclass add 

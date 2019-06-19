@@ -4,7 +4,7 @@
 ## 3. change ssh config(change port)
 ## 4. Create OSA partitions
 
-# This kickstart file is used to install a test node in OSA.
+# This kickstart file is used to install a test host in OSA.
 # It should only be used with EL > 5 and/or Fedora > 7.
 # For older versions please use the sample.ks kickstart file.
 # platform=x86, AMD64, or Intel EM64T
@@ -87,8 +87,8 @@ volgroup cinder_volumes pv.04
 # Swift storage
 part pv.05 --size=1000 --grow
 volgroup swift_vg pv.05
-logvol /srv/node/sdb --fstype=xfs --name=swift-sdb --vgname=swift_vg --percent=50 --fsoptions="noatime,nodiratime,nobarrier,logbufs=8"
-logvol /srv/node/sdc --fstype=xfs --name=swift-sdc  --vgname=swift_vg --percent=50 --fsoptions="noatime,nodiratime,nobarrier,logbufs=8"
+logvol /srv/host/sdb --fstype=xfs --name=swift-sdb --vgname=swift_vg --percent=50 --fsoptions="noatime,nodiratime,nobarrier,logbufs=8"
+logvol /srv/host/sdc --fstype=xfs --name=swift-sdc  --vgname=swift_vg --percent=50 --fsoptions="noatime,nodiratime,nobarrier,logbufs=8"
 
 %pre
 $SNIPPET('log_ks_pre')

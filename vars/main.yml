@@ -46,7 +46,12 @@ onpc_valid_roles:
 ##
 ## OpenStack environment bootstrap scenarios
 ##
-onpc_bootstrap_scenario: "{{ lookup('env','SCENARIO') | default('distro_lxc_standard_ceph', true) }}"
+# Note: Cobbler is the only supported and functional way
+# to provision the target hosts in ONPC.
+# Other host provisioning tools (such as MAAS) have been
+# tested with various degrees of success but are not
+# supported here at this time.
+onpc_bootstrap_scenario: "{{ lookup('env','SCENARIO') | default('cobbler_distro_lxc_standard_ceph', true) }}"
 onpc_bootstrap_config_path: ../etc/openstack_deploy
 onpc_install_method: "{{ (onpc_bootstrap_scenario is search('distro')) | ternary('distro', 'source') }}"
 onpc_bootstrap_container_tech: "{{ (onpc_bootstrap_scenario is search('nspawn')) | ternary('nspawn', 'lxc') }}"
@@ -54,7 +59,7 @@ onpc_scenario_list: "{{ (onpc_bootstrap_scenario.split('_') | reject('equalto', 
 onpc_services_list: >-
   {%- set scenario_list = onpc_scenario_list %}
   {%- set service_list = ['keystone', 'cinder', 'glance', 'neutron', 'nova'] %}
-  {%- set service_list_extra = scenario_list | difference(['distro', 'lxc', 'nspawn', 'metal', 'source', 'starter', 'standard', 'extended', 'coe']) %}
+  {%- set service_list_extra = scenario_list | difference(['cobbler', 'distro', 'lxc', 'nspawn', 'metal', 'source', 'starter', 'standard', 'extended', 'coe']) %}
   {%- if 'ceph' in scenario_list %}
   {%-   set _ = service_list.extend(['ceph']) %}
   {%- endif %}
@@ -79,14 +84,82 @@ onpc_services_list: >-
   {%- set _ = service_list.extend(service_list_extra) %}
   {{- (service_list | unique) | sort }}
 
+##
+## Users with their ssh keys that should be populated on the target hosts
+#
+oncp_master_root_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') | default('') }}"
+onpc_users_list: [
+  {
+    name: centos,
+    password: 'change@me',
+    encrypted_password: '$1$xMkVZGyn$oORYOQ74r.WPrFNvStfeF0',
+    key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCoGCe7PlRSC7nBIEuGRF1ZX07TTNUYTN0uTAmjIINr8dsSb0jaQ+/Zqmzh/Wn9PSEh3w92IY1FE3IQFnvJUo5t+aDDqIYPF5BkcAzMZFtkLwheAegYUzYGve+iqvk2j0jb5jntRYcFagbJJoYZGCchvO0agJia5PMzMYdeGqdPuDD00ASyUUewVq/WViNou4Ob4+W1ffi+Y39kK9yN+nnxlrTyhuuNd/sLdfgRwKzrCc3P3fAYogGpsDEnXJ7SMVwvf21t5RO2JS/ucZmZsmezwv2TqtnsD8K0sH2apxiPqkcTpFNPFsGaavlQwuhBMSLMdORzCwiR/5oEc8Bit/n centos@master'
+  }
+]
+
+##
+## Target hosts distros to install
+##
+onpc_os_distros:
+  centos-7:
+#    device_or_iso_path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
+    url: "http://mirror.plusserver.com/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso"
+    arch: x86_64
+
+onpc_netboot_profiles:
+  infra-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_infra-sda.ks
+  ceph-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_ceph-sda.ks
+  compute-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_compute-sda.ks
+  storage-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_storage-sda.ks
+  swift-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_swift-sda.ks
+  monitoring-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-default-sda.ks
+  logging-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-default-sda.ks
+  default-centos-7-x86_64:
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-default-sda.ks
+
 ## 
 ## Networks configuration
 ##
+
 # management_network: used to provide access the internal services and containers
 # tunnel_network: used by tenants private networks 
 # storage_network: used by the storage services (optional)
 # external_network: used to provide access from external (Internet) network
 # lbaas_network: used by tenants for load balacing (octavia)
+
+# OpenStack-Ansible uses bridges to connect physical and logical network
+# interfaces on the host to virtual network interfaces within containers.
+# Target hosts need to be configured with the following network bridges:
+#
+# ====================================================================== 
+# Bridge name   Configured on          With a static IP
+# ====================================================================== 
+# br-mgmt       Every host             Always
+# ----------------------------------------------------------------------
+# br-storage    Every storage host	   When component deployed on metal	
+#               Every compute host	   Always
+# ----------------------------------------------------------------------
+# br-vxlan      Every network host     When component deployed on metal
+#               Every compute host     Always
+# ----------------------------------------------------------------------
+# br-vlan       Every network host     Never
+#               Every compute host     Never
+# ----------------------------------------------------------------------
 
 # Adjust as per your environment to include any IP addresses that are already used by existing
 # physical hosts in the environment where OpenStack will be deployed (and ensuring that you've
@@ -146,65 +219,21 @@ onpc_provider_networks:
     roles: ['controller']
 
 ##
-## Users with their ssh keys that should be populated on the target nodes
-#
-oncp_master_root_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') | default('') }}"
-onpc_users_list: [
-  {
-    name: centos,
-    password: 'change@me',
-    encrypted_password: '$1$xMkVZGyn$oORYOQ74r.WPrFNvStfeF0',
-    key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCoGCe7PlRSC7nBIEuGRF1ZX07TTNUYTN0uTAmjIINr8dsSb0jaQ+/Zqmzh/Wn9PSEh3w92IY1FE3IQFnvJUo5t+aDDqIYPF5BkcAzMZFtkLwheAegYUzYGve+iqvk2j0jb5jntRYcFagbJJoYZGCchvO0agJia5PMzMYdeGqdPuDD00ASyUUewVq/WViNou4Ob4+W1ffi+Y39kK9yN+nnxlrTyhuuNd/sLdfgRwKzrCc3P3fAYogGpsDEnXJ7SMVwvf21t5RO2JS/ucZmZsmezwv2TqtnsD8K0sH2apxiPqkcTpFNPFsGaavlQwuhBMSLMdORzCwiR/5oEc8Bit/n centos@master'
-  }
-]
+## Target hosts configuration
+##
 
-##
-## Target nodes distros to install
-##
-onpc_os_distros:
-  centos-7:
-#    device_or_iso_path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
-    url: "http://mirror.plusserver.com/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso"
-    arch: x86_64
-
-onpc_netboot_profiles:
-  infra-centos-7-x86_64:
-    distro_name: centos-7-x86_64
-    kickstart_file: centos7-osa_infra-sda.ks
-  ceph-centos-7-x86_64:
-    distro_name: centos-7-x86_64
-    kickstart_file: centos7-osa_ceph-sda.ks
-  compute-centos-7-x86_64:
-    distro_name: centos-7-x86_64
-    kickstart_file: centos7-osa_compute-sda.ks
-  storage-centos-7-x86_64:
-    distro_name: centos-7-x86_64
-    kickstart_file: centos7-osa_storage-sda.ks
-  swift-centos-7-x86_64:
-    distro_name: centos-7-x86_64
-    kickstart_file: centos7-osa_swift-sda.ks
-  monitoring-centos-7-x86_64:
-    distro_name: centos-7-x86_64
-    kickstart_file: centos7-osa_default-sda.ks
-  logging-centos-7-x86_64:
-    distro_name: centos-7-x86_64
-    kickstart_file: centos7-osa_default-sda.ks
-
-##
-## Target nodes configuration
-##
-# cardinality: number of target nodes to create
-# comment: self-explanatory description of node function
+# cardinality: number of target hosts to create
+# comment: self-explanatory description of host function
 # status: one of 'development', 'testing', 'acceptance', 'production'
 #         inventory group name.
-# profile: Cobbler profile (kickstart file) associated to the node.
-# roles: List of roles assigned to the target node
+# profile: Cobbler profile (kickstart file) associated to the host.
+# roles: List of roles assigned to the target host
 # state: one of: present (create) or absent (delete)
 # netboot: one of true (netboot enabled) or false (netboot disabled)
-onpc_node_targets:
+onpc_hosts_targets:
   infra:
     cardinality: 1
-    comment: "This is an infrastructure node"
+    comment: "This is an infrastructure host"
     profile: infra-centos-7-x86_64
     roles:
       - controller
@@ -213,44 +242,395 @@ onpc_node_targets:
       - haproxy
       - monitoring
       - logging
+    gateway: "{{ default_gateway_addr }}"
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    metadata: []
     state: present
     status: production
     netboot: true
+    partitions:
+      root:
+        size: 16
+        fstype: xfs
+        mountpoint: /
+      var:
+        size: 32
+        fstype: xfs
+        mountpoint: /var
+      lxc:
+        size: 24
+        fstype: xfs
+        mountpoint: /var/lib/lxc
+      openstack-core:
+        size: 8
+        fstype: xfs
+        mountpoint: /openstack
+      openstack-log:
+        size: 24
+        fstype: xfs
+        mountpoint: /openstack/log
+    interfaces:
+      # Primary physical interface
+      eth0:
+        management: true
+        static: true
+      # Secondary physical interface 
+      eth1:
+        interface_type: bridge_slave 
+        interface_master: "{{ external_interface }}"
+        static: true
+      # Container/Host management VLAN interface
+      eth1_10:
+        device: eth1.10
+        interface_type: bridge_slave
+        interface_master: "{{ management_interface }}"
+        static: true
+      # OpenStack Networking (tunnel/overlay) VLAN interface
+      eth1_30:
+        device: eth1.30
+        interface_type: bridge_slave
+        interface_master: "{{ tunnel_interface }}"
+        static: true
+      # OpenStack services API endpoints interface
+      eth1_40:
+        device: eth1.40
+        interface_type: bridge_slave
+        interface_master: "{{ api_interface }}"
+        static: true
+      # OpenStack APIs network bridge
+      # The HAProxy hosts must have an IP address on this bridge.
+      br_api:
+        device: "{{ api_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: 192.168.1.56
+        network: "{{ api_network }}"
+        netmask: "{{ api_network | ipaddr('netmask') }}"
+        static: true
+      # Container / Host management network bridge
+      # The compute, infra and network hosts must have an IP address 
+      # on this bridge.
+      br_mgmt:
+        device: "{{ management_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: 172.29.236.56
+        if_gateway: "{{ default_gateway_addr }}"
+        network: "{{ management_network }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
+        static: true
+      # OpenStack Networking VXLAN (tunnel/overlay) network bridge.
+      # The compute and network hosts must have an IP address
+      # on this bridge.
+      br_vxlan:
+        device: "{{ tunnel_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: 172.29.240.56
+        network: "{{ tunnel_network }}"
+        netmask: "{{ tunnel_network | ipaddr('netmask') }}"
+        static: true
+      # OpenStack Networking VLAN network bridge
+      br_vlan:
+        device: "{{ external_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        network: "{{ external_network }}"
+        netmask: "{{ external_network | ipaddr('netmask') }}"
+        static: true
   compute:
     cardinality: 1
-    comment: "This is a Nova compute node"
+    comment: "This is a Nova compute host"
     profile: compute-centos-7-x86_64
     roles:
       - compute
+    gateway: "{{ default_gateway_addr }}"
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    metadata: []
     state: present
     status: production
     netboot: true
+    partitions:
+      root:
+        size: 16
+        fstype: xfs
+        mountpoint: /
+      var:
+        size: 32
+        fstype: xfs
+        mountpoint: /var
+      lxc:
+        size: 24
+        fstype: xfs
+        mountpoint: /var/lib/lxc
+      openstack-core:
+        size: 8
+        fstype: xfs
+        mountpoint: /openstack
+      openstack-log:
+        size: 24
+        fstype: xfs
+        mountpoint: /openstack/log
+      openstack-instances:
+        size: 0
+        fstype: xfs
+        mountpoint: /var/lib/nova/instances
+        interfaces:
+    interfaces:  
+      # Primary physical interface
+      eth0:
+        management: true
+        static: true
+      # Secondary physical interface 
+      eth1:
+        interface_type: bridge_slave 
+        interface_master: "{{ external_interface }}"
+        static: true
+      # Container/Host management VLAN interface
+      eth1_10:
+        device: eth1.10
+        interface_type: bridge_slave
+        interface_master: "{{ management_interface }}"
+        static: true
+      # Storage VLAN interface
+      eth1_20:
+        device: eno2.20
+        interface_type: bridge_slave 
+        interface_master: "{{ storage_interface }}" 
+        static: true
+      # OpenStack Networking (tunnel/overlay) VLAN interface
+      eth1_30:
+        device: eth1.30
+        interface_type: bridge_slave
+        interface_master: "{{ tunnel_interface }}"
+        static: true
+      # Container / Host management network bridge
+      # The compute, infra and network hosts must have an IP address 
+      # on this bridge.
+      br_mgmt:
+        device: "{{ management_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: 172.29.236.56
+        if_gateway: "{{ default_gateway_addr }}"
+        network: "{{ management_network }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
+        static: true
+      br_storage:
+        device: "{{ storage_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: 172.29.244.57
+        network: "{{ storage_network }}"
+        netmask: "{{ storage_network | ipaddr('netmask') }}"
+        static: true
+      # OpenStack Networking VXLAN (tunnel/overlay) network bridge.
+      # The compute and network hosts must have an IP address
+      # on this bridge.
+      br_vxlan:
+        device: "{{ tunnel_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: 172.29.240.56
+        network: "{{ tunnel_network }}"
+        netmask: "{{ tunnel_network | ipaddr('netmask') }}"
+        static: true
+      # OpenStack Networking VLAN network bridge
+      br_vlan:
+        device: "{{ external_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        network: "{{ external_network }}"
+        netmask: "{{ external_network | ipaddr('netmask') }}"
+        static: true    
   ceph:
     cardinality: 1
-    comment: "This is a Ceph OSD node"
+    comment: "This is a Ceph OSD host"
     profile: ceph-centos-7-x86_64
     roles:
       - ceph
+    gateway: "{{ default_gateway_addr }}"
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    metadata: []
     state: present
     status: production
     netboot: true
-
-##
-## Baremetal provisioning config
-##
-# Cobbler is the only fully supported and functional way
-# to deploy an OpenStack environment with ONPC.
-# Other node provisioning tools (such as MAAS) have been
-# tested with various degrees of success and are not
-# supported at this time.
-onpc_install_cobbler: True
+    partitions:
+      root:
+        size: 16
+        fstype: xfs
+        mountpoint: /
+      var:
+        size: 32
+        fstype: xfs
+        mountpoint: /var
+      ceph-data:
+        size: 0
+        fstype: vgonly
+      ceph-journal:
+        size: 0
+        fstype: vgonly
+  storage:
+    cardinality: 0
+    comment: "This is a Cinder block storage host"
+    profile: storage-centos-7-x86_64
+    roles:
+      - storage
+    gateway: "{{ default_gateway_addr }}"
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    metadata: []
+    state: present
+    status: production
+    netboot: true
+    partitions:
+      root:
+        size: 16
+        fstype: xfs
+        mountpoint: /
+      var:
+        size: 32
+        fstype: xfs
+        mountpoint: /var
+      cinder-volumes:
+        size: 0
+        fstype: vgonly
+  interfaces:  
+      # Primary physical interface
+      eth0:
+        management: true
+        static: true
+      # Secondary physical interface 
+      eth1:
+        interface_type: bridge_slave 
+        interface_master: "{{ external_interface }}"
+        static: true
+      # Container/Host management VLAN interface
+      eth1_10:
+        device: eth1.10
+        interface_type: bridge_slave
+        interface_master: "{{ management_interface }}"
+        static: true
+      # Storage VLAN interface
+      eth1_20:
+        device: eno2.20
+        interface_type: bridge_slave 
+        interface_master: "{{ storage_interface }}" 
+        static: true
+      # Container / Host management network bridge
+      # The compute, infra and network hosts must have an IP address 
+      # on this bridge.
+      br_mgmt:
+        device: "{{ management_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: 172.29.236.56
+        if_gateway: "{{ default_gateway_addr }}"
+        network: "{{ management_network }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
+        static: true
+      br_storage:
+        device: "{{ storage_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: 172.29.244.57
+        network: "{{ storage_network }}"
+        netmask: "{{ storage_network | ipaddr('netmask') }}"
+        static: true
+  swift:
+    cardinality: 0
+    comment: "This is a Swift object storage host"
+    profile: swift-centos-7-x86_64
+    roles:
+      - swift
+    gateway: "{{ default_gateway_addr }}"
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    metadata: []
+    state: present
+    status: production
+    netboot: true
+    partitions:
+      root:
+        size: 16
+        fstype: xfs
+        mountpoint: /
+      var:
+        size: 32
+        fstype: xfs
+        mountpoint: /var
+      swift-sdb:
+        size: 0
+        fstype: xfs
+        mountpoint: /srv/node/sdb
+        options: "noatime,nodiratime,nobarrier,logbufs=8"
+      swift-sdc:
+        size: 0
+        fstype: xfs
+        mountpoint: /srv/node/sdc
+        options: "noatime,nodiratime,nobarrier,logbufs=8"
+    interfaces:  
+      # Primary physical interface
+      eth0:
+        management: true
+        static: true
+      # Secondary physical interface 
+      eth1:
+        interface_type: bridge_slave 
+        interface_master: "{{ external_interface }}"
+        static: true
+      # Container/Host management VLAN interface
+      eth1_10:
+        device: eth1.10
+        interface_type: bridge_slave
+        interface_master: "{{ management_interface }}"
+        static: true
+      # Storage VLAN interface
+      eth1_20:
+        device: eno2.20
+        interface_type: bridge_slave 
+        interface_master: "{{ storage_interface }}" 
+        static: true
+      # Container / Host management network bridge
+      # The compute, infra and network hosts must have an IP address 
+      # on this bridge.
+      br_mgmt:
+        device: "{{ management_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: 172.29.236.56
+        if_gateway: "{{ default_gateway_addr }}"
+        network: "{{ management_network }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
+        static: true
+      br_storage:
+        device: "{{ storage_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: 172.29.244.57
+        network: "{{ storage_network }}"
+        netmask: "{{ storage_network | ipaddr('netmask') }}"
+        static: true
 
 ##
 ## Proxy cache config
 ##
 # In situations where the Internet access is blocked from
-# the target nodes, a proxy server (Squid) can be
-# installed on the master node to remedy this problem.
+# the target hosts, a proxy server (Squid) can be
+# installed on the master host to remedy this problem.
 # Internet access is required to be able to get the
 # needed resources during the deployment phase such as
 # packages, LXC container images, Ansible roles and so
@@ -262,10 +642,10 @@ onpc_install_cobbler: True
 # - transparent: Internet access is mediated through the
 #                proxy in a transparent manner. No proxy
 #                settings is needed to access the Internet
-#                from the target nodes.
+#                from the target hosts.
 # - transient: Internet access is mediated through the
 #              proxy only during the deployment phase.
-#              Target nodes clients such as wget will not
+#              Target hosts clients such as wget will not
 #              be able to access external resources after
 #              deployment.
 # - permanent: Internet access is mediated through the

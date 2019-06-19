@@ -2,14 +2,14 @@
 ---
 # Ceph services hosts
 {% if 'ceph' in onpc_services_list %}
-# The infra nodes where the Ceph Mon services will run
+# The infra hosts where the Ceph Mon services will run
 ceph-mon_hosts:
 {% for h in controller_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
 
-# The nodes that the Ceph OSD disks will be running on
+# The hosts that the Ceph OSD disks will be running on
 ceph-osd_hosts:
 {% for h in ceph_hosts_dict %}
   {{ h.name }}:
@@ -33,7 +33,7 @@ ceph-osd_hosts:
 {% endraw %}
 {% endfor %}
 
-# The nodes that the Ceph RadosGW object gateways will be running on
+# The hosts that the Ceph RadosGW object gateways will be running on
 ceph-rgw_hosts:
 {% for h in controller_hosts_dict %}
   {{ h.name }}:

@@ -64,69 +64,43 @@
 - name: change 'disable' to 'no' in /etc/xinetd.d/tftp
   lineinfile: dest=/etc/xinetd.d/tftp regexp="disable" line="disable = no" backup=yes
 
-
 #----------------
 # begin add snippets and kickstarts
 #----------------
-- name: add_root_ssh_keys snippnet
-  template: src=var/lib/cobbler/snippets/add_root_ssh_keys.j2
-            dest=/var/lib/cobbler/snippets/add_root_ssh_keys
-  when: cobbler_root_public_keys is defined
 
-- name: add_users_ssh_keys snippnet
-  template: src=var/lib/cobbler/snippets/add_users_ssh_keys.j2
-            dest=/var/lib/cobbler/snippets/add_users_ssh_keys
-  when: onpc_users_list is defined
+- name: Find the snippets templates
+  find:
+    paths: "roles/cobbler/templates/var/lib/cobbler/snippets"
+    patterns: '^.*\.j2$'
+    use_regex: yes
+  register: snippet_templates
+  tags: always
 
-- name: post_install_network_config snippnet
-  template: src=var/lib/cobbler/snippets/post_install_network_config.j2
-            dest=/var/lib/cobbler/snippets/post_install_network_config
-            backup=yes
+- name: Drop the snippnet templates
+  template:
+    src: "{{ item }}"
+    dest: "/var/lib/cobbler/snippets/{{ (item | basename).split('.')[:-1] | join('.') }}"
+    backup: yes
+  with_items: "{{ snippet_templates.get('files', []) | map(attribute='path') | list }}"
+  tags: drop-snippet-files
 
-- name: post_install_network_config_ignore_interface snippnet
-  template: src=var/lib/cobbler/snippets/post_install_network_config_ignore_interface.j2
-            dest=/var/lib/cobbler/snippets/post_install_network_config_ignore_interface
-            backup=yes
+- name: Find the kickstart templates
+  find:
+    paths: "roles/cobbler/templates/var/lib/cobbler/kickstarts"
+    patterns: '^.*\.j2$'
+    use_regex: yes
+  register: kickstart_templates
+  tags: always
 
-- name: /var/lib/cobbler/kickstarts/centos7-customized-sda
-  template: src=var/lib/cobbler/kickstarts/centos7-customized-sda.j2
-            dest=/var/lib/cobbler/kickstarts/centos7-customized-sda.ks
-            backup=yes
-
-- name: /var/lib/cobbler/kickstarts/centos7-customized-vda
-  template: src=var/lib/cobbler/kickstarts/centos7-customized-vda.j2
-            dest=/var/lib/cobbler/kickstarts/centos7-customized-vda.ks
-            backup=yes
-
-- name: /var/lib/cobbler/kickstarts/centos7-osa_ceph-sda
-  template: src=var/lib/cobbler/kickstarts/centos7-osa_ceph-sda.j2
-            dest=/var/lib/cobbler/kickstarts/centos7-osa_ceph-sda.ks
-            backup=yes
-
-- name: /var/lib/cobbler/kickstarts/centos7-osa_compute-sda
-  template: src=var/lib/cobbler/kickstarts/centos7-osa_compute-sda.j2
-            dest=/var/lib/cobbler/kickstarts/centos7-osa_compute-sda.ks
-            backup=yes
-
-- name: /var/lib/cobbler/kickstarts/centos7-osa_infra-sda
-  template: src=var/lib/cobbler/kickstarts/centos7-osa_infra-sda.j2
-            dest=/var/lib/cobbler/kickstarts/centos7-osa_infra-sda.ks
-            backup=yes
-
-- name: /var/lib/cobbler/kickstarts/centos7-osa_storage-sda
-  template: src=var/lib/cobbler/kickstarts/centos7-osa_storage-sda.j2
-            dest=/var/lib/cobbler/kickstarts/centos7-osa_storage-sda.ks
-            backup=yes
-
-- name: /var/lib/cobbler/kickstarts/centos7-osa_default-sda
-  template: src=var/lib/cobbler/kickstarts/centos7-osa_default-sda.j2
-            dest=/var/lib/cobbler/kickstarts/centos7-osa_default-sda.ks
-            backup=yes
-
-- name: /var/lib/cobbler/kickstarts/centos7-osa_swift-sda
-  template: src=var/lib/cobbler/kickstarts/centos7-osa_swift-sda.j2
-            dest=/var/lib/cobbler/kickstarts/centos7-osa_swift-sda.ks
-            backup=yes
+- name: Drop the kickstart templates
+  template:
+    src: "{{ item }}"
+    dest: "/var/lib/cobbler/kickstarts/{{ (item | basename).split('.')[:-1] | join('.') }}.ks"
+    backup: yes
+    group: root
+    mode: 0644
+  with_items: "{{ kickstart_templates.get('files', []) | map(attribute='path') | list }}"
+  tags: drop-kickstart-files
 
 # end add snippets and kickstarts
 
@@ -147,7 +121,7 @@
 # cobbler-web
 - name: install cobbler-web
   include: web.yml
-  when: cobbler_install_web is defined and cobbler_install_web
+  when: cobbler_install_web is defined and cobbler_install_web | bool
 
 
 

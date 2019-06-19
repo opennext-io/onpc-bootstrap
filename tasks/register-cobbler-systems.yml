@@ -14,40 +14,62 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 - name: Set system_roles fact
   set_fact:
-      system_roles: "{{ (system.value.roles | intersect(infra_group)) | ternary((system.value.roles + ['infra']) | unique | list), system.value.roles | unique | list }}"
+      system_roles: "{{ (item.value.roles | intersect(infra_group)) | ternary((item.value.roles + ['infra']) | unique | list, item.value.roles | unique | list) }}"
   vars:
     infra_group: ['controller', 'network', 'haproxy', 'image']
 
-- debug: var=system_roles
-
-- name: "Add cobbler system '{{ system_name }}'"
+- name: "Add cobbler system '{{ item.value.name }}'"
   command: >
     cobbler system add
-      --name={{ system_name }}
-      --hostname={{ system_name '.' + onpc_infra_domain }}
-      --profile="{{ system.value.profile | lower }}"
-      --status={{ system.value.status | default() | lower}}
-      --comment="{{ system.value.comment | default('') }}"
-      --mgmt-classes="{{ system_roles | join(' ') }}"
-      --ksmeta="{{ system.value.metadata | default([]) | join(' ') }}"
-      --netboot-enabled="{{ system.value.netboot | default(False) }}"
+      --name="{{ item.value.name | lower }}"
+      --hostname="{{ hostname }}"
+      --gateway="{{ item.value.gateway }}"
+      --name-servers="{{ item.value.name_servers | join(' ') }}"
+      --name-servers-search="{{ item.value.name_servers_search | join(' ') | lower }}"
+      --profile="{{ item.value.profile | lower }}"
+      --status="{{ item.value.status | lower }}"
+      --comment="{{ item.value.comment }}"
+      --mgmt-classes="{{ system_roles | join(' ') | lower }}"
+      --ksmeta="{{ item.value.metadata | join(' ') | lower }}"
+      --netboot-enabled="{{ item.value.netboot }}"
   when:
-    - system_name not in registered_systems
-    - "item.value.state == 'present'"
-  vars:
-    count: "{{ system.value.cardinality | default(1) }}"
-  with_sequence: count="{{ count }}"
+    - item.value.name not in registered_systems
+    - item.value.state == "present"
   tags: register-cobbler-systems
 
-- name: "Add network interfaces to '{{ system.name }}'"
-  include_tasks: tasks/register-cobbler-interfaces.yml
-  vars:
-    system_name: "{{ system.name | lower }}"
-  loop: "{{ system.interfaces }}"
-  loop_control:
-    loop_var: interface
+- name: "Edit cobbler system '{{ item.value.name }}'"
+  command: >
+    cobbler system edit
+      --name="{{ item.value.name | lower }}"
+      --hostname="{{ hostname | lower }}"
+      --gateway="{{ item.value.gateway }}"
+      --name-servers="{{ item.value.name_servers | join(' ') | lower  }}"
+      --name-servers-search="{{ item.value.name_servers_search | join(' ') | lower }}"
+      --profile="{{ item.value.profile | lower }}"
+      --status="{{ item.value.status | lower }}"
+      --comment="{{ item.value.comment }}"
+      --mgmt-classes="{{ system_roles | join(' ') | lower }}"
+      --ksmeta="{{ item.value.metadata | join(' ') | lower }}"
+      --netboot-enabled="{{ item.value.netboot }}"
   when:
-    - "system.state == 'present'"
+    - item.value.name in registered_systems
+    - item.value.state == "present"
+  tags: register-cobbler-systems
+
+- name: "Delete cobbler system '{{ item.value.name }}'"
+  command: >
+    cobbler system 
+      --name={{ item.value.name }}
+  when:
+    - item.value.name in registered_systems
+    - item.value.state == "absent"
+  tags: register-cobbler-systems
+
+- name: "Add network interfaces to '{{ item.value.name }}'"
+  include_tasks: tasks/register-cobbler-interfaces.yml
+  when:
+    - item.state == "present"
   tags: register-cobbler-interfaces

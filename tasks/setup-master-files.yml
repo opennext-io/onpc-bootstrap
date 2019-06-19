@@ -36,7 +36,7 @@
   when: not user_secrets_info.stat.exists
   tags: generate-passwords
 
-- name: Find conf.d templates for multinode
+- name: Find conf.d templates for multihost
   find:
     paths: "../etc/openstack_deploy/templates/conf.d"
     patterns: '^.*\.j2$'
@@ -44,7 +44,7 @@
   register: onpc_confd_templates
   tags: always
 
-- name: Drop conf.d config files for multinode 
+- name: Drop conf.d config files for multihost 
   template:
     src: "{{ item }}"
     dest: "/etc/openstack_deploy/conf.d/{{ (item | basename).split('.')[:-1] | join('.') }}"
@@ -54,7 +54,7 @@
   with_items: "{{ onpc_confd_templates.get('files', []) | map(attribute='path') | list }}"
   tags: drop-confd-files
 
-- name: Drop the openstack_user_config.yml for multinode 
+- name: Drop the openstack_user_config.yml for multihost 
   template:
     src: "../etc/openstack_deploy/templates/openstack_user_config.yml.j2"
     dest: "/etc/openstack_deploy/openstack_user_config.yml"
@@ -63,7 +63,7 @@
     mode: 0644
   tags: drop-openstack-user-config 
 
-- name: Drop the user_variables.yml for multinode 
+- name: Drop the user_variables.yml for multihost 
   template:
     src: "../etc/openstack_deploy/templates/user_variables.yml.j2"
     dest: "/etc/openstack_deploy/user_variables.yml"

@@ -23,24 +23,24 @@
     - "{{ ansible_os_family | lower }}.yml"
   tags: always
     
-- name: Remove OSA nodes known problem packages
+- name: Remove OSA hosts known problem packages
   package:
     name: "{{ packages_remove }}"
     state: absent
   tags: remove-packages
 
-- name: Install OSA nodes packages (RedHat/CentOS)
+- name: Install OSA hosts packages (RedHat/CentOS)
   yum:
     name: "{{ master_packages_install }}"
     state: present
     update_cache: true
   when: ansible_os_family == "RedHat"
-  tags: install-nodes-packages
+  tags: install-hosts-packages-packages
 
-- name: Install OSA nodes packages (Debian/Ubuntu)
+- name: Install OSA hosts packages (Debian/Ubuntu)
   apt:
     name: "{{ master_packages_install }}"
     state: present
     update_cache: true
   when: ansible_os_family == "Debian"
-  tags: install-nodes-packages
+  tags: install-hosts-packages-packages

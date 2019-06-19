@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Setup master node
+- name: Setup master host
   hosts: localhost
   connection: local
   become: true

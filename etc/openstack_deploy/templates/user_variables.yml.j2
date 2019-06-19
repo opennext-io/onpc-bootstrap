@@ -35,7 +35,7 @@ install_method: "{{ onpc_install_method }}"
 # The container backing store is set to 'lvm' with 'copy-on-write' method
 # Options are: [machinectl, overlayfs, btrfs, zfs, dir, lvm]
 # If the container backing store is set to 'lvm' a volume group name 'lxc'
-# must be created on all nodes hosting LXC containers.
+# must be created on all hosts hosting LXC containers.
 lxc_container_backing_store: "{{ onpc_container_backing_store | default('dir') }}"
 lxc_container_backing_method: "{{ onpc_container_backing_method | default('null') }}"
 

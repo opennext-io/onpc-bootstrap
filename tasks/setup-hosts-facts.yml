@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Set node_roles fact
+- name: Set host_roles fact
   set_fact:
-    node_roles: "{{ onpc_valid_roles | intersect(group_names) | unique | list }}"
+    host_roles: "{{ onpc_valid_roles | intersect(group_names) | unique | list }}"
 
-- name: Set managed_node fact
+- name: Set managed_host fact
   set_fact:
-    managed_node: "{{ node_roles | length > 0 | ternary (True, False) }}"
+    managed_host: "{{ host_roles | length > 0 | ternary (True, False) }}"

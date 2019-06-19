@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Check the ONPC deployment nodes
+- name: Check the ONPC deployment hosts
   hosts: all
   become: true
   become_user: root
@@ -24,44 +24,44 @@
     - vars/main.yml
 
   tasks:
-    - import_tasks: tasks/setup-nodes-facts.yml
+    - import_tasks: tasks/setup-hosts-facts.yml
       tags: always
   
-    - include_tasks: tasks/check-node-kernel.yml
-      when: managed_node
-      tags: check-node-kernel
+    - include_tasks: tasks/check-host-kernel.yml
+      when: managed_host
+      tags: check-host-kernel
   
-    - include_tasks: tasks/check-node-partition.yml
+    - include_tasks: tasks/check-host-partition.yml
       vars:
         partition_setup: "{{ item }}"
       with_items: "{{ onpc_osa_partitions }}"
       when:
-        - onpc_osa_partitions_check is defined and onpc_osa_partitions_check
-        - managed_node
-      tags: check-node-partitions
+        - onpc_osa_partitions_check is defined and onpc_osa_partitions_check | bool
+        - managed_host
+      tags: check-host-partitions
   
-    - include_tasks: tasks/check-node-network.yml
+    - include_tasks: tasks/check-host-network.yml
       vars:
         netconf: "{{ item.value }}"
       with_dict: "{{ onpc_provider_networks }}"
       when:
-        - onpc_provider_networks_check is defined and onpc_provider_networks_check | bool == True
-        - managed_node
-      tags: check-node-interfaces
+        - onpc_provider_networks_check is defined and onpc_provider_networks_check | bool
+        - managed_host
+      tags: check-host-interfaces
   
-    - include_tasks: tasks/install-node-packages.yml
-      when: managed_node
-      tags: install-node-packages
+    - include_tasks: tasks/install-host-packages.yml
+      when: managed_host
+      tags: install-host-packages
 # (Note (PP): Commented until proven necessary.
 # Kernel tuning is already taken care of by OpenStack-Ansible
 #    - import_tasks: tasks/configure-kernel.yml
-#      when: managed_node
-#      tags: configure-node-kernel
+#      when: managed_host
+#      tags: configure-host-kernel
   
     - include_tasks: tasks/import-root-public-key.yml
       vars:
        public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
-      when: managed_node
+      when: managed_host
       tags: import-root-public-key 
 
     - include_role:
@@ -69,5 +69,5 @@
       vars:
         chrony_server: "{{ time_server_addr | default('pool.ntp.org') }} prefer iburst"
       when:
-        - managed_node
-      tags: configure-node-chrony
+        - managed_host
+      tags: configure-host-chrony

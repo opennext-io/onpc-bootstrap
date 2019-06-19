@@ -47,7 +47,7 @@
     that: active_state == True
     msg: "Interface '{{ interface_name }}' is not active"
   when:
-    - (network_roles | length == 0) or (network_roles | intersect(node_roles) | length > 0)
+    - (network_roles | length == 0) or (network_roles | intersect(host_roles) | length > 0)
 
 - name: "Set interface '{{ interface_name }}' IP address fact"
   set_fact:
@@ -69,7 +69,7 @@
     - interface_type == 'bridge'
     msg: "The interface type'{{ interface_type }}' must be 'bridge' }}'"
   when:
-    - (network_roles | length == 0) or (network_roles | intersect(node_roles) | length > 0)
+    - (network_roles | length == 0) or (network_roles | intersect(host_roles) | length > 0)
 
 - name: "Check that interface '{{ interface_name }}' has a valid IP address"
   assert:
@@ -77,5 +77,5 @@
       - interface_address | ipaddr(netconf.get('cidr')) | length > 0
     msg: "The address '{{ interface_address }}' must be  within range '{{ netconf.get('cidr') }}'"
   when:
-    - (network_roles | length == 0) or (network_roles | intersect(node_roles) | length > 0)
+    - (network_roles | length == 0) or (network_roles | intersect(host_roles) | length > 0)
     - interface_name != external_interface

@@ -24,15 +24,16 @@
   tasks:
     - include: playbook-install-master.yml
     - include: playbook-install-cobbler.yml
-      when: onpc_install_cobbler is defined and onpc_install_cobbler == True
-    - include: playbook-create-inventory.yml
-      when: onpc_install_cobbler is defined and onpc_install_cobbler == True
+      when: "'cobbler' in onpc_services_list"
+    - include: playbook-setup-inventory.yml
+      when: "'cobbler' in onpc_services_list"
     - include: playbook-install-squid.yml
       when:
         - onpc_proxy_mode is defined
         - (onpc_proxy_mode == 'transparent') or (onpc_proxy_mode == 'permanent')
           or (onpc_proxy_mode == 'transient')
-    - include: playbook-setup-environment.yml
-    - include: playbook-install-osa-nodes.yml
     - include: playbook-install-nfs.yml
       when: "'nfs' in onpc_services_list"
+    - include: playbook-setup-environment.yml
+    - include: playbook-install-osa-hosts.yml
+    

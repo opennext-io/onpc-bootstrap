@@ -77,13 +77,21 @@
         profile_name: "{{ item.key | lower }}"
       with_dict: "{{ onpc_netboot_profiles }}"
 
-    - name: Register Cobbler systems
-      include_tasks: tasks/register-cobbler-system.yml
-      loop: "{{ cobbler_systems }}"
-      loop_control:
-        loop_var: system
+    - name: Get cobbler systems 
+      command: >
+        cobbler system list
+      register: result
+      tags: register-cobbler-systems 
+ 
+    - include_tasks: tasks/setup-hosts-dict.yml
+
+    - include_tasks: tasks/register-cobbler-systems.yml
+      vars:
+        hostname: "{{ item.key | lower }}"
+        registered_systems: "{{ result.stdout_lines | map('trim') | list | default([]) }}"
+      with_dict: "{{ onpc_hosts_dict }}"
       tags: register-cobbler-systems
-    
+          
     - name: Sync Cobbler database
       cobbler_sync:
         host: "{{ master_infra_addr }}"
@@ -93,4 +101,4 @@
       run_once: yes
       register: result
       failed_when: result.failed
-      tags: cobbler-sync
+      tags: always

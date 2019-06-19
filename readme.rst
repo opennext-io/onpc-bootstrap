@@ -8,7 +8,7 @@ OpenNext Private Cloud Basic Model
 About this repository
 ---------------------
 This repository defines the OpenNext deployment model for a basic (a.k.a Starter Kit)
-OpenStack infrastructure. Supports all-in-one or multi-node deployment in virtual or
+OpenStack infrastructure. Supports all-in-one or multi-host deployment in virtual or
 physical machines.
 
 Process

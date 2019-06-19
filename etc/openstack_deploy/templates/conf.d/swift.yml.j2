@@ -1,7 +1,7 @@
 #jinja2: lstrip_blocks: True
 # {{ ansible_managed }}
 ---
-# The nodes that will be running the Swift services
+# The hosts that will be running the Swift services
 {% if 'swift' in onpc_services_list %}
 swift-proxy_hosts:
 {% for h in controller_hosts_dict %}
@@ -12,7 +12,7 @@ swift-proxy_hosts:
         limit_container_types: swift_proxy
         read_affinity: "r{{ loop.index }}=100"
         write_affinity: "r{{ loop.index }}"
-        write_affinity_node_count: "2 * replicas"
+        write_affinity_host_count: "2 * replicas"
 {% endfor %}
 
 swift_hosts:
@@ -21,7 +21,7 @@ swift_hosts:
     ip: {{ h.ip_v4 }}
     container_vars:
       swift_vars:
-        mount_point: /srv/node
+        mount_point: /srv/host
         limit_container_types: swift
         zone: {{ loop.index }}
         region: 1

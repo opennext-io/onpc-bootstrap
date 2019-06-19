@@ -73,7 +73,7 @@
   when:
     - partition_mountpoint | length > 0 
     - partition_fstype | length > 0
-    - (partition_roles | length == 0) or (partition_roles | intersect(node_roles) | length > 0)
+    - (partition_roles | length == 0) or (partition_roles | intersect(host_roles) | length > 0)
 #
 # TODO: Same checks should be performed for volume groups
 #

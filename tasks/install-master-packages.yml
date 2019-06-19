@@ -23,13 +23,13 @@
     - "{{ ansible_os_family | lower }}.yml"
   tags: always
   
-- name: Remove master node known problem packages
+- name: Remove master host known problem packages
   package:
     name: "{{ master_packages_remove }}"
     state: absent
   tags: remove-master-packages
 
-- name: Install master node packages (RedHat/CentOS)
+- name: Install master host packages (RedHat/CentOS)
   yum:
     name: "{{ master_packages_install }}"
     state: present
@@ -37,7 +37,7 @@
   when: ansible_os_family == "RedHat"
   tags: install-master-packages
 
-- name: Install master node packages (Debian/Ubuntu)
+- name: Install master host packages (Debian/Ubuntu)
   apt:
     name: "{{ master_packages_install }}"
     state: present

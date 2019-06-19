@@ -133,134 +133,134 @@
     nfs_hosts_list: "{{ (nfs_hosts_list | length == 0) | ternary(controller_hosts_list, nfs_hosts_list) }}"
   when: "'nfs' in onpc_services_list"
 
-- name: Set first controller node fact
+- name: Set first controller host fact
   set_fact:
-    first_controller_node_name: "{{ controller_hosts_list | sort | first }}"
+    first_controller_hostname: "{{ controller_hosts_list | sort | first }}"
 
-- name: Set first haproxy node fact
+- name: Set first haproxy host fact
   set_fact:
-    first_haproxy_node_name: "{{ haproxy_hosts_list | sort | first }}"
+    first_haproxy_hostname: "{{ haproxy_hosts_list | sort | first }}"
 
 - name: Set hosts dictionaries facts
   set_fact:
     controller_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in controller_hosts_list %}
-      {%-   set _name = host.split('.')[0] %}
-      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
-      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
-      {%-   set _ = sel.append(_rec) %}
+      {%-   set name = host.split('.')[0] %}
+      {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
     storage_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in storage_hosts_list %}
-      {%-   set _name = host.split('.')[0] %}
-      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
-      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
-      {%-   set _ = sel.append(_rec) %}
+      {%-   set name = host.split('.')[0] %}
+      {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
     ceph_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in ceph_hosts_list %}
-      {%-   set _name = host.split('.')[0] %}
-      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
-      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
-      {%-   set _ = sel.append(_rec) %}
+      {%-   set name = host.split('.')[0] %}
+      {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
     compute_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in compute_hosts_list %}
-      {%-   set _name = host.split('.')[0] %}
-      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
-      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
-      {%-   set _ = sel.append(_rec) %}
+      {%-   set name = host.split('.')[0] %}
+      {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
     network_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in network_hosts_list %}
-      {%-   set _name = host.split('.')[0] %}
-      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
-      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
-      {%-   set _ = sel.append(_rec) %}
+      {%-   set name = host.split('.')[0] %}
+      {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
     image_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in image_hosts_list %}
-      {%-   set _name = host.split('.')[0] %}
-      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
-      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
-      {%-   set _ = sel.append(_rec) %}
+      {%-   set name = host.split('.')[0] %}
+      {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
     monitoring_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in monitoring_hosts_list %}
-      {%-   set _name = host.split('.')[0] %}
-      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
-      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
-      {%-   set _ = sel.append(_rec) %}
+      {%-   set name = host.split('.')[0] %}
+      {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
     logging_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in logging_hosts_list %}
-      {%-   set _name = host.split('.')[0] %}
-      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
-      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
-      {%-   set _ = sel.append(_rec) %}
+      {%-   set name = host.split('.')[0] %}
+      {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
     swift_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in swift_hosts_list %}
-      {%-   set _name = host.split('.')[0] %}
-      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
-      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
-      {%-   set _ = sel.append(_rec) %}
+      {%-   set name = host.split('.')[0] %}
+      {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
     nfs_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in nfs_hosts_list %}
-      {%-   set _name = host.split('.')[0] %}
-      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
-      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
-      {%-   set _ = sel.append(_rec) %}
+      {%-   set name = host.split('.')[0] %}
+      {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
     rsyslog_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in rsyslog_hosts_list %}
-      {%-   set _name = host.split('.')[0] %}
-      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
-      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
-      {%-   set _ = sel.append(_rec) %}
+      {%-   set name = host.split('.')[0] %}
+      {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
     haproxy_hosts_dict: >-
       {%- set sel = [] %}
       {%- for host in haproxy_hosts_list %}
-      {%-   set _name = host.split('.')[0] %}
-      {%-   set _ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
-      {%-   set _partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set _rec = {'name': _name, 'ip_v4': _ip_v4, 'partitions': _partitions} %}
-      {%-   set _ = sel.append(_rec) %}
+      {%-   set name = host.split('.')[0] %}
+      {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_interface]['ip_address'] %}
+      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
 
@@ -270,7 +270,7 @@
   when:
     - "'nfs' in onpc_services_list"
 
-## Seems a good idea but creates service declaration method inconsistencies 
+## Commented for now because this may end up in inconsistencies 
 #- name:  Add ceph to onpc_services_list
 #  set_fact:
 #    onpc_services_list: "{{ onpc_services_list + ['ceph'] }}"

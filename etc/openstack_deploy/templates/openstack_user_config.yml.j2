@@ -222,7 +222,7 @@ haproxy_hosts:
 {% endif %}
 
 {% if network_hosts_dict is defined and network_hosts_dict | length > 0 %}
-# The nodes that run Neutron agents and services 
+# The hosts that run Neutron agents and services 
 network_hosts:
 {% for h in network_hosts_dict %}
   {{ h.name }}:
@@ -231,7 +231,7 @@ network_hosts:
 {% endif %}
 
 {% if image_hosts_dict is defined and image_hosts_dict | length > 0 %}
-# The nodes that run the Glance (OpenStack Image) service
+# The hosts that run the Glance (OpenStack Image) service
 image_hosts:
 {% for h in image_hosts_dict %}
   {{ h.name }}:

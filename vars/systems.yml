@@ -21,21 +21,21 @@
 # ====================================================================== 
 # Bridge name   Configured on          With a static IP
 # ====================================================================== 
-# br-mgmt       Every node             Always
+# br-mgmt       Every host             Always
 # ----------------------------------------------------------------------
-# br-storage    Every storage node	   When component deployed on metal	
-#               On every compute node	 Always
+# br-storage    Every storage host	   When component deployed on metal	
+#               On every compute host	 Always
 # ----------------------------------------------------------------------
-# br-vxlan      Every network node     When component deployed on metal
-#               On every compute node  Always
+# br-vxlan      Every network host     When component deployed on metal
+#               On every compute host  Always
 # ----------------------------------------------------------------------
-# br-vlan       Every network node     Never
-#               On every compute node  Never
+# br-vlan       Every network host     Never
+#               On every compute host  Never
 # ----------------------------------------------------------------------
 
 cobbler_systems:
   - name: opennext07
-    comment: "This node is a controller node"
+    comment: "This host is a controller host"
     hostname: "{{ 'infra' + '.' + onpc_infra_domain }}"
     profile: Infra-CentOS-7-x86_64
     gateway: "{{ default_gateway_addr }}"
@@ -83,7 +83,7 @@ cobbler_systems:
         interface_master: "{{ tunnel_interface }}"
         static: true
       # OpenStack APIs network bridge
-      # The HAProxy nodes must have an IP address on this bridge.
+      # The HAProxy hosts must have an IP address on this bridge.
       - device: "{{ api_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
@@ -91,7 +91,7 @@ cobbler_systems:
         netmask: "{{ api_network | ipaddr('netmask') }}"
         static: true
       # Container / Host management network bridge
-      # The compute, infra and network nodes must have an IP address 
+      # The compute, infra and network hosts must have an IP address 
       # on this bridge.
       - device: "{{ management_interface }}"
         bridge_opts: 'STP=no'
@@ -101,7 +101,7 @@ cobbler_systems:
         netmask: "{{ management_network | ipaddr('netmask') }}"
         static: true
       # OpenStack Networking VXLAN (tunnel/overlay) network bridge.
-      # The compute and network nodes must have an IP address
+      # The compute and network hosts must have an IP address
       # on this bridge.
       - device: "{{ tunnel_interface }}"
         bridge_opts: 'STP=no'
@@ -116,7 +116,7 @@ cobbler_systems:
         static: true
 
   - name: opennext08
-    comment: "This node is a compute node"
+    comment: "This host is a compute host"
     hostname: "{{ 'compute' + '.' + onpc_infra_domain }}"
     profile: Compute-CentOS-7-x86_64
     gateway: "{{ default_gateway_addr }}"
@@ -178,7 +178,7 @@ cobbler_systems:
         static: true
 
   - name: opennext09
-    comment: "This node is a ceph node"
+    comment: "This host is a ceph host"
     hostname: "{{ 'ceph' + '.' + onpc_infra_domain }}"
     profile: Ceph-CentOS-7-x86_64
     gateway: "{{ default_gateway_addr }}"

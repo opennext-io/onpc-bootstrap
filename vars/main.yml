@@ -20,7 +20,7 @@ onpc_lma_branch: master
 onpc_debug_enabled: False
 onpc_low_end_profile: False
 onpc_cpu_overcommit: 8.0
-onpc_nova_domain: openstacklocal
+onpc_openstack_domain: openstacklocal
 onpc_infra_domain: "{{ ansible_domain | default('openstack.local') }}"
 onpc_region_name: RegionOne
 onpc_multidomain_support: False
@@ -98,7 +98,7 @@ onpc_users_list: [
 ]
 
 ##
-## Target hosts distros to install
+## Target hosts ISO to install
 ##
 onpc_os_distros:
   centos-7:
@@ -170,7 +170,7 @@ management_network: 172.29.236.0/22
 tunnel_network: 172.29.240.0/22
 storage_network: 172.29.244.0/22
 external_network: 172.29.248.0/22
-api_network: 192.168.1.0/24
+api_network: 172.29.252.0/22
 
 management_interface: br-mgmt
 tunnel_interface: br-vxlan
@@ -178,7 +178,7 @@ storage_interface: br-storage
 external_interface: br-vlan
 api_interface: br-api
 
-external_vip_addr: 192.168.1.100
+external_vip_addr: 172.29.252.100
 internal_vip_addr: 172.29.236.100
 default_gateway_addr: 172.29.236.1
 
@@ -190,7 +190,7 @@ onpc_provider_networks:
     reserved:
       - "172.29.236.1,172.29.236.50"
       - "172.29.236.100"
-    roles: ['controller', 'network', 'image', '']
+    roles: ['controller', 'storage', 'ceph', 'compute', 'network', 'image', 'logging', 'monitoring', 'swift', 'haproxy', 'rsyslog', 'nfs']
   tunnel:
     cidr: "{{ tunnel_network }}"
     interface: "{{ tunnel_interface }}"
@@ -216,7 +216,7 @@ onpc_provider_networks:
     cidr: "{{ api_network }}"
     interface: "{{ api_interface }}"
     reserved: []
-    roles: ['controller']
+    roles: ['haproxy']
 
 ##
 ## Target hosts configuration

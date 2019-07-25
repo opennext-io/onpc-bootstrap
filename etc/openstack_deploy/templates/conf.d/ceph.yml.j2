@@ -16,7 +16,7 @@ ceph-osd_hosts:
     ip: {{ h.ip_v4 }}
     container_vars:
       cinder_backends:
-      limit_container_types: cinder_volume
+        limit_container_types: cinder_volume
         RBD:
           volume_driver: cinder.volume.drivers.rbd.RBDDriver
           volume_backend_name: rbddriver
@@ -26,7 +26,7 @@ ceph-osd_hosts:
           rbd_flatten_volume_from_snapshot: false
           rbd_store_chunk_size: 8
           report_discard_supported: true
-          rados_connect_timeout = -1
+          rados_connect_timeout: -1
 {%- raw %}
           rbd_user: "{{ cinder_ceph_client }}"
           rbd_secret_uuid: "{{ cinder_ceph_client_uuid }}"

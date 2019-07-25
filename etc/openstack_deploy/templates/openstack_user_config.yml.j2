@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 ---
-cidr_networks: &cidr_networks
+cidr_networks:
   container: {{ management_network }}
   tunnel: {{ tunnel_network }}
   storage: {{ storage_network }}
@@ -65,19 +65,19 @@ global_overrides:
         container_type: "veth"
         container_interface: "eth11"
         type: "vlan"
-        range: "101:200,301:400"
+        range: "100:1000"
         net_name: "vlan"
         group_binds:
           - neutron_linuxbridge_agent
-    - network:
-        container_bridge: "{{ external_interface }}"
-        container_type: "veth"
-        container_interface: "eth12"
-        host_bind_override: "eth12"
-        type: "flat"
-        net_name: "flat"
-        group_binds:
-          - neutron_linuxbridge_agent
+#    - network:
+#        container_bridge: "{{ external_interface }}"
+#        container_type: "veth"
+#        container_interface: "eth12"
+#        host_bind_override: "eth12"
+#        type: "flat"
+#        net_name: "flat"
+#        group_binds:
+#          - neutron_linuxbridge_agent
 {% if 'octavia' in onpc_services_list %}
     - network:
         container_bridge: "br-lbaas"

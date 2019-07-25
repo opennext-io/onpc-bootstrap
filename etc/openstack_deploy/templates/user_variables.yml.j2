@@ -112,7 +112,6 @@ glance_default_store: rbd
 glance_rbd_store_pool: images
 glance_rbd_store_chunk_size: 8
 glance_ceph_client: glance
-glance_rbd_store_pool: images
 {% elif 'swift' in onpc_services_list %}
 ## Common Glance Overrides when using a Swift back-end
 # By default when 'glance_default_store' is set to 'swift' the playbooks will
@@ -154,6 +153,8 @@ neutron_plugin_base:
 nova_libvirt_images_rbd_pool: vms
 {% endif %}
 
+# If you wish to change the dhcp_domain configured for both nova and neutron
+dhcp_domain: "{{ onpc_openstack_domain }}"
 nova_cpu_allocation_ratio: "{{ onpc_cpu_overcommit | default(8.0) }}" 
 nova_nova_conf_overrides:
   DEFAULT:

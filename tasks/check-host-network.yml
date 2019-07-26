@@ -53,11 +53,11 @@
   set_fact:
     interface_address: "{{ network_interface.get('ipv4', {}).get('address', '') }}" 
 
-- name: "Check that interface '{{ external_interface }}' is not assigned an IP address"
+- name: "Check that interface '{{ provider_interface }}' is not assigned an IP address"
   assert:
     that: interface_address | length == 0
-    msg: "Interface external_interface must not have '{{ interface_address }}' IP address assigned"
-  when: interface_name == external_interface
+    msg: "Interface provider_interface must not have '{{ interface_address }}' IP address assigned"
+  when: interface_name == provider_interface
 
 - name: "Set interface '{{ interface_name }}' type"
   set_fact:
@@ -78,4 +78,4 @@
     msg: "The address '{{ interface_address }}' must be  within range '{{ netconf.get('cidr') }}'"
   when:
     - (network_roles | length == 0) or (network_roles | intersect(host_roles) | length > 0)
-    - interface_name != external_interface
+    - interface_name != provider_interface

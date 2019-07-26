@@ -4,9 +4,6 @@ cidr_networks:
   container: {{ management_network }}
   tunnel: {{ tunnel_network }}
   storage: {{ storage_network }}
-{% if 'octavia' in onpc_services_list %}
-  lbaas: {{ lbaas_network }}
-{% endif %}
 
 used_ips:
 {% for ip_or_range in reserved_ips %}
@@ -20,7 +17,11 @@ global_overrides:
   tunnel_bridge: "{{ tunnel_interface }}"
   storage_bridge: "{{ storage_interface }}"
   lb_name: haproxy
-  provider_networks:
+  # List of container and bare metal networks on target hosts.
+  #
+  # Check: https://docs.openstack.org/project-deploy-guide/openstack-ansible/draft/app-networking.html
+  # for details
+  external_networks:
     - network:
         container_bridge: "{{ management_interface }}"
         container_interface: "eth1"
@@ -61,30 +62,29 @@ global_overrides:
         group_binds:
           - neutron_linuxbridge_agent
     - network:
-        container_bridge: "{{ external_interface }}"
+        container_bridge: "{{ provider_interface }}"
         container_type: "veth"
         container_interface: "eth11"
         type: "vlan"
-        range: "100:1000"
+        range: "1:1,100:200"
         net_name: "vlan"
         group_binds:
           - neutron_linuxbridge_agent
-#    - network:
-#        container_bridge: "{{ external_interface }}"
-#        container_type: "veth"
-#        container_interface: "eth12"
-#        host_bind_override: "eth12"
-#        type: "flat"
-#        net_name: "flat"
-#        group_binds:
-#          - neutron_linuxbridge_agent
+    - network:
+        container_bridge: "{{ provider_interface }}"
+        container_type: "veth"
+        container_interface: "eth12"
+        host_bind_override: "eth12"
+        type: "flat"
+        net_name: "flat"
+        group_binds:
+          - neutron_linuxbridge_agent
 {% if 'octavia' in onpc_services_list %}
     - network:
         container_bridge: "br-lbaas"
         container_type: "veth"
         container_interface: "eth14"
         host_bind_override: "eth14"
-        ip_from_q: "lbaas"
         type: "flat"
         net_name: "lbaas"
         group_binds:

@@ -43,9 +43,9 @@
     - include_tasks: tasks/check-host-network.yml
       vars:
         netconf: "{{ item.value }}"
-      with_dict: "{{ onpc_provider_networks }}"
+      with_dict: "{{ onpc_deployment_networks }}"
       when:
-        - onpc_provider_networks_check is defined and onpc_provider_networks_check | bool
+        - onpc_deployment_networks_check is defined and onpc_deployment_networks_check | bool
         - managed_host
       tags: check-host-interfaces
   

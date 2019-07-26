@@ -135,13 +135,10 @@ onpc_netboot_profiles:
 ## 
 ## Networks configuration
 ##
-
 # management_network: used to provide access the internal services and containers
 # tunnel_network: used by tenants private networks 
 # storage_network: used by the storage services (optional)
-# external_network: used to provide access from external (Internet) network
-# lbaas_network: used by tenants for load balacing (octavia)
-
+# 
 # OpenStack-Ansible uses bridges to connect physical and logical network
 # interfaces on the host to virtual network interfaces within containers.
 # Target hosts need to be configured with the following network bridges:
@@ -169,21 +166,27 @@ onpc_netboot_profiles:
 management_network: 172.29.236.0/22
 tunnel_network: 172.29.240.0/22
 storage_network: 172.29.244.0/22
-external_network: 172.29.248.0/22
+provider_network: 172.29.248.0/22
 api_network: 172.29.252.0/22
 
 management_interface: br-mgmt
 tunnel_interface: br-vxlan
 storage_interface: br-storage
-external_interface: br-vlan
+provider_interface: br-vlan
 api_interface: br-api
 
-external_vip_addr: 172.29.252.100
-internal_vip_addr: 172.29.236.100
-default_gateway_addr: 172.29.236.1
+management_vlan_id: 10
+tunnel_vlan_id: 20
+storage_vlan_id: 30
+api_vlan_id: 40
 
-onpc_provider_networks_check: True
-onpc_provider_networks:
+external_vip_addr: "{{ api_network.split('.')[:-1] + 100 }}"
+internal_vip_addr: "{{ management_network.split('.')[:-1] + 100 }}"
+default_gateway_addr: "{{ management_network.split('.')[:-1] + 1 }}"
+
+onpc_deployment_networks_check: True
+
+onpc_deployment_networks:
   management:
     cidr: "{{ management_network }}"
     interface: "{{ management_interface }}"
@@ -205,9 +208,9 @@ onpc_provider_networks:
       - "172.29.244.1,172.29.244.50"
       - "172.29.244.100"
     roles: ['storage', 'compute', 'ceph']
-  external:
-    cidr: "{{ external_network }}"
-    interface: "{{ external_interface }}"
+  provider:
+    cidr: "{{ provider_network }}"
+    interface: "{{ provider_interface }}"
     reserved:
       - "172.29.248.1,172.29.248.50"
       - "172.29.248.100"
@@ -251,6 +254,9 @@ onpc_hosts_targets:
     state: present
     status: production
     netboot: true
+    #
+    # Host partitions
+    #
     partitions:
       root:
         size: 16
@@ -272,43 +278,38 @@ onpc_hosts_targets:
         size: 24
         fstype: xfs
         mountpoint: /openstack/log
+    #
+    # Host network interfaces
+    #
     interfaces:
-      # Primary physical interface
-      eth0:
+      # Primary physical interface used for management, storage and API access
+      primary:
+        device: "{{ primary_interface | default('eth0') }}"
         management: true
         static: true
-      # Secondary physical interface 
-      eth1:
-        interface_type: bridge_slave 
-        interface_master: "{{ external_interface }}"
+      # Secondary physical interface used for tenant networking (flat, vlan, vxlan)
+      secondary:
+        device: "{{ secondary_interface | default('eth1') }}"
+        interface_type: bridge_slave
+        interface_master: "{{ provider_interface }}"
         static: true
       # Container/Host management VLAN interface
-      eth1_10:
-        device: eth1.10
+      vl_mgmt:
+        device: "{{ primary_interface | default('eth0') + '.' + management_vlan_id }}"
         interface_type: bridge_slave
         interface_master: "{{ management_interface }}"
         static: true
-      # OpenStack Networking (tunnel/overlay) VLAN interface
-      eth1_30:
-        device: eth1.30
-        interface_type: bridge_slave
-        interface_master: "{{ tunnel_interface }}"
-        static: true
       # OpenStack services API endpoints interface
-      eth1_40:
-        device: eth1.40
+      vl_api:
+        device: "{{ primary_interface | default('eth0') + '.' + api_vlan_id }}"
         interface_type: bridge_slave
         interface_master: "{{ api_interface }}"
         static: true
-      # OpenStack APIs network bridge
-      # The HAProxy hosts must have an IP address on this bridge.
-      br_api:
-        device: "{{ api_interface }}"
-        bridge_opts: 'STP=no'
-        interface_type: bridge
-        ip_address: 192.168.1.56
-        network: "{{ api_network }}"
-        netmask: "{{ api_network | ipaddr('netmask') }}"
+      # OpenStack Networking (tunnel/overlay) VLAN interface
+      vl_tunnel:
+        device: "{{ secondary_interface | default('eth1') + '.' + tunnel_vlan_id }}"
+        interface_type: bridge_slave
+        interface_master: "{{ tunnel_interface }}"
         static: true
       # Container / Host management network bridge
       # The compute, infra and network hosts must have an IP address 
@@ -317,10 +318,20 @@ onpc_hosts_targets:
         device: "{{ management_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
-        ip_address: 172.29.236.56
         if_gateway: "{{ default_gateway_addr }}"
+        ip_address: ""
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
+        static: true
+      # OpenStack APIs network bridge.
+      # The external VIP must have an IP address on this bridge.
+      br_api:
+        device: "{{ api_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: ""
+        network: "{{ api_network }}"
+        netmask: "{{ api_network | ipaddr('netmask') }}"
         static: true
       # OpenStack Networking VXLAN (tunnel/overlay) network bridge.
       # The compute and network hosts must have an IP address
@@ -329,17 +340,15 @@ onpc_hosts_targets:
         device: "{{ tunnel_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
-        ip_address: 172.29.240.56
+        ip_address: ""
         network: "{{ tunnel_network }}"
         netmask: "{{ tunnel_network | ipaddr('netmask') }}"
         static: true
       # OpenStack Networking VLAN network bridge
       br_vlan:
-        device: "{{ external_interface }}"
+        device: "{{ provider_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
-        network: "{{ external_network }}"
-        netmask: "{{ external_network | ipaddr('netmask') }}"
         static: true
   compute:
     cardinality: 1
@@ -356,6 +365,9 @@ onpc_hosts_targets:
     state: present
     status: production
     netboot: true
+    #
+    # Host partitions
+    #
     partitions:
       root:
         size: 16
@@ -382,34 +394,39 @@ onpc_hosts_targets:
         fstype: xfs
         mountpoint: /var/lib/nova/instances
         interfaces:
-    interfaces:  
-      # Primary physical interface
-      eth0:
+    #
+    # Host network interfaces
+    #
+    interfaces:
+      # Primary physical interface used for management, storage and API access
+      primary:
+        device: "{{ primary_interface | default('eth0') }}"
         management: true
         static: true
-      # Secondary physical interface 
-      eth1:
-        interface_type: bridge_slave 
-        interface_master: "{{ external_interface }}"
+      # Secondary physical interface used for tenant networking (flat, vlan, vxlan)
+      secondary:
+        device: "{{ secondary_interface | default('eth1') }}"
+        interface_type: bridge_slave
+        interface_master: "{{ provider_interface }}"
         static: true
       # Container/Host management VLAN interface
-      eth1_10:
-        device: eth1.10
+      vl_mgmt:
+        device: "{{ primary_interface | default('eth0') + '.' + management_vlan_id }}"
         interface_type: bridge_slave
         interface_master: "{{ management_interface }}"
         static: true
-      # Storage VLAN interface
-      eth1_20:
-        device: eno2.20
-        interface_type: bridge_slave 
-        interface_master: "{{ storage_interface }}" 
-        static: true
       # OpenStack Networking (tunnel/overlay) VLAN interface
-      eth1_30:
-        device: eth1.30
+      vl_tunnel:
+        device: "{{ secondary_interface | default('eth1') + '.' + tunnel_vlan_id }}"
         interface_type: bridge_slave
         interface_master: "{{ tunnel_interface }}"
         static: true
+      # Storage VLAN interface
+      vl_storage:
+        device: "{{ primary_interface | default('eth0') + '.' + storage_vlan_id }}"
+        interface_type: bridge_slave
+        interface_master: "{{ storage_interface }}" 
+        static: true     
       # Container / Host management network bridge
       # The compute, infra and network hosts must have an IP address 
       # on this bridge.
@@ -417,18 +434,10 @@ onpc_hosts_targets:
         device: "{{ management_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
-        ip_address: 172.29.236.56
         if_gateway: "{{ default_gateway_addr }}"
+        ip_address: ""
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
-        static: true
-      br_storage:
-        device: "{{ storage_interface }}"
-        bridge_opts: 'STP=no'
-        interface_type: bridge
-        ip_address: 172.29.244.57
-        network: "{{ storage_network }}"
-        netmask: "{{ storage_network | ipaddr('netmask') }}"
         static: true
       # OpenStack Networking VXLAN (tunnel/overlay) network bridge.
       # The compute and network hosts must have an IP address
@@ -437,18 +446,25 @@ onpc_hosts_targets:
         device: "{{ tunnel_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
-        ip_address: 172.29.240.56
+        ip_address: ""
         network: "{{ tunnel_network }}"
         netmask: "{{ tunnel_network | ipaddr('netmask') }}"
         static: true
       # OpenStack Networking VLAN network bridge
       br_vlan:
-        device: "{{ external_interface }}"
+        device: "{{ provider_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
-        network: "{{ external_network }}"
-        netmask: "{{ external_network | ipaddr('netmask') }}"
-        static: true    
+        static: true
+      # Storage network bridge
+      br_storage:
+        device: "{{ storage_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: ""
+        network: "{{ storage_network }}"
+        netmask: "{{ storage_network | ipaddr('netmask') }}"
+        static: true
   ceph:
     cardinality: 1
     comment: "This is a Ceph OSD host"
@@ -479,6 +495,49 @@ onpc_hosts_targets:
       ceph-journal:
         size: 0
         fstype: vgonly
+    interfaces:  
+      # Primary physical interface used for management, storage and API access
+      primary:
+        device: "{{ primary_interface | default('eth0') }}"
+        management: true
+        static: true
+      # Secondary physical interface used for tenant networking (flat, vlan, vxlan)
+      secondary:
+        device: "{{ secondary_interface | default('eth1') }}"
+        interface_type: bridge_slave
+        interface_master: "{{ provider_interface }}"
+        static: true
+      # Container/Host management VLAN interface
+      vl_mgmt:
+        device: "{{ primary_interface | default('eth0') + '.' + management_vlan_id }}"
+        interface_type: bridge_slave
+        interface_master: "{{ management_interface }}"
+        static: true
+      vl_storage:
+        device: "{{ primary_interface | default('eth0') + '.' + storage_vlan_id }}"
+        interface_type: bridge_slave
+        interface_master: "{{ storage_interface }}" 
+        static: true     
+      # Container / Host management network bridge
+      # The compute, infra and network hosts must have an IP address 
+      # on this bridge.
+      br_mgmt:
+        device: "{{ management_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        if_gateway: "{{ default_gateway_addr }}"
+        ip_address: ""
+        network: "{{ management_network }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
+        static: true
+      br_storage:
+        device: "{{ storage_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        ip_address: ""
+        network: "{{ storage_network }}"
+        netmask: "{{ storage_network | ipaddr('netmask') }}"
+        static: true
   storage:
     cardinality: 0
     comment: "This is a Cinder block storage host"
@@ -506,28 +565,29 @@ onpc_hosts_targets:
       cinder-volumes:
         size: 0
         fstype: vgonly
-  interfaces:  
-      # Primary physical interface
-      eth0:
+    interfaces:  
+      # Primary physical interface used for management, storage and API access
+      primary:
+        device: "{{ primary_interface | default('eth0') }}"
         management: true
         static: true
-      # Secondary physical interface 
-      eth1:
-        interface_type: bridge_slave 
-        interface_master: "{{ external_interface }}"
+      # Secondary physical interface used for tenant networking (flat, vlan, vxlan)
+      secondary:
+        device: "{{ secondary_interface | default('eth1') }}"
+        interface_type: bridge_slave
+        interface_master: "{{ provider_interface }}"
         static: true
       # Container/Host management VLAN interface
-      eth1_10:
-        device: eth1.10
+      vl_mgmt:
+        device: "{{ primary_interface | default('eth0') + '.' + management_vlan_id }}"
         interface_type: bridge_slave
         interface_master: "{{ management_interface }}"
         static: true
-      # Storage VLAN interface
-      eth1_20:
-        device: eno2.20
-        interface_type: bridge_slave 
+      vl_storage:
+        device: "{{ primary_interface | default('eth0') + '.' + storage_vlan_id }}"
+        interface_type: bridge_slave
         interface_master: "{{ storage_interface }}" 
-        static: true
+        static: true     
       # Container / Host management network bridge
       # The compute, infra and network hosts must have an IP address 
       # on this bridge.
@@ -535,8 +595,8 @@ onpc_hosts_targets:
         device: "{{ management_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
-        ip_address: 172.29.236.56
         if_gateway: "{{ default_gateway_addr }}"
+        ip_address: ""
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         static: true
@@ -544,7 +604,7 @@ onpc_hosts_targets:
         device: "{{ storage_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
-        ip_address: 172.29.244.57
+        ip_address: ""
         network: "{{ storage_network }}"
         netmask: "{{ storage_network | ipaddr('netmask') }}"
         static: true
@@ -583,27 +643,29 @@ onpc_hosts_targets:
         mountpoint: /srv/node/sdc
         options: "noatime,nodiratime,nobarrier,logbufs=8"
     interfaces:  
-      # Primary physical interface
-      eth0:
+       # Primary physical interface used for management, storage and API access
+      primary:
+        device: "{{ primary_interface | default('eth0') }}"
         management: true
         static: true
-      # Secondary physical interface 
-      eth1:
-        interface_type: bridge_slave 
-        interface_master: "{{ external_interface }}"
+      # Secondary physical interface used for tenant networking (flat, vlan, vxlan)
+      secondary:
+        device: "{{ secondary_interface | default('eth1') }}"
+        interface_type: bridge_slave
+        interface_master: "{{ provider_interface }}"
         static: true
       # Container/Host management VLAN interface
-      eth1_10:
-        device: eth1.10
+      vl_mgmt:
+        device: "{{ primary_interface | default('eth0') + '.' + management_vlan_id }}"
         interface_type: bridge_slave
         interface_master: "{{ management_interface }}"
         static: true
       # Storage VLAN interface
-      eth1_20:
-        device: eno2.20
-        interface_type: bridge_slave 
+      vl_storage:
+        device: "{{ primary_interface | default('eth0') + '.' + storage_vlan_id }}"
+        interface_type: bridge_slave
         interface_master: "{{ storage_interface }}" 
-        static: true
+        static: true     
       # Container / Host management network bridge
       # The compute, infra and network hosts must have an IP address 
       # on this bridge.
@@ -611,16 +673,17 @@ onpc_hosts_targets:
         device: "{{ management_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
-        ip_address: 172.29.236.56
         if_gateway: "{{ default_gateway_addr }}"
+        ip_address: ""
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         static: true
+      # Storage network bridge
       br_storage:
         device: "{{ storage_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
-        ip_address: 172.29.244.57
+        ip_address: ""
         network: "{{ storage_network }}"
         netmask: "{{ storage_network | ipaddr('netmask') }}"
         static: true

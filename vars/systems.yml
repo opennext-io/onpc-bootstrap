@@ -64,7 +64,7 @@ cobbler_systems:
       # Secondary physical interface 
       - device: eno2
         interface_type: bridge_slave 
-        interface_master: "{{ external_interface }}"
+        interface_master: "{{ provider_interface }}"
         mac_address: "ac:1f:6b:47:3f:c9" 
         static: true
       # OpenStack APIs VLAN interface
@@ -110,7 +110,7 @@ cobbler_systems:
         netmask: "{{ tunnel_network | ipaddr('netmask') }}"
         static: true
       # OpenStack Networking VLAN network bridge
-      - device: "{{ external_interface }}"
+      - device: "{{ provider_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         static: true
@@ -138,7 +138,7 @@ cobbler_systems:
         static: true
       - device: eno2
         interface_type: bridge_slave 
-        interface_master: "{{ external_interface }}"
+        interface_master: "{{ provider_interface }}"
         mac_address: "ac:1f:6b:46:94:ed" 
         static: true
       - device: eno1.10
@@ -172,7 +172,7 @@ cobbler_systems:
         ip_address: 172.29.240.57
         netmask: "{{ tunnel_network | ipaddr('netmask') }}"
         static: true
-      - device: "{{ external_interface }}"
+      - device: "{{ provider_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         static: true

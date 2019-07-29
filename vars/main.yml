@@ -283,12 +283,12 @@ onpc_hosts_targets:
     #
     interfaces:
       # Primary physical interface used for management, storage and API access
-      primary:
+      physnet1:
         device: "{{ primary_interface | default('eth0') }}"
         management: true
         static: true
       # Secondary physical interface used for tenant networking (flat, vlan, vxlan)
-      secondary:
+      physnet2:
         device: "{{ secondary_interface | default('eth1') }}"
         interface_type: bridge_slave
         interface_master: "{{ provider_interface }}"
@@ -399,12 +399,12 @@ onpc_hosts_targets:
     #
     interfaces:
       # Primary physical interface used for management, storage and API access
-      primary:
+      physnet1:
         device: "{{ primary_interface | default('eth0') }}"
         management: true
         static: true
       # Secondary physical interface used for tenant networking (flat, vlan, vxlan)
-      secondary:
+      physnet2:
         device: "{{ secondary_interface | default('eth1') }}"
         interface_type: bridge_slave
         interface_master: "{{ provider_interface }}"
@@ -497,12 +497,12 @@ onpc_hosts_targets:
         fstype: vgonly
     interfaces:  
       # Primary physical interface used for management, storage and API access
-      primary:
+      physnet1:
         device: "{{ primary_interface | default('eth0') }}"
         management: true
         static: true
       # Secondary physical interface used for tenant networking (flat, vlan, vxlan)
-      secondary:
+      physnet2:
         device: "{{ secondary_interface | default('eth1') }}"
         interface_type: bridge_slave
         interface_master: "{{ provider_interface }}"
@@ -567,12 +567,12 @@ onpc_hosts_targets:
         fstype: vgonly
     interfaces:  
       # Primary physical interface used for management, storage and API access
-      primary:
+      physnet1:
         device: "{{ primary_interface | default('eth0') }}"
         management: true
         static: true
       # Secondary physical interface used for tenant networking (flat, vlan, vxlan)
-      secondary:
+      physnet2:
         device: "{{ secondary_interface | default('eth1') }}"
         interface_type: bridge_slave
         interface_master: "{{ provider_interface }}"
@@ -644,12 +644,12 @@ onpc_hosts_targets:
         options: "noatime,nodiratime,nobarrier,logbufs=8"
     interfaces:  
        # Primary physical interface used for management, storage and API access
-      primary:
+      physnet1:
         device: "{{ primary_interface | default('eth0') }}"
         management: true
         static: true
       # Secondary physical interface used for tenant networking (flat, vlan, vxlan)
-      secondary:
+      physnet2:
         device: "{{ secondary_interface | default('eth1') }}"
         interface_type: bridge_slave
         interface_master: "{{ provider_interface }}"

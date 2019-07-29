@@ -18,10 +18,7 @@ global_overrides:
   storage_bridge: "{{ storage_interface }}"
   lb_name: haproxy
   # List of container and bare metal networks on target hosts.
-  #
-  # Check: https://docs.openstack.org/project-deploy-guide/openstack-ansible/draft/app-networking.html
-  # for details
-  external_networks:
+  provider_networks:
     - network:
         container_bridge: "{{ management_interface }}"
         container_interface: "eth1"
@@ -70,29 +67,6 @@ global_overrides:
         net_name: "vlan"
         group_binds:
           - neutron_linuxbridge_agent
-    - network:
-        container_bridge: "{{ provider_interface }}"
-        container_type: "veth"
-        container_interface: "eth12"
-        host_bind_override: "eth12"
-        type: "flat"
-        net_name: "flat"
-        group_binds:
-          - neutron_linuxbridge_agent
-{% if 'octavia' in onpc_services_list %}
-    - network:
-        container_bridge: "br-lbaas"
-        container_type: "veth"
-        container_interface: "eth14"
-        host_bind_override: "eth14"
-        type: "flat"
-        net_name: "lbaas"
-        group_binds:
-          - neutron_linuxbridge_agent
-          - octavia-worker
-          - octavia-housekeeping
-          - octavia-health-manager
-{% endif %}
 {% if 'swift' in onpc_services_list %}
   swift:
     part_power: 8

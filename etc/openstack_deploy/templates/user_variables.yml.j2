@@ -144,7 +144,9 @@ glance_default_store: file
 neutron_plugin_base:
   - router
   - metering
-  - neutron_lbaas.services.loadbalancer.plugin.LoadBalancerPluginv2
+  - firewall
+
+neutron_l2_population: True
 
 {% if 'ceph' in onpc_services_list %}
 ## Common Nova Overrides

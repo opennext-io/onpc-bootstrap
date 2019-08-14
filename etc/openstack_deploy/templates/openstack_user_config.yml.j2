@@ -13,14 +13,14 @@ used_ips:
 global_overrides:
   internal_lb_vip_address: {{ internal_vip_addr }}
   external_lb_vip_address: {{ external_vip_addr }}
-  management_bridge: "{{ management_interface }}"
-  tunnel_bridge: "{{ tunnel_interface }}"
-  storage_bridge: "{{ storage_interface }}"
+  management_bridge: "{{ management_network_interface }}"
+  tunnel_bridge: "{{ tunnel_network_interface }}"
+  storage_bridge: "{{ storage_network_interface }}"
   lb_name: haproxy
   # List of container and bare metal networks on target hosts.
   provider_networks:
     - network:
-        container_bridge: "{{ management_interface }}"
+        container_bridge: "{{ management_network_interface }}"
         container_interface: "eth1"
         container_type: "veth"
         ip_from_q: "container"
@@ -31,7 +31,7 @@ global_overrides:
           - all_containers
           - hosts
     - network:
-        container_bridge: "{{ storage_interface }}"
+        container_bridge: "{{ storage_network_interface }}"
         container_interface: "eth2"
         container_type: "veth"
         container_mtu: "9000"
@@ -48,7 +48,7 @@ global_overrides:
           - ceph_osd
 {% endif %}
     - network:
-        container_bridge: "{{ tunnel_interface }}"
+        container_bridge: "{{ tunnel_network_interface }}"
         container_type: "veth"
         container_interface: "eth10"
         container_mtu: "9000"
@@ -59,7 +59,7 @@ global_overrides:
         group_binds:
           - neutron_linuxbridge_agent
     - network:
-        container_bridge: "{{ provider_interface }}"
+        container_bridge: "{{ external_interface }}"
         container_type: "veth"
         container_interface: "eth11"
         type: "vlan"
@@ -73,8 +73,8 @@ global_overrides:
     repl_number: 3
     min_part_hours: 1
 {%- raw %}
-    storage_network: "{{ (container_tech != 'nspawn') | ternary(storage_interface, ansible_default_ipv4['alias']) }}"
-    replication_network: "{{ (container_tech != 'nspawn') | ternary(storage_interface, ansible_default_ipv4['alias']) }}"
+    storage_network: "{{ (container_tech != 'nspawn') | ternary(storage_network_interface, ansible_default_ipv4['alias']) }}"
+    replication_network: "{{ (container_tech != 'nspawn') | ternary(storage_network_interface, ansible_default_ipv4['alias']) }}"
 {% endraw %}
     statsd_host: localhost
     statsd_port: 8125

@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Check for a supported Operating System
+- name: Assert that the Operating System is supported
   assert:
     that:
       - (ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'xenial') or

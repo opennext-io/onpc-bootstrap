@@ -14,10 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Get cobbler distros
+  command: >
+    cobbler distro list
+  register: result
+  failed_when: result.rc != 0
+  tags: always 
+
+- name: Set registered_distros fact
+  set_facts:
+    registered_distros: "{{ result.stdout_lines | map('trim') | list | default([]) }}"
+  tags: always
+
 - name: Mount device or iso to mount point
-  mount: name=/mnt/{{ distro_name }}
-        src=/var/tmp/isos/{{ distro_name }}
-        opts=ro fstype=iso9660 state=mounted
+  mount:
+    name: "/mnt/{{ distro_name }}"
+    src: "/var/tmp/isos/{{ distro_file }}"
+    opts: "ro fstype=iso9660"
+    state: mounted
   when: distro_name not in registered_distros
   tags: register-cobbler-distros
 
@@ -28,5 +42,11 @@
       --arch={{ item.value.arch | lower}}
       --path=/mnt/{{ distro_name }}
   when: distro_name not in registered_distros
+  tags: register-cobbler-distros
+
+- name: Sync Cobbler database
+  command: >
+    cobbler sync
+  run_once: yes
   tags: register-cobbler-distros
 

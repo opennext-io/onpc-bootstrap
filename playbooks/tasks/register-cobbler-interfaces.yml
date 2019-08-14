@@ -14,24 +14,40 @@
 # limitations under the License.
 #
 
-- name: "Register cobbler interface '{{ interface.device }}'"
+- name: Get cobbler systems 
+  command: >
+    cobbler system list
+  register: result
+  failed_when: result.rc != 0
+  tags: always 
+
+- name: Set registered_systems fact
+  set_facts:
+    registered_systems: "{{ result.stdout_lines | map('trim') | list | default([]) }}"
+  tags: always
+
+- name: "Register system interface '{{ interface.interface }}'"
   command: >
     cobbler system edit
       --name="{{ system_name }}"
-      --interface="{{ interface.device }}"
-      --interface-type="{{ interface.interface_type | default('na') }}"
+      --interface="{{ interface.interface }}"
+      --interface-type="{{ interface.interface_type | default('') }}"
       --interface-master="{{ interface.interface_master | default('') }}"
       --ip-address="{{ interface.ip_address | default('') }}"
       --if-gateway="{{ interface.if_gateway | default('') }}" 
       --mac-address="{{ interface.mac_address | default('') }}"
-      --static="{{ interface.static | default(False) }}" 
+      --static="{{ interface.static | default('') }}" 
       --bonding-opts="{{ interface.bondig_opts | default('') }}" 
       --bridge-opts="{{ interface.bridge_opts | default('') }}" 
       --dns-name="{{ interface.dns_name | default('') }}"
       --management="{{ interface.management | default(False) }}" 
       --netmask="{{ interface.netmask | default('') }}" 
       --static-routes="{{ interface.static_routes | default([]) | join(' ') }}" 
+  when:
+    - system_name in registered_systems
   register: result
   failed_when: result.rc != 0
-  tags: register-cobbler-interfaces
+  tags:
+    - register-cobbler-systems
+    - register-cobbler-interfaces
 

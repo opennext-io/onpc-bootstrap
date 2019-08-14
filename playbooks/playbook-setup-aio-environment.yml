@@ -30,7 +30,7 @@
     bootstrap_host_container_tech: "{{ onpc_bootstrap_container_tech }}"
   
   tasks:
-    - name: Verify Ansible version meets requirements
+    - name: Assert that the Ansible version meets requirements
       assert:
         that: "ansible_version.full is version_compare('2.7', '>=')"
       msg: >

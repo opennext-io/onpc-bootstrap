@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Ensure that the networking variables are properly defined
+- name: Assert that that the networking variables are properly defined
   assert:
     that: item.conditional
     msg: "{{ item.msg }}"
@@ -25,8 +25,8 @@
       msg: "The 'tunnel_network' is not properly defined"
     - conditional: "{{ storage_network is defined and storage_network | ipaddr }}"
       msg: "The 'storage_network' is not properly defined"
-    - conditional: "{{ provider_network is defined and provider_network | ipaddr }}"
-      msg: "The 'provider_network' is not properly defined"
+    - conditional: "{{ external_network is defined and external_network | ipaddr }}"
+      msg: "The 'external_network' is not properly defined"
     - conditional: "{{ api_network is defined and api_network | ipaddr }}"
       msg: "The 'api_network' is not properly defined"
     - conditional: "{{ external_vip_addr is defined and external_vip_addr | ipaddr }}"
@@ -92,7 +92,7 @@
 
 - name: Set internal_vip_interface fact
   set_fact:
-    internal_vip_interface: "{{ management_interface }}"
+    internal_vip_interface: "{{ management_network_interface }}"
 
 - name: Set external_vip_network facts
   set_fact:
@@ -104,14 +104,14 @@
 
 - name: Set external_vip_interface fact
   set_fact:
-    external_vip_interface: "{{ api_interface }}"
+    external_vip_interface: "{{ api_network_interface }}"
 
 - name: Set reserved_ips facts
   set_fact:
     reserved_ips: >-
       {%- set sel = [] %}
-      {%- for key in onpc_deployment_networks.keys() %}
-      {%-   for val in onpc_deployment_networks[key]['reserved'] %}
+      {%- for key in onpc_osa_networks.keys() %}
+      {%-   for val in onpc_osa_networks[key]['reserved'] %}
       {%-     set _ = sel.append(val) %}
       {%-   endfor %}
       {%- endfor %}

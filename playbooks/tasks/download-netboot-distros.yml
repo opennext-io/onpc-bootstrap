@@ -13,16 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Get OS distro {{ item.key }}
+- name: Download netboot distro {{ item.key }}
   block:
-    - set_fact:
-        distro_file: "{{ item.value.url.split('/')[-1] | lower }}"
-      tags: always
-  
     - name: Check ISO doesn't already exists
       stat:
         path: "/var/tmp/isos/{{ distro_file }}"
       register: result
+      failed_when: result.rc != 0
       tags: always
   
     - name: Downloading the ISO
@@ -37,7 +34,7 @@
       delay: 15
       failed_when: download_result is failure
       when: result.stat.exists == False
-      tags: download-os-distro
+      tags: download-netboot-distros
   rescue:
      - debug:
-         msg: "Something went wrong with getting the distribution"
+         msg: "Something went wrong with downloading {{ item.value.url }}. Aborting..."

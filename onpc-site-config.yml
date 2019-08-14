@@ -1,0 +1,725 @@
+---
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+##
+## List of users and ssh keys to provision on target hosts
+##   This must be defined in onpc_user_config.yml
+##
+onpc_users_list: [
+  {
+    name: centos,
+    password: 'change@me',
+    encrypted_password: '$1$xMkVZGyn$oORYOQ74r.WPrFNvStfeF0',
+    key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCoGCe7PlRSC7nBIEuGRF1ZX07TTNUYTN0uTAmjIINr8dsSb0jaQ+/Zqmzh/Wn9PSEh3w92IY1FE3IQFnvJUo5t+aDDqIYPF5BkcAzMZFtkLwheAegYUzYGve+iqvk2j0jb5jntRYcFagbJJoYZGCchvO0agJia5PMzMYdeGqdPuDD00ASyUUewVq/WViNou4Ob4+W1ffi+Y39kK9yN+nnxlrTyhuuNd/sLdfgRwKzrCc3P3fAYogGpsDEnXJ7SMVwvf21t5RO2JS/ucZmZsmezwv2TqtnsD8K0sH2apxiPqkcTpFNPFsGaavlQwuhBMSLMdORzCwiR/5oEc8Bit/n centos@master'
+  }
+]
+
+##
+## ONPC standards networks CIDR definition
+##   This can be adjusted for your environment in onpc-site-config.yml
+management_network: 172.29.236.0/22
+tunnel_network: 172.29.240.0/22
+storage_network: 172.29.244.0/22
+external_network: 172.29.248.0/22
+api_network: 172.31.0.0/24
+
+##
+## Dictionary of standard OSA networks
+##
+# Adjust as per your environment to include any IP addresses that
+# are already used by existing physical hosts in the environment
+# where OpenStack will be deployed (and ensuring that you've
+# included any reserved IP addresses for physical growth too).
+# Single IP addresses or ranges (start and end placed either side
+# of a ',') can be placed under the 'reserved' stanza for each OSA network.
+onpc_osa_networks:
+  management:
+    cidr: "{{ management_network }}"
+    interface: "{{ management_network_interface }}"
+    reserved:
+      - "172.29.236.10,172.29.236.20"
+      - "{{ internal_vip_addr }}"
+      - "{{ default_gateway_addr }}"
+    roles: ['all']
+  tunnel:
+    cidr: "{{ tunnel_network }}"
+    interface: "{{ tunnel_network_interface }}"
+    reserved:
+      - "172.29.240.10,172.29.240.20"
+    roles: ['network', 'compute']
+  storage:
+    cidr: "{{ storage_network }}"
+    interface: "{{ storage_network_interface }}"
+    reserved:
+      - "172.29.244.10,172.29.244.20"
+    roles: ['storage', 'compute', 'ceph']
+  external:
+    cidr: "{{ external_network }}"
+    interface: "{{ external_interface }}"
+    reserved: []
+    roles: ['network', 'compute']
+#  api:
+#    cidr: "{{ api_network }}"
+#    interface: "{{ api_network_interface }}"
+#    reserved:
+#      - "172.29.252.10,172.29.252.20"
+#      - "{{ external_vip_addr }}"
+#    roles: ['haproxy']
+
+##
+## Dictionary of netboot ISOs to install in Cobbler
+##   This must be defined in onpc-site-config.yml
+##
+onpc_netboot_distros:
+  centos-7:
+    # device_or_iso_path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
+    url: "http://mirror.plusserver.com/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso"
+    arch: x86_64
+
+##
+## Dictionary of netboot profiles to register in Cobbler
+##   This must be defined in onpc-site-config.yml
+##
+onpc_netboot_profiles:
+  ##
+  ## Infra profile host config
+  ##   The infra profile is an aggregate of all control-plane roles
+  ##
+  infra:
+    comment: "Infra profile host config"
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_infra-sda.ks
+    gateway: "{{ default_gateway_addr }}"
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    roles: ['controller', 'network', 'haproxy', 'image']
+    metadata: []
+    #
+    # Standard partitions
+    #
+    partitions:
+      root:
+        size: 16
+        fstype: xfs
+        mountpoint: /
+      var:
+        size: 32
+        fstype: xfs
+        mountpoint: /var
+      lxc:
+        size: 24
+        fstype: xfs
+        mountpoint: /var/lib/lxc
+      openstack-core:
+        size: 8
+        fstype: xfs
+        mountpoint: /openstack
+      openstack-log:
+        size: 24
+        fstype: xfs
+        mountpoint: /openstack/log
+    #
+    # Standard network interfaces
+    #
+    interfaces:
+      ##
+      ## NICs
+      ##
+      # Primary physical interface
+      - interface: "{{ primary_interface | default('eth0') }}"
+        label: primary_network_interface
+        interface_type: bond_slave
+        interface_master: "{{ bond0_interface }}"
+        assign_mac: true
+        management: true
+      # Secondary physical interface
+      - interface: "{{ secondary_interface | default('eth1') }}"
+        label: secondary_network_interface
+        interface_type: bond_slave
+        interface_master: "{{ bond1_interface }}"
+        assign_mac: true
+      ##
+      ## Bonds
+      ##
+      # bond0 interface used for management, storage and API access
+      - interface: "{{ bond0_interface }}"
+        interface_type: bond
+        bonding_opts: "miimon=100 mode=1"
+      # bond1 interface used for tenants networking (flat, vlan, vxlan)
+      - interface: "{{ bond1_interface }}" 
+        interface_type: bonded_bridge_slave
+        interface_master: "{{ external_interface }}"
+        bonding_opts: "miimon=100 mode=1"
+      ##
+      ## VLANS
+      ##
+      # Container/Host management VLAN interface
+      - interface: "{{ management_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ management_network_interface }}"
+      # OpenStack services APIs VLAN interface
+      - interface: "{{ api_vlan_interface }}"
+        label: api_network_interface
+        network: "{{ api_network }}"
+        netmask: "{{ api_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+      # OpenStack Networking (tunnel/overlay) VLAN interface
+      - interface: "{{ tunnel_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ tunnel_network_interface }}"
+      ##
+      ## Bridges
+      ##
+      # Container / Host management network bridge interface.
+      - interface: "{{ management_network_interface }}"
+        label: management_network_interface
+        interface_type: bridge
+        bridge_opts: 'STP=no'
+        if_gateway: "{{ default_gateway_addr }}"
+        network: "{{ management_network }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+      # OpenStack Networking VXLAN (tunnel/overlay) network bridge interface.
+      - interface: "{{ tunnel_network_interface }}"
+        label: tunnel_network_interface
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        network: "{{ tunnel_network }}"
+        netmask: "{{ tunnel_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+      # OpenStack Networking (provider) network bridge interface
+      - interface: "{{ external_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+  ##
+  ## Compute profile host config
+  ##
+  compute:
+    comment: "Nova compute profile config"
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_compute-sda.ks
+    gateway: "{{ default_gateway_addr }}"
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    roles: ['compute']
+    metadata: []
+    #
+    # Standard partitions
+    #
+    partitions:
+      root:
+        size: 16
+        fstype: xfs
+        mountpoint: /
+      var:
+        size: 32
+        fstype: xfs
+        mountpoint: /var
+      lxc:
+        size: 24
+        fstype: xfs
+        mountpoint: /var/lib/lxc
+      openstack-core:
+        size: 8
+        fstype: xfs
+        mountpoint: /openstack
+      openstack-log:
+        size: 24
+        fstype: xfs
+        mountpoint: /openstack/log
+      openstack-instances:
+        size: 0
+        fstype: xfs
+        mountpoint: /var/lib/nova/instances
+        interfaces:
+    #
+    # Network interfaces
+    #
+    interfaces:
+      ##
+      ## NICs
+      ##
+      # Storage VLAN interface
+      - interface: "{{ primary_interface | default('eth0') }}"
+        label: primary_network_interface
+        interface_type: bond_slave
+        interface_master: "{{ bond0_interface }}"
+        assign_mac: true
+        management: true
+      # Secondary physical interface
+      - interface: "{{ secondary_interface | default('eth1') }}"
+        label: secondary_network_interface
+        interface_type: bond_slave
+        interface_master: "{{ bond1_interface }}"
+        assign_mac: true
+      ##
+      ## Bonds
+      ##
+      # bond0 interface used for management, storage and API access
+      - interface: "{{ bond0_interface }}"
+        interface_type: bond
+        bonding_opts: "miimon=100 mode=1"
+      # bond1 interface used for tenants networking (flat, vlan, vxlan)
+      - interface: "{{ bond1_interface }}" 
+        interface_type: bonded_bridge_slave
+        interface_master: "{{ external_interface }}"
+        bonding_opts: "miimon=100 mode=1"
+      ##
+      ## VLANS
+      ##
+      # Container/Host management VLAN interface
+      - interface: "{{ management_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ management_network_interface }}"
+      # OpenStack Networking (tunnel/overlay) VLAN interface
+      - interface: "{{ tunnel_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ tunnel_network_interface }}"
+      # Storage network VLAN interface
+      - interface: "{{ storage_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ storage_network_interface }}" 
+        assign_ip: true
+        static: 1
+      ##
+      ## Bridges
+      ##
+      # Container / Host management network bridge interface.
+      - interface: "{{ management_network_interface }}"
+        label: management_network_interface
+        interface_type: bridge
+        bridge_opts: 'STP=no'
+        if_gateway: "{{ default_gateway_addr }}"
+        network: "{{ management_network }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+      # OpenStack Networking VXLAN (tunnel/overlay) network bridge interface.
+      - interface: "{{ tunnel_network_interface }}"
+        label: tunnel_network_interface
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        network: "{{ tunnel_network }}"
+        netmask: "{{ tunnel_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+      # OpenStack Networking (provider) network bridge interface
+      - interface: "{{ external_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+      # Storage network bridge interface
+      - interface: "{{ storage_network_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        network: "{{ storage_network }}"
+        netmask: "{{ storage_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+  ##
+  ## Ceph role host config
+  ##
+  ceph:
+    comment: "This is a Ceph OSD host"
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_ceph-sda.ks
+    gateway: "{{ default_gateway_addr }}"
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    roles: ['ceph']
+    metadata: []
+    partitions:
+      root:
+        size: 16
+        fstype: xfs
+        mountpoint: /
+      var:
+        size: 32
+        fstype: xfs
+        mountpoint: /var
+      ceph-data:
+        size: 0
+        fstype: vgonly
+      ceph-journal:
+        size: 0
+        fstype: vgonly
+    interfaces:
+      ##
+      ## NICs
+      ##
+      # Storage VLAN interface
+      - interface: "{{ primary_interface | default('eth0') }}"
+        label: primary_network_interface
+        interface_type: bond_slave
+        interface_master: "{{ bond0_interface }}"
+        assign_mac: true
+        management: true
+      # Secondary physical interface
+      - interface: "{{ secondary_interface | default('eth1') }}"
+        label: secondary_network_interface
+        interface_type: bond_slave
+        interface_master: "{{ bond1_interface }}"
+        assign_mac: true
+      ##
+      ## Bonds
+      ##
+      # bond0 interface used for management, storage and API access
+      - interface: "{{ bond0_interface }}"
+        interface_type: bond
+        bonding_opts: "miimon=100 mode=1"
+      # bond1 interface used for tenants networking (flat, vlan, vxlan)
+      - interface: "{{ bond1_interface }}" 
+        interface_type: bonded_bridge_slave
+        interface_master: "{{ external_interface }}"
+        bonding_opts: "miimon=100 mode=1"
+      ##
+      ## VLANS
+      ##
+      # Container/Host management VLAN interface
+      - interface: "{{ management_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ management_network_interface }}"
+      # Storage network VLAN interface
+      - interface: "{{ storage_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ storage_network_interface }}" 
+        assign_ip: true
+        static: 1
+      ##
+      ## Bridges
+      ##
+      # Container / Host management network bridge interface.
+      - interface: "{{ management_network_interface }}"
+        label: management_network_interface
+        interface_type: bridge
+        bridge_opts: 'STP=no'
+        if_gateway: "{{ default_gateway_addr }}"
+        network: "{{ management_network }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+      # Storage network bridge interface
+      - interface: "{{ storage_network_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        network: "{{ storage_network }}"
+        netmask: "{{ storage_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+  ##
+  ## Storage role host config
+  ##
+  storage:
+    comment: "This is a Cinder block storage host"
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_storage-sda.ks
+    gateway: "{{ default_gateway_addr }}"
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    roles: ['storage']
+    metadata: []
+    partitions:
+      root:
+        size: 16
+        fstype: xfs
+        mountpoint: /
+      var:
+        size: 32
+        fstype: xfs
+        mountpoint: /var
+      cinder-volumes:
+        size: 0
+        fstype: vgonly
+    interfaces:
+      ##
+      ## NICs
+      ##
+      # Storage VLAN interface
+      - interface: "{{ primary_interface | default('eth0') }}"
+        label: primary_network_interface
+        interface_type: bond_slave
+        interface_master: "{{ bond0_interface }}"
+        assign_mac: true
+        management: true
+      # Secondary physical interface
+      - interface: "{{ secondary_interface | default('eth1') }}"
+        label: secondary_network_interface
+        interface_type: bond_slave
+        interface_master: "{{ bond1_interface }}"
+        assign_mac: true
+      ##
+      ## Bonds
+      ##
+      # bond0 interface used for management, storage and API access
+      - interface: "{{ bond0_interface }}"
+        interface_type: bond
+        bonding_opts: "miimon=100 mode=1"
+      # bond1 interface used for tenants networking (flat, vlan, vxlan)
+      - interface: "{{ bond1_interface }}" 
+        interface_type: bonded_bridge_slave
+        interface_master: "{{ external_interface }}"
+        bonding_opts: "miimon=100 mode=1"
+      ##
+      ## VLANS
+      ##
+      # Container/Host management VLAN interface
+      - interface: "{{ management_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ management_network_interface }}"
+      # Storage network VLAN interface
+      - interface: "{{ storage_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ storage_network_interface }}" 
+        assign_ip: true
+        static: 1
+      ##
+      ## Bridges
+      ##
+      # Container / Host management network bridge interface.
+      - interface: "{{ management_network_interface }}"
+        label: management_network_interface
+        interface_type: bridge
+        bridge_opts: 'STP=no'
+        if_gateway: "{{ default_gateway_addr }}"
+        network: "{{ management_network }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+      # Storage network bridge interface
+      - interface: "{{ storage_network_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        network: "{{ storage_network }}"
+        netmask: "{{ storage_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+  ##
+  ## Swift role host config
+  ##
+  swift:
+    comment: "This is a Swift object storage host"
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-osa_swift-sda.ks
+    gateway: "{{ default_gateway_addr }}"
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    roles: ['swift']
+    metadata: []
+    partitions:
+      root:
+        size: 16
+        fstype: xfs
+        mountpoint: /
+      var:
+        size: 32
+        fstype: xfs
+        mountpoint: /var
+      swift-sdb:
+        size: 0
+        fstype: xfs
+        mountpoint: /srv/node/sdb
+        options: "noatime,nodiratime,nobarrier,logbufs=8"
+      swift-sdc:
+        size: 0
+        fstype: xfs
+        mountpoint: /srv/node/sdc
+        options: "noatime,nodiratime,nobarrier,logbufs=8"
+    interfaces:  
+      ##
+      ## NICs
+      ##
+      # Primary physical interface
+      - interface: "{{ primary_interface | default('eth0') }}"
+        label: primary_network_interface
+        interface_type: bond_slave
+        interface_master: "{{ bond0_interface }}"
+        assign_mac: true
+        management: true
+      # Secondary physical interface
+      - interface: "{{ secondary_interface | default('eth1') }}"
+        label: secondary_network_interface
+        interface_type: bond_slave
+        interface_master: "{{ bond1_interface }}"
+        assign_mac: true
+      
+      ##
+      ## Bonds
+      ##
+      # bond0 interface used for management, storage and API access
+      - interface: "{{ bond0_interface }}"
+        interface_type: bond
+        bonding_opts: "miimon=100 mode=1"
+      # bond1 interface used for tenants networking (flat, vlan, vxlan)
+      - interface: "{{ bond1_interface }}" 
+        interface_type: bonded_bridge_slave
+        interface_master: "{{ external_interface }}"
+        bonding_opts: "miimon=100 mode=1"
+      ##
+      ## VLANS
+      ##
+      # Container/Host management VLAN interface
+      - interface: "{{ management_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ management_network_interface }}"
+      # Storage network VLAN interface
+      - interface: "{{ storage_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ storage_network_interface }}" 
+        assign_ip: true
+        static: 1
+      ##
+      ## Bridges
+      ##
+      # Container / Host management network bridge interface.
+      - interface: "{{ management_network_interface }}"
+        label: management_network_interface
+        interface_type: bridge
+        bridge_opts: 'STP=no'
+        if_gateway: "{{ default_gateway_addr }}"
+        network: "{{ management_network }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+      # Storage network bridge interface
+      - interface: "{{ storage_network_interface }}"
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        network: "{{ storage_network }}"
+        netmask: "{{ storage_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+  ##
+  ## monitoring role host config
+  ##
+  _monitoring: &monitoring
+    comment: "This is a monitoring / logging host"
+    distro_name: centos-7-x86_64
+    kickstart_file: centos7-default-sda.ks
+    gateway: "{{ default_gateway_addr }}"
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    roles: ['monitoring', 'logging']
+    metadata: []
+    #
+    # Standard partitions
+    #
+    partitions:
+      root:
+        size: 16
+        fstype: xfs
+        mountpoint: /
+      var:
+        size: 32
+        fstype: xfs
+        mountpoint: /var
+      lxc:
+        size: 24
+        fstype: xfs
+        mountpoint: /var/lib/lxc
+    #
+    # Standard network interfaces
+    #
+    interfaces:
+      ##
+      ## NICs
+      ##
+      # Primary physical interface
+      - interface: "{{ primary_interface | default('eth0') }}"
+        label: primary_network_interface
+        interface_type: bond_slave
+        interface_master: "{{ bond0_interface }}"
+        assign_mac: true
+        management: true
+      # Secondary physical interface
+      - interface: "{{ secondary_interface | default('eth1') }}"
+        label: secondary_network_interface
+        interface_type: bond_slave
+        interface_master: "{{ bond1_interface }}"
+        assign_mac: true
+      ##
+      ## Bonds
+      ##
+      # bond0 interface used for management, storage and API access
+      - interface: "{{ bond0_interface }}"
+        interface_type: bond
+        bonding_opts: "miimon=100 mode=1"
+      ##
+      ## VLANS
+      ##
+      # Container/Host management VLAN interface
+      - interface: "{{ management_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ management_network_interface }}"
+      # OpenStack services APIs VLAN interface
+      - interface: "{{ api_vlan_interface }}"
+        label: api_network_interface
+        network: "{{ api_network }}"
+        netmask: "{{ api_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+      ##
+      ## Bridges
+      ##
+      # Container / Host management network bridge interface.
+      - interface: "{{ management_network_interface }}"
+        label: management_network_interface
+        interface_type: bridge
+        bridge_opts: 'STP=no'
+        if_gateway: "{{ default_gateway_addr }}"
+        network: "{{ management_network }}"
+        netmask: "{{ management_network | ipaddr('netmask') }}"
+        assign_ip: true
+        static: 1
+
+  logging: *monitoring
+
+## List of netboot systems to register in Cobbler
+##   This must be defined in onpc-site-config.yml
+##
+onpc_netboot_systems:
+  - name: infra-01
+    comment: "This node is an infra node"
+    profile: infra
+    hostname: "{{ 'infra-01' + '.' + onpc_infra_domain }}"
+    gateway: "{{ default_gateway_addr }}"
+    state: present
+    netboot: true
+    interfaces:
+      primary_network_interface:
+        mac_address: "ac:1f:6b:47:3f:c8"
+      secondary_network_interface:
+        mac_address: "ac:1f:6b:47:3f:c9" 
+      api_network_interface:
+        ip_address: 172.31.0.56
+      management_network_interface:
+        ip_address: 172.29.236.56
+      tunnel_network_interface:
+        ip_address: 172.29.240.56
+

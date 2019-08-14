@@ -140,12 +140,12 @@ glance_default_store: file
 {% endif %}
 
 ## Common Neutron Overrides
-# Install standards Neutron plus LBaas V2 plugin
+# Install standards Neutron plugins
 neutron_plugin_base:
   - router
   - metering
-  - firewall
 
+# Enable L2 population driver
 neutron_l2_population: True
 
 {% if 'ceph' in onpc_services_list %}
@@ -187,7 +187,7 @@ tempest_public_subnet_cidr: "{{ management_network }}"
 tempest_public_subnet_allocation_pools: "172.29.239.110-172.29.239.200"
 {% else %}
 ## Tempest settings
-tempest_public_subnet_cidr: "{{ provider_network }}"
+tempest_public_subnet_cidr: "{{ external_network }}"
 tempest_public_subnet_allocation_pools: "172.29.249.110-172.29.249.200"
 {% endif %}
 tempest_install: {{ onpc_run_tempest_tests }}

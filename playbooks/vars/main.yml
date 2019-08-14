@@ -1,0 +1,215 @@
+---
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+onpc_openstack_release: 18.1.3
+onpc_openstack_branch: stable/rocky
+onpc_lma_branch: master
+onpc_debug_enabled: False
+onpc_low_end_profile: False
+onpc_cpu_overcommit: 8.0
+onpc_openstack_domain: openstacklocal
+onpc_infra_domain: "{{ ansible_domain | default('openstack.local') }}"
+onpc_region_name: RegionOne
+onpc_multidomain_support: False
+
+# The variable onpc_environment_name is used to tag the monitoring metrics
+# and alerts. To be removed.
+# onpc_environment_name: "{{ environment_name | default(onpc_infra_domain, true) }}"
+onpc_run_tempest_tests: False
+onpc_valid_roles:
+    - controller
+    - storage
+    - ceph
+    - compute
+    - network
+    - logging
+    - monitoring
+    - swift
+    - image
+    - haproxy
+    - rsyslog
+    - nfs
+
+##
+## OpenStack environment bootstrap scenarios
+##
+# Note: Cobbler is the only supported and functional way
+# to provision the target hosts in ONPC.
+# Other host provisioning tools (such as MAAS) have been
+# tested with various degrees of success but are not
+# supported here at this time.
+onpc_bootstrap_scenario: "{{ lookup('env','SCENARIO') | default('cobbler_distro_lxc_standard_ceph', true) }}"
+onpc_bootstrap_config_path: ../etc/openstack_deploy
+onpc_install_method: "{{ (onpc_bootstrap_scenario is search('distro')) | ternary('distro', 'source') }}"
+onpc_bootstrap_container_tech: "{{ (onpc_bootstrap_scenario is search('nspawn')) | ternary('nspawn', 'lxc') }}"
+onpc_scenario_list: "{{ (onpc_bootstrap_scenario.split('_') | reject('equalto', '')) | list }}"
+onpc_services_list: >-
+  {%- set scenario_list = onpc_scenario_list %}
+  {%- set service_list = ['keystone', 'cinder', 'glance', 'neutron', 'nova'] %}
+  {%- set service_list_extra = scenario_list | difference(['cobbler', 'distro', 'lxc', 'nspawn', 'metal', 'source', 'starter', 'standard', 'extended', 'coe']) %}
+  {%- if 'ceph' in scenario_list %}
+  {%-   set _ = service_list.extend(['ceph']) %}
+  {%- endif %}
+  {%- if 'swift' in scenario_list %}
+  {%-   set _ = service_list.extend(['swift']) %}
+  {%- endif %}
+  {%- if 'metal' not in scenario_list %}
+  {%-   set _ = service_list.extend('haproxy') %}
+  {%- endif %}
+  {%- if 'starter' in scenario_list %}
+  {%-   set _ = service_list.extend(['rsyslog', 'nfs']) %}
+  {%- endif %}
+  {%- if 'standard' in scenario_list %}
+  {%-   set _ = service_list.extend(['logging', 'monitoring']) %}
+  {%- endif %}
+  {%- if 'extended' in scenario_list %}
+  {%-   set _ = service_list.extend(['ceilometer', 'aodh', 'heat', 'barbican', 'designate', 'logging', 'monitoring']) %}
+  {%- endif %}
+  {%- if 'coe' in scenario_list %}
+  {%-   set _ = service_list.extend(['ceilometer', 'aodh', 'heat', 'magnum', 'barbican', 'designate','octavia', 'logging', 'monitoring']) %}
+  {%- endif %}
+  {%- set _ = service_list.extend(service_list_extra) %}
+  {{- (service_list | unique) | sort }}
+
+oncp_master_root_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') | default('') }}"
+
+## 
+## ONPC Networking configuration
+##
+
+# management_network: used to provide access the internal services and containers
+# tunnel_network: used by tenants private networks 
+# storage_network: used by the storage services (optional)
+# 
+# OpenStack-Ansible uses bridges to connect physical and logical network
+# interfaces on the host to virtual network interfaces within containers.
+# Target hosts need to be configured with the following network bridges:
+#
+# ====================================================================== 
+# Bridge name   Configured on          With a assign_ip IP
+# ====================================================================== 
+# br-mgmt       Every host             Always
+# ----------------------------------------------------------------------
+# br-storage    Every storage host	   When component deployed on metal	
+#               Every compute host	   Always
+# ----------------------------------------------------------------------
+# br-vxlan      Every network host     When component deployed on metal
+#               Every compute host     Always
+# ----------------------------------------------------------------------
+# br-vlan       Every network host     Never
+#               Every compute host     Never
+# ----------------------------------------------------------------------
+# br-api        Every controller host  Always
+# ----------------------------------------------------------------------
+
+##
+## ONPC VLAN IDs.
+##   This can be adjusted for your environment in onpc-site-config.yml
+management_vlan_id: "10"
+tunnel_vlan_id: "20"
+storage_vlan_id: "30"
+api_vlan_id: "40"
+
+bond0_interface: bond0
+bond1_interface: bond1
+management_network_interface: br-mgmt
+tunnel_network_interface: br-vxlan
+storage_network_interface: br-storage
+external_interface: br-vlan
+api_network_interface: "{{ api_vlan_interface }}"
+
+management_vlan_interface: "{{ bond0_interface + '.' + management_vlan_id }}"
+api_vlan_interface: "{{ bond0_interface + '.' + api_vlan_id }}"
+tunnel_vlan_interface: "{{ bond1_interface + '.' + tunnel_vlan_id }}"
+storage_vlan_interface: "{{ bond0_interface + '.' + storage_vlan_id }}"
+
+external_vip_addr: "{{ (api_network.split('.')[:-1] + ['100']) | join('.') }}"
+internal_vip_addr: "{{ (management_network.split('.')[:-1] + ['100']) | join('.') }}"
+default_gateway_addr: "{{ (management_network.split('.')[:-1] + ['1']) | join('.') }}"
+
+##
+## Dictionary of OSA networks to configure
+##   This must be defined in onpc-site-config.yml
+##
+onpc_osa_networks_check: True
+onpc_osa_networks: {}
+
+##
+## List of users and ssh keys to provision on target hosts
+##   This must be defined in onpc-site-config.yml
+##
+onpc_users_list: []
+
+##
+## Dictionary of netboot ISOs to register in Cobbler
+##   This must be defined in onpc-site-config.yml
+##
+onpc_netboot_distros: {}
+
+##
+## Dictionary of netboot profiles to register in Cobbler
+##   This must be defined in onpc-site-config.yml
+##
+onpc_netboot_profiles: {}
+
+## List of netboot systems to register in Cobbler
+##   This must be defined in onpc-site-config.yml
+##
+onpc_netboot_systems: []
+
+##
+## Proxy cache config
+##
+# In situations where the Internet access is blocked from
+# the target hosts, a proxy server (Squid) can be
+# installed on the master host to remedy this problem.
+# Internet access is required to be able to get the
+# needed resources during the deployment phase such as
+# packages, LXC container images, Ansible roles and so
+# so on.
+# Check https://docs.openstack.org/openstack-ansible/latest/user/limited-connectivity
+# for additional details.
+#
+# Three proxy modes are supported.
+# - transparent: Internet access is mediated through the
+#                proxy in a transparent manner. No proxy
+#                settings is needed to access the Internet
+#                from the target hosts.
+# - transient: Internet access is mediated through the
+#              proxy only during the deployment phase.
+#              Target hosts clients such as wget will not
+#              be able to access external resources after
+#              deployment.
+# - permanent: Internet access is mediated through the
+#              proxy during and after deployment.
+#              Caution must apply for large deployment because
+#              The maximum length of no_proxy should not exceed
+#              1024 characters.
+onpc_proxy_mode: transparent
+
+##
+## Sensu channels config
+##
+# Slack channel for sending alerts.
+# onpc_slack_alerts:
+#  channels:
+#    - name: ''
+#      uuid: ''
+
+# Use Sensu handlers for sending alerts
+onpc_sensu_alerts:
+  handlers:
+    - default

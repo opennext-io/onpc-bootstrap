@@ -56,7 +56,7 @@
   set_fact:
     actual_partition_size: "{{ ansible_mounts | selectattr('mount', 'equalto', partition_mountpoint) | map(attribute='size_total') | join }}"
 
-- name: "Check that partition '{{ partition_name }}' matches requirements"
+- name: "Assert that the partition '{{ partition_name }}' matches requirements"
   assert:
     that:
       - condition_item.conditional

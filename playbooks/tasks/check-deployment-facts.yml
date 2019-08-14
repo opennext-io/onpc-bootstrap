@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Ensure that the deployment scenario doesn't have mutually exclusive keywords
+- name: Assert that the deployment scenario doesn't have mutually exclusive options
   assert:
     that: not item.conditional
     msg: "{{ item.msg }}"
@@ -37,7 +37,7 @@
       msg: "Keywords 'swift' and 'nfs' are mutually exclusive."
   tags: check-bootstrap-scenario
 
-- name: Ensure that the inventory is not set with mutually exclusive roles
+- name: Assert that the inventory is not set with mutually exclusive roles
   assert:
     that: not item.conditional
     msg: "{{ item.msg }}"
@@ -48,7 +48,7 @@
       msg: "Roles 'swift' and 'ceph' are mutually exclusive."
   tags: check-bootstrap-inventory
 
-- name: Verify that the required hosts lists are properly defined
+- name: Assert that the required hosts lists are properly defined
   assert:
     that: item.list is defined and item.list | length > 0
     msg: "{{ item.msg }}"

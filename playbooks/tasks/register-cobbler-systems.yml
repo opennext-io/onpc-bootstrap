@@ -1,0 +1,103 @@
+---
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Get cobbler systems 
+  command: >
+    cobbler system list
+  register: result
+  failed_when: result.rc != 0
+  tags: always 
+
+- name: Set registered_systems fact
+  set_facts:
+    registered_systems: "{{ result.stdout_lines | map('trim') | list | default([]) }}"
+  tags: always
+
+- name: "Add cobbler system '{{ item.name }}'"
+  command: >
+    cobbler system add
+      --name="{{ item.name | lower }}"
+      --hostname="{{ item.hostname }}"
+      --gateway="{{ item.gateway }}"
+      --profile="{{ item.profile | lower }}"
+      --comment="{{ item.comment | default('') }}"
+      --netboot-enabled="{{ item.netboot }}"
+  when:
+    - item.name not in registered_systems
+    - item.state == "present"
+  tags: register-cobbler-systems
+
+- name: "Edit cobbler system '{{ item.value.name }}'"
+  command: >
+    cobbler system edit
+      --name="{{ item.name | lower }}"
+      --hostname="{{ item.hostname }}"
+      --gateway="{{ item.gateway }}"
+      --profile="{{ item.profile | lower }}"
+      --comment="{{ item.comment | default('') }}"
+      --netboot-enabled="{{ item.netboot }}"
+  when:
+    - item.name in registered_systems
+    - item.state == "present"
+  tags: register-cobbler-systems
+
+- name: "Delete cobbler system '{{ item.value.name }}'"
+  command: >
+    cobbler system remove
+      --name={{ item.name }}
+  when:
+    - item.name in registered_systems
+    - item.state == "absent"
+  tags: register-cobbler-systems
+
+- name: Sync Cobbler database
+  command: >
+    cobbler sync
+  run_once: yes
+  register: result
+  failed_when: result.rc != 0
+  tags: register-cobbler-systems
+
+- name: Set system_interfaces_list fact
+  set_fact:
+    system_interfaces_list: >-
+      {%- set sel = [] %}
+      {%- for val in oncp_netboot_profiles[item.profile]['interfaces'] %}
+      {%-   set interface = val %}
+      {%-   if val.assign_mac is defined and val.assign_mac is sameas true %}
+      {%-     set _ = interface.append({'mac_address': item['interfaces'][val.label]['mac_address']}) %}
+      {%    endif %}
+      {%-   if val.assign_ip is defined and val.assign_ip is sameas true %}
+      {%-     set _ = interface.append({'ip_address': item['interfaces'][val.label]['ip_address']}) %}
+      {%    endif %}
+      {%-   set _ = sel.append(host) %}
+      {%- endfor %}
+      {{- sel | list }}
+  tags:
+    - register-cobbler-systems
+    - register-cobbler-interfaces
+
+- debug: var=system_interfaces_list
+
+- name: "Register interfaces for {{ item.name }}"
+  include: tasks/register-cobbler-interface.yml
+  vars:
+    system_name: item.name
+  loop: "{{ system_interfaces_list }}"
+  loop_control:
+    loop_var: interface
+
+

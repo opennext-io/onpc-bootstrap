@@ -15,24 +15,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Setup master host
+- name: Setup OSA environment
   hosts: localhost
-  connection: local
   become: true
   become_user: root
+  connection: local
 
   vars_files:
     - vars/main.yml
+    - vars/swift.yml
 
   tasks:
-    - name: Verify Ansible version meets requirements
+    - name: Assert that the Ansible version meets requirements
       assert:
         that: "ansible_version.full is version_compare('2.7', '>=')"
         msg: >-
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
-      tags: check-ansible-version
-    
-    - import_tasks: tasks/install-master-packages.yml
-      tags: install-master-packages
-    - import_tasks: tasks/setup-master-firewall.yml
-      tags: setup-master-firewall
+    - import_tasks: tasks/setup-networking-facts.yml
+      tags: always
+    - import_tasks: tasks/setup-deployment-facts.yml
+      tags: always
+    - import_tasks: tasks/check-deployment-facts.yml
+      tags: check-deployment-facts
+    - import_tasks: tasks/import-osa-repos.yml
+      tags: import-osa-repo
+    - import_tasks: tasks/import-onpc-repos.yml
+      tags: import-lma-repo
+    - include_tasks: tasks/bootstrap-ansible.yml
+    - import_tasks: tasks/setup-common-files.yml
+      tags: setup-common-files
+    - import_tasks: tasks/setup-master-files.yml
+      tags: setup-master-files

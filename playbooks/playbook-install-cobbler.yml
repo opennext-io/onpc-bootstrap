@@ -36,20 +36,20 @@
     - vars/cobbler.yml
 
   pre_tasks:
-    - name: Verify Ansible version meets requirements
+    - name: Assert that Ansible version meets requirements
       assert:
         that: "ansible_version.full is version_compare('2.7', '>=')"
         msg: >-
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
     
-    - name: Check for supported Operating System platforms
+    - name: Assert that the Operating System is supported
       assert:
         that:
           - ansible_os_family == 'RedHat' and ansible_distribution_major_version == '7'
         msg: >
           The only supported Linux distribution to install Cobbler is CentOS 7
 
-    - name: Verify oncp_master_root_public_key is properly defined
+    - name: Assert that oncp_master_root_public_key is properly defined
       assert:
         that: "{{ oncp_master_root_public_key | length > 0 }}"
         msg: "user 'root' public key is not defined"

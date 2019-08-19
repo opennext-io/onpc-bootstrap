@@ -18,7 +18,7 @@
   command: >
     cobbler distro list
   register: result
-  failed_when: result.rc != 0
+  failed_when: result.failed == 0
   tags: always 
 
 - name: Set registered_distros fact

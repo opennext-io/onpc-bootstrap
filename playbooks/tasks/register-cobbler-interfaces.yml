@@ -18,7 +18,7 @@
   command: >
     cobbler system list
   register: result
-  failed_when: result.rc != 0
+  failed_when: result.failed == true
   tags: always 
 
 - name: Set registered_systems fact
@@ -46,7 +46,7 @@
   when:
     - system_name in registered_systems
   register: result
-  failed_when: result.rc != 0
+  failed_when: result.failed == true
   tags:
     - register-cobbler-systems
     - register-cobbler-interfaces

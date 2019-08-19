@@ -19,7 +19,7 @@
       stat:
         path: "/var/tmp/isos/{{ distro_file }}"
       register: result
-      failed_when: result.rc != 0
+      failed_when: result.failed == true
       tags: always
   
     - name: Downloading the ISO

@@ -18,7 +18,7 @@
   command: >
     cobbler profile list
   register: result
-  failed_when: result.rc != 0
+  failed_when: result.failed == true
   tags: always
 
 - name: Set registered_profiles fact

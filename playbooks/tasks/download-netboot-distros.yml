@@ -19,9 +19,8 @@
       stat:
         path: "/var/tmp/isos/{{ distro_file }}"
       register: result
-      failed_when: result.failed == true
       tags: always
-  
+
     - name: Downloading the ISO
       get_url:
         url: "{{ item.value.url }}"
@@ -30,7 +29,7 @@
         mode: 0440
       register: download_result
       until: download_result is succeeded
-      retries: 5 
+      retries: 5
       delay: 15
       failed_when: download_result is failure
       when: result.stat.exists == False

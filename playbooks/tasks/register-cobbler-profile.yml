@@ -14,25 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Get cobbler profiles
-  command: >
-    cobbler profile list
-  register: result
-  failed_when: result.failed == true
-  tags: always
-
-- name: Set registered_profiles fact
-  set_facts:
-    registered_profiles: "{{ result.stdout_lines | map('trim') | list | default([]) }}"
-  tags: always
-
-- name: Set profile_roles fact
-  set_fact:
-      profile_roles: "{{ (item.value.roles | intersect(infra_group)) | ternary((item.value.roles + ['infra']) | unique | list, item.value.roles | unique | list) }}"
-  vars:
-    infra_group: ['controller', 'network', 'haproxy', 'image']
-  tags: always
-
 - name: "Add cobbler profile '{{ profile_name }}'"
   command: >
     cobbler profile add
@@ -59,10 +40,4 @@
       --mgmt-classes="{{ profile_roles | join(' ') | lower }}"
       --ksmeta="{{ item.value.metadata | join(' ') | lower }}"
   when: profile_name in registered_profiles
-  tags: register-cobbler-profiles
-
-- name: Sync Cobbler database
-  command: >
-    cobbler sync
-  run_once: yes
   tags: register-cobbler-profiles

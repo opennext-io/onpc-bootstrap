@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Get cobbler mgmt classes 
+- name: Get cobbler mgmt classes
   command: >
     cobbler mgmtclass list
   register: result
-  failed_when: result.failed == true
+  failed_when: result.rc != 0
   tags: always
 
 - name: Set registered_mgmt_classes facts
@@ -28,15 +28,9 @@
 
 - name: "Register cobbler mgmt classes"
   command: >
-    cobbler mgmtclass add 
+    cobbler mgmtclass add
       --name="{{ item }}"
       --comment="Mgmt class '{{ item }}' used as a group name in cobbler\'s inventory"
-  when: item not in registered_mgmt_classes
   with_items: "{{ (onpc_valid_roles + ['infra']) | unique | list }}"
+  when: item not in registered_mgmt_classes
   tags: register-cobbler-mgmt-classes
-
-- name: Sync Cobbler database
-  command: >
-    cobbler sync
-  run_once: yes
-  tags: register-cobbler-distros

@@ -29,6 +29,18 @@
         msg: >-
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
 
+    - name: Get cobbler distros
+      command: >
+        cobbler distro list
+      register: result
+      failed_when: result.rc != 0
+      tags: always
+
+    - name: Set registered_distros fact
+      set_fact:
+        registered_distros: "{{ result.stdout_lines | map('trim') | list | default([]) }}"
+      tags: always
+
     - include_tasks: tasks/download-netboot-distros.yml
       vars:
         distro_file: "{{ item.value.url.split('/')[-1] | lower }}"
@@ -39,3 +51,11 @@
         distro_file: "{{ item.value.url.split('/')[-1] | lower }}"
         distro_name: "{{ item.key | lower }}-{{ item.value.arch | lower }}"
       with_dict: "{{ onpc_netboot_distros }}"
+    
+    - name: Sync Cobbler database
+      command: >
+        cobbler sync
+      run_once: yes
+      register: result
+      failed_when: result.rc != 0
+      tags: register-cobbler-distros

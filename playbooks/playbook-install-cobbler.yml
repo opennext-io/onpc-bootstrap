@@ -79,5 +79,5 @@
         use_ssl: False
       run_once: yes
       register: result
-      failed_when: result.failed
+      failed_when: result.rc != 0
       tags: cobbler-sync

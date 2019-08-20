@@ -141,14 +141,14 @@ onpc_netboot_profiles:
       ## NICs
       ##
       # Primary physical interface
-      - interface: "{{ primary_interface | default('eth0') }}"
+      - interface_name: "{{ primary_interface | default('eth0') }}"
         label: primary_network_interface
         interface_type: bond_slave
         interface_master: "{{ bond0_interface }}"
         assign_mac: true
         management: true
       # Secondary physical interface
-      - interface: "{{ secondary_interface | default('eth1') }}"
+      - interface_name: "{{ secondary_interface | default('eth1') }}"
         label: secondary_network_interface
         interface_type: bond_slave
         interface_master: "{{ bond1_interface }}"
@@ -157,11 +157,11 @@ onpc_netboot_profiles:
       ## Bonds
       ##
       # bond0 interface used for management, storage and API access
-      - interface: "{{ bond0_interface }}"
+      - interface_name: "{{ bond0_interface }}"
         interface_type: bond
         bonding_opts: "miimon=100 mode=1"
       # bond1 interface used for tenants networking (flat, vlan, vxlan)
-      - interface: "{{ bond1_interface }}" 
+      - interface_name: "{{ bond1_interface }}"
         interface_type: bonded_bridge_slave
         interface_master: "{{ external_interface }}"
         bonding_opts: "miimon=100 mode=1"
@@ -169,25 +169,25 @@ onpc_netboot_profiles:
       ## VLANS
       ##
       # Container/Host management VLAN interface
-      - interface: "{{ management_vlan_interface }}"
+      - interface_name: "{{ management_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ management_network_interface }}"
       # OpenStack services APIs VLAN interface
-      - interface: "{{ api_vlan_interface }}"
+      - interface_name: "{{ api_vlan_interface }}"
         label: api_network_interface
         network: "{{ api_network }}"
         netmask: "{{ api_network | ipaddr('netmask') }}"
         assign_ip: true
         static: 1
       # OpenStack Networking (tunnel/overlay) VLAN interface
-      - interface: "{{ tunnel_vlan_interface }}"
+      - interface_name: "{{ tunnel_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ tunnel_network_interface }}"
       ##
       ## Bridges
       ##
       # Container / Host management network bridge interface.
-      - interface: "{{ management_network_interface }}"
+      - interface_name: "{{ management_network_interface }}"
         label: management_network_interface
         interface_type: bridge
         bridge_opts: 'STP=no'
@@ -197,7 +197,7 @@ onpc_netboot_profiles:
         assign_ip: true
         static: 1
       # OpenStack Networking VXLAN (tunnel/overlay) network bridge interface.
-      - interface: "{{ tunnel_network_interface }}"
+      - interface_name: "{{ tunnel_network_interface }}"
         label: tunnel_network_interface
         bridge_opts: 'STP=no'
         interface_type: bridge
@@ -206,7 +206,7 @@ onpc_netboot_profiles:
         assign_ip: true
         static: 1
       # OpenStack Networking (provider) network bridge interface
-      - interface: "{{ external_interface }}"
+      - interface_name: "{{ external_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
   ##
@@ -260,14 +260,14 @@ onpc_netboot_profiles:
       ## NICs
       ##
       # Storage VLAN interface
-      - interface: "{{ primary_interface | default('eth0') }}"
+      - interface_name: "{{ primary_interface | default('eth0') }}"
         label: primary_network_interface
         interface_type: bond_slave
         interface_master: "{{ bond0_interface }}"
         assign_mac: true
         management: true
       # Secondary physical interface
-      - interface: "{{ secondary_interface | default('eth1') }}"
+      - interface_name: "{{ secondary_interface | default('eth1') }}"
         label: secondary_network_interface
         interface_type: bond_slave
         interface_master: "{{ bond1_interface }}"
@@ -276,11 +276,11 @@ onpc_netboot_profiles:
       ## Bonds
       ##
       # bond0 interface used for management, storage and API access
-      - interface: "{{ bond0_interface }}"
+      - interface_name: "{{ bond0_interface }}"
         interface_type: bond
         bonding_opts: "miimon=100 mode=1"
       # bond1 interface used for tenants networking (flat, vlan, vxlan)
-      - interface: "{{ bond1_interface }}" 
+      - interface_name: "{{ bond1_interface }}"
         interface_type: bonded_bridge_slave
         interface_master: "{{ external_interface }}"
         bonding_opts: "miimon=100 mode=1"
@@ -288,24 +288,24 @@ onpc_netboot_profiles:
       ## VLANS
       ##
       # Container/Host management VLAN interface
-      - interface: "{{ management_vlan_interface }}"
+      - interface_name: "{{ management_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ management_network_interface }}"
       # OpenStack Networking (tunnel/overlay) VLAN interface
-      - interface: "{{ tunnel_vlan_interface }}"
+      - interface_name: "{{ tunnel_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ tunnel_network_interface }}"
       # Storage network VLAN interface
-      - interface: "{{ storage_vlan_interface }}"
+      - interface_name: "{{ storage_vlan_interface }}"
         interface_type: bridge_slave
-        interface_master: "{{ storage_network_interface }}" 
+        interface_master: "{{ storage_network_interface }}"
         assign_ip: true
         static: 1
       ##
       ## Bridges
       ##
       # Container / Host management network bridge interface.
-      - interface: "{{ management_network_interface }}"
+      - interface_name: "{{ management_network_interface }}"
         label: management_network_interface
         interface_type: bridge
         bridge_opts: 'STP=no'
@@ -315,7 +315,7 @@ onpc_netboot_profiles:
         assign_ip: true
         static: 1
       # OpenStack Networking VXLAN (tunnel/overlay) network bridge interface.
-      - interface: "{{ tunnel_network_interface }}"
+      - interface_name: "{{ tunnel_network_interface }}"
         label: tunnel_network_interface
         bridge_opts: 'STP=no'
         interface_type: bridge
@@ -324,11 +324,11 @@ onpc_netboot_profiles:
         assign_ip: true
         static: 1
       # OpenStack Networking (provider) network bridge interface
-      - interface: "{{ external_interface }}"
+      - interface_name: "{{ external_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
       # Storage network bridge interface
-      - interface: "{{ storage_network_interface }}"
+      - interface_name: "{{ storage_network_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         network: "{{ storage_network }}"
@@ -369,14 +369,14 @@ onpc_netboot_profiles:
       ## NICs
       ##
       # Storage VLAN interface
-      - interface: "{{ primary_interface | default('eth0') }}"
+      - interface_name: "{{ primary_interface | default('eth0') }}"
         label: primary_network_interface
         interface_type: bond_slave
         interface_master: "{{ bond0_interface }}"
         assign_mac: true
         management: true
       # Secondary physical interface
-      - interface: "{{ secondary_interface | default('eth1') }}"
+      - interface_name: "{{ secondary_interface | default('eth1') }}"
         label: secondary_network_interface
         interface_type: bond_slave
         interface_master: "{{ bond1_interface }}"
@@ -385,11 +385,11 @@ onpc_netboot_profiles:
       ## Bonds
       ##
       # bond0 interface used for management, storage and API access
-      - interface: "{{ bond0_interface }}"
+      - interface_name: "{{ bond0_interface }}"
         interface_type: bond
         bonding_opts: "miimon=100 mode=1"
       # bond1 interface used for tenants networking (flat, vlan, vxlan)
-      - interface: "{{ bond1_interface }}" 
+      - interface_name: "{{ bond1_interface }}"
         interface_type: bonded_bridge_slave
         interface_master: "{{ external_interface }}"
         bonding_opts: "miimon=100 mode=1"
@@ -397,20 +397,20 @@ onpc_netboot_profiles:
       ## VLANS
       ##
       # Container/Host management VLAN interface
-      - interface: "{{ management_vlan_interface }}"
+      - interface_name: "{{ management_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ management_network_interface }}"
       # Storage network VLAN interface
-      - interface: "{{ storage_vlan_interface }}"
+      - interface_name: "{{ storage_vlan_interface }}"
         interface_type: bridge_slave
-        interface_master: "{{ storage_network_interface }}" 
+        interface_master: "{{ storage_network_interface }}"
         assign_ip: true
         static: 1
       ##
       ## Bridges
       ##
       # Container / Host management network bridge interface.
-      - interface: "{{ management_network_interface }}"
+      - interface_name: "{{ management_network_interface }}"
         label: management_network_interface
         interface_type: bridge
         bridge_opts: 'STP=no'
@@ -420,7 +420,7 @@ onpc_netboot_profiles:
         assign_ip: true
         static: 1
       # Storage network bridge interface
-      - interface: "{{ storage_network_interface }}"
+      - interface_name: "{{ storage_network_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         network: "{{ storage_network }}"
@@ -458,14 +458,14 @@ onpc_netboot_profiles:
       ## NICs
       ##
       # Storage VLAN interface
-      - interface: "{{ primary_interface | default('eth0') }}"
+      - interface_name: "{{ primary_interface | default('eth0') }}"
         label: primary_network_interface
         interface_type: bond_slave
         interface_master: "{{ bond0_interface }}"
         assign_mac: true
         management: true
       # Secondary physical interface
-      - interface: "{{ secondary_interface | default('eth1') }}"
+      - interface_name: "{{ secondary_interface | default('eth1') }}"
         label: secondary_network_interface
         interface_type: bond_slave
         interface_master: "{{ bond1_interface }}"
@@ -474,11 +474,11 @@ onpc_netboot_profiles:
       ## Bonds
       ##
       # bond0 interface used for management, storage and API access
-      - interface: "{{ bond0_interface }}"
+      - interface_name: "{{ bond0_interface }}"
         interface_type: bond
         bonding_opts: "miimon=100 mode=1"
       # bond1 interface used for tenants networking (flat, vlan, vxlan)
-      - interface: "{{ bond1_interface }}" 
+      - interface_name: "{{ bond1_interface }}"
         interface_type: bonded_bridge_slave
         interface_master: "{{ external_interface }}"
         bonding_opts: "miimon=100 mode=1"
@@ -486,20 +486,20 @@ onpc_netboot_profiles:
       ## VLANS
       ##
       # Container/Host management VLAN interface
-      - interface: "{{ management_vlan_interface }}"
+      - interface_name: "{{ management_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ management_network_interface }}"
       # Storage network VLAN interface
-      - interface: "{{ storage_vlan_interface }}"
+      - interface_name: "{{ storage_vlan_interface }}"
         interface_type: bridge_slave
-        interface_master: "{{ storage_network_interface }}" 
+        interface_master: "{{ storage_network_interface }}"
         assign_ip: true
         static: 1
       ##
       ## Bridges
       ##
       # Container / Host management network bridge interface.
-      - interface: "{{ management_network_interface }}"
+      - interface_name: "{{ management_network_interface }}"
         label: management_network_interface
         interface_type: bridge
         bridge_opts: 'STP=no'
@@ -509,7 +509,7 @@ onpc_netboot_profiles:
         assign_ip: true
         static: 1
       # Storage network bridge interface
-      - interface: "{{ storage_network_interface }}"
+      - interface_name: "{{ storage_network_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         network: "{{ storage_network }}"
@@ -549,33 +549,33 @@ onpc_netboot_profiles:
         fstype: xfs
         mountpoint: /srv/node/sdc
         options: "noatime,nodiratime,nobarrier,logbufs=8"
-    interfaces:  
+    interfaces:
       ##
       ## NICs
       ##
       # Primary physical interface
-      - interface: "{{ primary_interface | default('eth0') }}"
+      - interface_name: "{{ primary_interface | default('eth0') }}"
         label: primary_network_interface
         interface_type: bond_slave
         interface_master: "{{ bond0_interface }}"
         assign_mac: true
         management: true
       # Secondary physical interface
-      - interface: "{{ secondary_interface | default('eth1') }}"
+      - interface_name: "{{ secondary_interface | default('eth1') }}"
         label: secondary_network_interface
         interface_type: bond_slave
         interface_master: "{{ bond1_interface }}"
         assign_mac: true
-      
+
       ##
       ## Bonds
       ##
       # bond0 interface used for management, storage and API access
-      - interface: "{{ bond0_interface }}"
+      - interface_name: "{{ bond0_interface }}"
         interface_type: bond
         bonding_opts: "miimon=100 mode=1"
       # bond1 interface used for tenants networking (flat, vlan, vxlan)
-      - interface: "{{ bond1_interface }}" 
+      - interface_name: "{{ bond1_interface }}"
         interface_type: bonded_bridge_slave
         interface_master: "{{ external_interface }}"
         bonding_opts: "miimon=100 mode=1"
@@ -583,20 +583,20 @@ onpc_netboot_profiles:
       ## VLANS
       ##
       # Container/Host management VLAN interface
-      - interface: "{{ management_vlan_interface }}"
+      - interface_name: "{{ management_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ management_network_interface }}"
       # Storage network VLAN interface
-      - interface: "{{ storage_vlan_interface }}"
+      - interface_name: "{{ storage_vlan_interface }}"
         interface_type: bridge_slave
-        interface_master: "{{ storage_network_interface }}" 
+        interface_master: "{{ storage_network_interface }}"
         assign_ip: true
         static: 1
       ##
       ## Bridges
       ##
       # Container / Host management network bridge interface.
-      - interface: "{{ management_network_interface }}"
+      - interface_name: "{{ management_network_interface }}"
         label: management_network_interface
         interface_type: bridge
         bridge_opts: 'STP=no'
@@ -606,7 +606,7 @@ onpc_netboot_profiles:
         assign_ip: true
         static: 1
       # Storage network bridge interface
-      - interface: "{{ storage_network_interface }}"
+      - interface_name: "{{ storage_network_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
         network: "{{ storage_network }}"
@@ -616,7 +616,7 @@ onpc_netboot_profiles:
   ##
   ## monitoring role host config
   ##
-  _monitoring: &monitoring
+  monitoring: &monitoring
     comment: "This is a monitoring / logging host"
     distro_name: centos-7-x86_64
     kickstart_file: centos7-default-sda.ks
@@ -651,14 +651,14 @@ onpc_netboot_profiles:
       ## NICs
       ##
       # Primary physical interface
-      - interface: "{{ primary_interface | default('eth0') }}"
+      - interface_name: "{{ primary_interface | default('eth0') }}"
         label: primary_network_interface
         interface_type: bond_slave
         interface_master: "{{ bond0_interface }}"
         assign_mac: true
         management: true
       # Secondary physical interface
-      - interface: "{{ secondary_interface | default('eth1') }}"
+      - interface_name: "{{ secondary_interface | default('eth1') }}"
         label: secondary_network_interface
         interface_type: bond_slave
         interface_master: "{{ bond1_interface }}"
@@ -667,18 +667,18 @@ onpc_netboot_profiles:
       ## Bonds
       ##
       # bond0 interface used for management, storage and API access
-      - interface: "{{ bond0_interface }}"
+      - interface_name: "{{ bond0_interface }}"
         interface_type: bond
         bonding_opts: "miimon=100 mode=1"
       ##
       ## VLANS
       ##
       # Container/Host management VLAN interface
-      - interface: "{{ management_vlan_interface }}"
+      - interface_name: "{{ management_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ management_network_interface }}"
       # OpenStack services APIs VLAN interface
-      - interface: "{{ api_vlan_interface }}"
+      - interface_name: "{{ api_vlan_interface }}"
         label: api_network_interface
         network: "{{ api_network }}"
         netmask: "{{ api_network | ipaddr('netmask') }}"
@@ -688,7 +688,7 @@ onpc_netboot_profiles:
       ## Bridges
       ##
       # Container / Host management network bridge interface.
-      - interface: "{{ management_network_interface }}"
+      - interface_name: "{{ management_network_interface }}"
         label: management_network_interface
         interface_type: bridge
         bridge_opts: 'STP=no'
@@ -711,15 +711,18 @@ onpc_netboot_systems:
     gateway: "{{ default_gateway_addr }}"
     state: present
     netboot: true
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
     interfaces:
       primary_network_interface:
         mac_address: "ac:1f:6b:47:3f:c8"
       secondary_network_interface:
-        mac_address: "ac:1f:6b:47:3f:c9" 
+        mac_address: "ac:1f:6b:47:3f:c9"
       api_network_interface:
         ip_address: 172.31.0.56
       management_network_interface:
         ip_address: 172.29.236.56
       tunnel_network_interface:
         ip_address: 172.29.240.56
-

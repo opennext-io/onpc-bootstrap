@@ -30,18 +30,25 @@ onpc_multidomain_support: False
 # onpc_environment_name: "{{ environment_name | default(onpc_infra_domain, true) }}"
 onpc_run_tempest_tests: False
 onpc_valid_roles:
-    - controller
-    - storage
-    - ceph
-    - compute
-    - network
-    - logging
-    - monitoring
-    - swift
-    - image
-    - haproxy
-    - rsyslog
-    - nfs
+  - controller
+  - storage
+  - ceph
+  - compute
+  - network
+  - logging
+  - monitoring
+  - swift
+  - image
+  - haproxy
+  - rsyslog
+  - nfs
+
+# valid partitons types used in onpc_netboot_profiles
+# and kickstart templates
+onpc_valid_partition_types:
+  - part
+  - volgroup
+  - logvol
 
 ##
 ## OpenStack environment bootstrap scenarios

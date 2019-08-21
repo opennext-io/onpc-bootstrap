@@ -24,7 +24,7 @@
       --comment="{{ item.comment | default('') }}"
       --netboot-enabled="{{ item.netboot }}"
       --name-servers="{{ item.name_servers | default([]) | join(' ') }}"
-      --name-servers-search="{{ item.name_servers_search default([]) | join(' ') | lower }}"
+      --name-servers-search="{{ item.name_servers_search | default([]) | join(' ') | lower }}"
   when:
     - system_name not in registered_systems
     - item.state == "present"

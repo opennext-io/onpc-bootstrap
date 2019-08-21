@@ -55,18 +55,49 @@ clearpart --all --initlabel
 # Clear the Master Boot Record
 zerombr
 # Disk partitioning
-part biosboot --fstype=biosboot --size=1 --ondrive=sda
-part /boot --fstype=ext4 --size=1024 --asprimary --ondrive=sda
-part swap --fstype=swap --recommended --ondrive=sda
-part pv.01 --size=24000 --maxsize=64000 --grow --ondrive=sda
-# System partitions
-volgroup system_vg pv.01
-logvol / --fstype=xfs --name=root_lv --vgname=system_vg --size=16000
-logvol /var/log --fstype=xfs --name=varlog_lv --vgname=system_vg --size=32000 --grow
-logvol /var/lib/lxc --fstype=xfs --name=lxc_lv --vgname=system_vg --size=4000
-# Cinder storage
-part pv.02 --size=1000 --grow
-volgroup cinder_volumes pv.03
+{% for val in onpc_netboot_profiles['storage']['partitions'] %}
+{%   set args = [] %}
+{%   if val.type is defined and val.type in onpc_valid_partition_types %}
+{%     set _ = args.append(val.type) %}
+{%     if val.mountpoint is defined and (val.mountpoint | length > 0) %}
+{%       set _ = args.append(val.mountpoint) %}
+{%     else %}
+{%       set _ = args.append(val.partition_name) %}
+{%     endif %}
+{%     if val.type == 'volgroup' %}
+{%       set _ = args.append(val.pvname) %}
+{%     endif %}
+{%     if val.fstype is defined and (val.fstype | length > 0) %}
+{%       set _ = args.append('--fstype=' + val.fstype) %}
+{%       if val.fstype == 'swap' and val.size is not defined %}
+{%         set _ = args.append('--recommended') %}
+{%       endif %}
+{%     endif %}
+{%     if val.size is not defined and val.percent is defined and (val.percent | string | length > 0) %}
+{%       set _ = args.append('--percent=' + (val.percent | string)) %}
+{%     endif %}
+{%     if val.size is defined and (val.size | string | length > 0) %}
+{%       set _ = args.append('--size=' + (val.size | string)) %}
+{%     endif %}
+{%     if val.maxsize is defined and (val.maxsize | string | length > 0) %}
+{%       set _ = args.append('--maxsize=' + (val.maxsize | string)) %}
+{%       set _ = args.append('--grow') %}
+{%     endif %}
+{%     if val.drive is defined and (val.drive | length > 0) %}
+{%       set _ = args.append('--ondrive=' + val.drive) %}
+{%     endif %}
+{%     if val.asprimary is defined and val.asprimary is sameas true %}
+{%       set _ = args.append('--asprimary') %}
+{%     endif %}
+{%     if val.type == 'logvol' %}
+{%       set _ = args.append('--name=' + val.partition_name) %}
+{%     endif %}
+{%     if val.vgname is defined and (val.vgname | length > 0)  %}
+{%       set _ = args.append('--vgname=' + val.vgname) %}
+{%     endif %}
+{%   endif %}
+{{ args | join(' ')}}
+{% endfor %}
 
 %pre
 $SNIPPET('log_ks_pre')

@@ -42,7 +42,8 @@
       set_fact:
         registered_systems: "{{ result.stdout_lines | map('trim') | list | default([]) }}"
 
-    - include_tasks: tasks/register-cobbler-system.yml
+    - name: Register systems in Cobbler
+      include_tasks: tasks/register-cobbler-system.yml
       vars:
         system_name: "{{ item.name | lower }}"
       with_list: "{{ onpc_netboot_systems }}"

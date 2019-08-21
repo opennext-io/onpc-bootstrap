@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-
 - name: Mount device or iso to mount point
   mount:
     path: "/mnt/{{ distro_name }}"
@@ -23,13 +21,12 @@
     opts: "ro"
     fstype: iso9660
     state: mounted
-  when: distro_name not in registered_distros
   tags: register-cobbler-distros
 
 - name: "Import cobbler distro '{{distro_name}}'"
   command: >
     cobbler import
-      --name={{ item.key }}
+      --name={{ item.key | lower }}
       --arch={{ item.value.arch | lower}}
       --path=/mnt/{{ distro_name }}
   register: result

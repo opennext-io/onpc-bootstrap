@@ -29,9 +29,11 @@
         msg: >-
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
 
-    - include_tasks: tasks/setup-networking-facts.yml
+    - name: Setup global networking facts
+      include_tasks: tasks/setup-networking-facts.yml
 
-    - include_tasks: tasks/register-cobbler-mgmt-classes.yml
+    - name: Register mgmt classes in Cobbler
+      include_tasks: tasks/register-cobbler-mgmt-classes.yml
 
     - name: Get cobbler profiles
       command: >
@@ -45,14 +47,8 @@
         registered_profiles: "{{ result.stdout_lines | map('trim') | list | default([]) }}"
       tags: always
 
-    - name: Set profile_roles fact
-      set_fact:
-          profile_roles: "{{ (item.value.roles | intersect(infra_group)) | ternary((item.value.roles + ['infra']) | unique | list, item.value.roles | unique | list) }}"
-      vars:
-        infra_group: ['controller', 'network', 'haproxy', 'image']
-      tags: always
-
-    - include_tasks: tasks/register-cobbler-profile.yml
+    - name: Register profiles in Cobbler
+      include_tasks: tasks/register-cobbler-profile.yml
       vars:
         profile_name: "{{ item.key | lower }}"
       with_dict: "{{ onpc_netboot_profiles }}"

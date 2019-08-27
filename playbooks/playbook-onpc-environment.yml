@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Setup OSA environment
+- name: Setup ONPC config files environment
   hosts: localhost
   become: true
   become_user: root
@@ -23,7 +23,6 @@
 
   vars_files:
     - vars/main.yml
-    - vars/swift.yml
 
   tasks:
     - name: Assert that the Ansible version meets requirements

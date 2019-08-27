@@ -141,7 +141,7 @@ onpc_users_list: [
 management_vlan_id: "10"
 tunnel_vlan_id: "20"
 storage_vlan_id: "30"
-api_vlan_id: "40"
+api_vlan_id: "1"
 
 bond0_interface: bond0
 bond1_interface: bond1

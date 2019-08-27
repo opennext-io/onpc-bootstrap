@@ -48,6 +48,7 @@
       include_tasks: tasks/register-cobbler-system.yml
       vars:
         system_name: "{{ item.name | lower }}"
+        profile_roles: "{{ onpc_netboot_profiles[item.profile]['roles'] }}"
       with_list: "{{ onpc_netboot_systems }}"
 
     - name: Sync Cobbler database

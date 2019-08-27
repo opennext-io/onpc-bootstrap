@@ -16,7 +16,7 @@
 
 - name: Set profile_roles fact
   set_fact:
-    profile_roles: "{{ item.value.roles | unique | list) }}"
+    profile_roles: "{{ item.value.roles | unique | list }}"
   tags: always
 
 - name: "Add cobbler profile '{{ profile_name }}'"

@@ -54,21 +54,22 @@ vm_flavors:
     ephemeral: 256
 
 # Create shared networks and subnets:
-provider_net_name: PROVIDER_NET
+provider_net_name: PROVIDER_NETWORK
 provider_net_cidr: "{{ external_network }}"
-provider_dns_servers: "{{ external_network_dns_servers | default(['8.8.8.8', '8.8.4.4']) }}"
+provider_dns_servers: "{{ provider_network_dns_servers | default(['8.8.8.8', '8.8.4.4']) }}"
 provider_subnet_name: "{{ provider_net_name }}_SUBNET"
 
-private_net_name: PRIVATE_NET
+private_net_name: TENANT_NETWORK
 private_net_cidr: 192.168.0.0/24
 private_subnet_name: "{{ private_net_name }}_SUBNET"
 
 networks:
   - name: "{{ provider_net_name }}"
-    shared: true
+    shared: false
     external: true
-    network_type: flat
-    physical_network: flat
+    network_type: vlan
+    physical_network: "{{ external_interface }}"
+    segmentation_id: 101
   - name: "{{ private_net_name }}"
     shared: true
     external: false
@@ -81,8 +82,8 @@ subnets:
     ip_version: 4
     cidr: "{{ provider_net_cidr }}"
     gateway_ip: "{{ provider_net_cidr | ipaddr('1') | ipaddr('address') }}"
-    enable_dhcp: "{{ enable_provider_net_dhcp | default(false) | bool }}"
-    allocation_pool_start: "{{ provider_net_cidr | ipaddr('201') | ipaddr('address') }}"
+    enable_dhcp: "{{ enable_provider_net_dhcp | default(true) | bool }}"
+    allocation_pool_start: "{{ provider_net_cidr | ipaddr('3') | ipaddr('address') }}"
     allocation_pool_end:   "{{ provider_net_cidr | ipaddr('254') | ipaddr('address') }}"
     dns_nameservers: "{{ provider_dns_servers }}"
   - name: "{{ private_subnet_name }}"
@@ -91,11 +92,11 @@ subnets:
     cidr: "{{ private_net_cidr }}"
     gateway_ip: "{{ private_net_cidr | ipaddr('1') | ipaddr('address') }}"
     enable_dhcp: true
-    allocation_pool_start: "{{ private_net_cidr | ipaddr('10') | ipaddr('address') }}"
+    allocation_pool_start: "{{ private_net_cidr | ipaddr('3') | ipaddr('address') }}"
     allocation_pool_end:   "{{ private_net_cidr | ipaddr('254') | ipaddr('address') }}"
 
-router_name: GATEWAY_NET_ROUTER
-security_group_name: gateway_security
+router_name: PROVIDER_GATEWAY_ROUTER
+security_group_name: PROVIDER_GATEWAY_SECGROUP
 port_name: gateway_port
 
 # Neutron security group setup

@@ -41,9 +41,9 @@
         that: "ansible_version.full is version_compare('2.7', '>=')"
         msg: >-
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
-    - name: Set networking facts
-      import_tasks: tasks/setup-networking-facts.yml
-      tags: always
+    
+    - name: Setup networking facts
+      include_tasks: tasks/setup-networking-facts.yml
 
   roles:
     - role: roles/squid

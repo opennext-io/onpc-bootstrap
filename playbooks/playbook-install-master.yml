@@ -32,7 +32,8 @@
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
       tags: check-ansible-version
     
-    - import_tasks: tasks/install-master-packages.yml
-      tags: install-master-packages
-    - import_tasks: tasks/setup-master-firewall.yml
-      tags: setup-master-firewall
+    - name: Install master packages
+      include_tasks: tasks/install-master-packages.yml
+      
+    - name: Setup master firewall rules
+      include_tasks: tasks/setup-master-firewall.yml

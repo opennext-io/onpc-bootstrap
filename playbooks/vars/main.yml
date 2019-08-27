@@ -74,7 +74,7 @@ onpc_services_list: >-
   {%-   set _ = service_list.extend(['swift']) %}
   {%- endif %}
   {%- if 'metal' not in scenario_list %}
-  {%-   set _ = service_list.extend('haproxy') %}
+  {%-   set _ = service_list.extend(['haproxy']) %}
   {%- endif %}
   {%- if 'starter' in scenario_list %}
   {%-   set _ = service_list.extend(['rsyslog', 'nfs']) %}
@@ -86,12 +86,25 @@ onpc_services_list: >-
   {%-   set _ = service_list.extend(['ceilometer', 'aodh', 'heat', 'barbican', 'designate', 'logging', 'monitoring']) %}
   {%- endif %}
   {%- if 'coe' in scenario_list %}
-  {%-   set _ = service_list.extend(['ceilometer', 'aodh', 'heat', 'magnum', 'barbican', 'designate','octavia', 'logging', 'monitoring']) %}
+  {%-   set _ = service_list.extend(['ceilometer', 'gnocchi', 'aodh', 'heat', 'magnum', 'barbican', 'designate','octavia', 'logging', 'monitoring']) %}
   {%- endif %}
   {%- set _ = service_list.extend(service_list_extra) %}
   {{- (service_list | unique) | sort }}
 
 oncp_master_root_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') | default('') }}"
+
+##
+## List of users and ssh keys to provision on target hosts
+##   This must be defined in onpc_user_config.yml
+##
+onpc_users_list: [
+  {
+    name: centos,
+    password: 'change@me',
+    encrypted_password: '$1$xMkVZGyn$oORYOQ74r.WPrFNvStfeF0',
+    key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCoGCe7PlRSC7nBIEuGRF1ZX07TTNUYTN0uTAmjIINr8dsSb0jaQ+/Zqmzh/Wn9PSEh3w92IY1FE3IQFnvJUo5t+aDDqIYPF5BkcAzMZFtkLwheAegYUzYGve+iqvk2j0jb5jntRYcFagbJJoYZGCchvO0agJia5PMzMYdeGqdPuDD00ASyUUewVq/WViNou4Ob4+W1ffi+Y39kK9yN+nnxlrTyhuuNd/sLdfgRwKzrCc3P3fAYogGpsDEnXJ7SMVwvf21t5RO2JS/ucZmZsmezwv2TqtnsD8K0sH2apxiPqkcTpFNPFsGaavlQwuhBMSLMdORzCwiR/5oEc8Bit/n centos@master'
+  }
+]
 
 ## 
 ## ONPC Networking configuration
@@ -148,17 +161,58 @@ internal_vip_addr: "{{ (management_network.split('.')[:-1] + ['100']) | join('.'
 default_gateway_addr: "{{ (management_network.split('.')[:-1] + ['1']) | join('.') }}"
 
 ##
-## Dictionary of OSA networks to configure
-##   This must be defined in onpc-site-config.yml
-##
-onpc_osa_networks_check: True
-onpc_osa_networks: {}
+## ONPC standards networks CIDR definition
+##   This can be adjusted for your environment in onpc-site-config.yml
+management_network: 172.29.236.0/22
+tunnel_network: 172.29.240.0/22
+storage_network: 172.29.244.0/22
+external_network: 172.29.248.0/22
+api_network: 172.31.0.0/24
 
 ##
-## List of users and ssh keys to provision on target hosts
-##   This must be defined in onpc-site-config.yml
+## Dictionary of standard OSA networks
 ##
-onpc_users_list: []
+# Adjust as per your environment to include any IP addresses that
+# are already used by existing physical hosts in the environment
+# where OpenStack will be deployed (and ensuring that you've
+# included any reserved IP addresses for physical growth too).
+# Single IP addresses or ranges (start and end placed either side
+# of a ',') can be placed under the 'reserved' stanza for each OSA network.
+
+onpc_osa_networks_check: True
+onpc_osa_networks:
+  management:
+    cidr: "{{ management_network }}"
+    interface: "{{ management_network_interface }}"
+    reserved:
+      - "172.29.236.10,172.29.236.20"
+      - "{{ internal_vip_addr }}"
+      - "{{ default_gateway_addr }}"
+    roles: ['all']
+  tunnel:
+    cidr: "{{ tunnel_network }}"
+    interface: "{{ tunnel_network_interface }}"
+    reserved:
+      - "172.29.240.10,172.29.240.20"
+    roles: ['network', 'compute']
+  storage:
+    cidr: "{{ storage_network }}"
+    interface: "{{ storage_network_interface }}"
+    reserved:
+      - "172.29.244.10,172.29.244.20"
+    roles: ['storage', 'compute', 'ceph']
+  external:
+    cidr: "{{ external_network }}"
+    interface: "{{ external_interface }}"
+    reserved: []
+    roles: ['network', 'compute']
+#  api:
+#    cidr: "{{ api_network }}"
+#    interface: "{{ api_network_interface }}"
+#    reserved:
+#      - "172.29.252.10,172.29.252.20"
+#      - "{{ external_vip_addr }}"
+#    roles: ['haproxy']
 
 ##
 ## Dictionary of netboot ISOs to register in Cobbler

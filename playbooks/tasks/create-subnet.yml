@@ -1,0 +1,16 @@
+---
+- name: "Create user subnet '{{ item.name }}'"
+  os_subnet:
+    endpoint_type: internal
+    cloud: default
+    state: present
+    name: "{{ item.name }}"
+    network_name: "{{ item.network_name }}"
+    ip_version: "{{ item.ip_version }}"
+    cidr: "{{ item.cidr }}"
+    gateway_ip: "{{ item.gateway_ip }}"
+    enable_dhcp: "{{ item.enable_dhcp }}"
+    allocation_pool_start: "{{ item.allocation_pool_start }}"
+    allocation_pool_end: "{{ item.allocation_pool_end }}"
+    dns_nameservers: "{{ item.dns_nameservers | default([]) }}"
+  tags: create-subnets

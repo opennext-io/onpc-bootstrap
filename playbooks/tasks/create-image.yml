@@ -1,5 +1,5 @@
 ---
-- name: Download system image file
+- name: Download disk image image file
   get_url:
     url: "{{ item.url }}"
     dest: "/tmp/os_image_{{ item.name }}"
@@ -11,7 +11,7 @@
   failed_when: download_result is failure
   tags: create-images
 
-- name: Install system image
+- name: "Create disk image '{{ item.name }}'"
   os_image:
     endpoint_type: internal
     cloud: default

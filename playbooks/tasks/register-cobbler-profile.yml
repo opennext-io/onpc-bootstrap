@@ -16,9 +16,7 @@
 
 - name: Set profile_roles fact
   set_fact:
-    profile_roles: "{{ (item.value.roles | intersect(infra_group)) | ternary((item.value.roles + ['infra']) | unique | list, item.value.roles | unique | list) }}"
-  vars:
-    infra_group: ['controller', 'network', 'haproxy', 'image']
+    profile_roles: "{{ item.value.roles | unique | list) }}"
   tags: always
 
 - name: "Add cobbler profile '{{ profile_name }}'"

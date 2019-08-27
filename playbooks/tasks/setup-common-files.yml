@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Create the required directories
+- name: Create required directories
   file:
     path: "{{ item }}"
     state: directory
@@ -23,13 +23,13 @@
     - "/etc/openstack_deploy"
     - "/etc/openstack_deploy/conf.d"
     - "/etc/openstack_deploy/env.d"
-  tags:
-    - create-osa-directories 
+  tags: always
 
 - name: Check the existence of user_onpc_secrets.yml
   stat:
     path: "/etc/openstack_deploy/user_onpc_secrets.yml"
   register: onpc_secrets_info
+  tags: always
 
 - name: Copy user_onpc_secrets.yml file
   copy:
@@ -37,16 +37,14 @@
     dest: "/etc/openstack_deploy/user_onpc_secrets.yml"
   when:
     - not onpc_secrets_info.stat.exists
-  tags:
-    - copy-onpc-secrets
+  tags: copy-onpc-secrets
 
 - name: Generate the user_onpc_secrets passwords
   command: "/opt/ansible-runtime/bin/python /opt/openstack-ansible/scripts/pw-token-gen.py --file /etc/openstack_deploy/user_onpc_secrets.yml"
   changed_when: false
   when:
     - not onpc_secrets_info.stat.exists
-  tags:
-    - generate-onpc-secrets
+  tags: generate-onpc-secrets
 
 - name: Find the env.d templates
   find:
@@ -54,8 +52,7 @@
     patterns: '^.*\.j2$'
     use_regex: yes
   register: onpc_envd_templates
-  tags:
-    - find-envd-templates
+  tags: always
     
 - name: Drop then env.d config files
   template:
@@ -65,8 +62,7 @@
     group: root
     mode: 0644
   with_items: "{{ onpc_envd_templates.get('files', []) | map(attribute='path') | list }}"
-  tags:
-    - drop-envd-files
+  tags: drop-envd-files
 
 - name: Drop the HAproxy user_variables file
   template:
@@ -76,29 +72,19 @@
     group: root
     mode: 0644
   when: "'logging' in onpc_services_list or 'monitoring' in onpc_services_list "
-  tags:
-    - drop-user-haproxy-variables
-
-- name: Drop the logging user_variables file
-  template:
-    src: "/opt/onpc-logging/templates/user_variables_logging.yml.j2"
-    dest: "/etc/openstack_deploy/user_variables_logging.yml"
-    backup: yes
-    group: root
-    mode: 0644
-  when: "'logging' in onpc_services_list"
-  tags:
-    - drop-user-logging-variables
+  tags: drop-haproxy-variables
 
 - name: Set Sensu alerts handlers fact
   set_fact:
     sensu_alerts_handlers: "{{ onpc_sensu_alerts['handlers'] }}"
   when: onpc_sensu_alerts is defined and onpc_sensu_alerts['handlers'] | length > 0
+  tags: always
 
 - name: Set Slack alerts channels facts
   set_fact:
     slack_alerts_channels: "{{ onpc_slack_alerts['channels'] }}"
   when: onpc_slack_alerts is defined and onpc_slack_alerts['channels'] | length > 0
+  tags: always
 
 - name: Drop the monitoring user_variables file
   template:
@@ -108,13 +94,21 @@
     group: root
     mode: 0644
   when: "'monitoring' in onpc_services_list"
-  tags:
-    - drop-user-monitoring-variables
+  tags: drop-monitoring-variables
+
+- name: Drop the logging user_variables file
+  template:
+    src: "/opt/onpc-logging/templates/user_variables_logging.yml.j2"
+    dest: "/etc/openstack_deploy/user_variables_logging.yml"
+    backup: yes
+    group: root
+    mode: 0644
+  when: "'logging' in onpc_services_list"
+  tags: drop-logging-variables
 
 - name: Drop the ansible roles
   shell: ../scripts/get-onpc-roles.sh
   args:
     executable: /bin/bash
   environment: "{{ proxy_env | default('{}') }}"
-  tags:
-    - drop-onpc-roles
+  tags: drop-ansible-roles

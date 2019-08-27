@@ -98,6 +98,9 @@ _infrastructure_hosts: &infrastructure_hosts
       # Optional | container_tech for a target host, default is "lxc".
       container_tech: "{{ onpc_bootstrap_container_tech }}"
 {% endfor %}
+{% else %}
+_infrastructure_hosts: &infrastructure_hosts
+{% endif %}
 
 # The shared infrastructure software (MariaDB/Galera and RabbitMQ)
 shared-infra_hosts: *infrastructure_hosts
@@ -146,7 +149,6 @@ storage-infra_hosts:
           cinder_volume_types:
             - ultra-high-iops
 {% endfor %}
-{% endif %}
 
 {% if compute_hosts_dict is defined and compute_hosts_dict | length > 0 %}
 # The compute hypervisor hosts
@@ -155,6 +157,8 @@ compute_hosts: &compute_hosts
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
+{% else %}
+compute_hosts: &compute_hosts
 {% endif %}
 
 {% if rsyslog_hosts_dict is defined and rsyslog_hosts_dict | length > 0 %}

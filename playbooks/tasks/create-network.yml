@@ -1,0 +1,14 @@
+---
+- name: "Create user network '{{ item.name }}'"
+  os_network:
+    endpoint_type: internal
+    cloud: default
+    state: present
+    name: "{{ item.name }}"
+    shared: "{{ item.shared }}"
+    external: "{{ item.external }}"
+    provider_network_type: "{{ item.network_type }}"
+    provider_physical_network: "{{ item.physical_network }}"
+    provider_segmentation_id: "{{ item.segmentation_id }}"
+  tags: create-networks
+ 

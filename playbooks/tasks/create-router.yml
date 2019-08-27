@@ -1,0 +1,13 @@
+---
+  
+- name: "Create user router '{{ router_name }}'"
+  os_router:
+    endpoint_type: internal
+    cloud: default
+    state: present
+    name: "{{ router_name }}"
+    network: "{{ provider_net_name }}"
+    interfaces:
+      - "{{ private_subnet_name }}"
+  ignore_errors: yes  # will not report error if this router already exists
+  tags: create-router

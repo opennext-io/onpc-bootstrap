@@ -14,6 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+- name: Set system_roles fact
+  set_fact:
+    system_roles: "{{ (item.value.roles | intersect(infra_group)) | ternary((item.value.roles + ['infra']) | unique | list, item.value.roles | unique | list) }}"
+  vars:
+    infra_group: ['controller', 'network', 'haproxy', 'image']
+  tags: always
+
 - name: "Add cobbler system '{{ system_name }}'"
   command: >
     cobbler system add
@@ -23,6 +30,7 @@
       --profile="{{ item.profile | lower }}"
       --comment="{{ item.comment | default('') }}"
       --netboot-enabled="{{ item.netboot }}"
+      --mgmt-classes="{{ system_roles | join(' ') | lower }}"
       --name-servers="{{ item.name_servers | default([]) | join(' ') }}"
       --name-servers-search="{{ item.name_servers_search | default([]) | join(' ') | lower }}"
   when:
@@ -39,6 +47,7 @@
       --profile="{{ item.profile | lower }}"
       --comment="{{ item.comment | default('') }}"
       --netboot-enabled="{{ item.netboot }}"
+      --mgmt-classes="{{ system_roles | join(' ') | lower }}"
       --name-servers="{{ item.name_servers | default([]) | join(' ') }}"
       --name-servers-search="{{ item.name_servers_search | default([]) | join(' ') | lower }}"
   when:

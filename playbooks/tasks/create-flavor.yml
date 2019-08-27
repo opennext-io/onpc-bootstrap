@@ -1,5 +1,5 @@
 ---
-- name: Create flavors of nova VMs
+- name: "Create user flavor '{{ item }}'"
   os_nova_flavor:
     endpoint_type: internal
     cloud: default
@@ -10,4 +10,4 @@
     disk: "{{ item.disk }}"
     swap: "{{ item.swap }}"
     ephemeral: "{{ item.ephemeral }}"
-  tags: create-flavors 
+  tags: create-flavors

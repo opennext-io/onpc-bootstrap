@@ -140,6 +140,7 @@
 - name: Set first haproxy host fact
   set_fact:
     first_haproxy_hostname: "{{ haproxy_hosts_list | sort | first }}"
+  when: "'haproxy' in onpc_services_list"
 
 - name: Set hosts dictionaries facts
   set_fact:
@@ -148,8 +149,7 @@
       {%- for host in controller_hosts_list %}
       {%-   set name = host.split('.')[0] %}
       {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_network_interface]['ip_address'] %}
-      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': []} %}
       {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
@@ -159,7 +159,7 @@
       {%-   set name = host.split('.')[0] %}
       {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_network_interface]['ip_address'] %}
       {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': [] } %}
       {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
@@ -169,7 +169,7 @@
       {%-   set name = host.split('.')[0] %}
       {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_network_interface]['ip_address'] %}
       {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': [] } %}
       {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
@@ -179,7 +179,7 @@
       {%-   set name = host.split('.')[0] %}
       {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_network_interface]['ip_address'] %}
       {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': [] } %}
       {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
@@ -189,7 +189,7 @@
       {%-   set name = host.split('.')[0] %}
       {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_network_interface]['ip_address'] %}
       {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': [] } %}
       {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
@@ -199,7 +199,7 @@
       {%-   set name = host.split('.')[0] %}
       {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_network_interface]['ip_address'] %}
       {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': [] } %}
       {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
@@ -209,7 +209,7 @@
       {%-   set name = host.split('.')[0] %}
       {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_network_interface]['ip_address'] %}
       {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': [] } %}
       {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
@@ -219,7 +219,7 @@
       {%-   set name = host.split('.')[0] %}
       {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_network_interface]['ip_address'] %}
       {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': [] } %}
       {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
@@ -227,8 +227,9 @@
       {%- set sel = [] %}
       {%- for host in swift_hosts_list %}
       {%-   set name = host.split('.')[0] %}
+      {%-   set profile = hostvars[host]['cobbler']['profile'] %}
       {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_network_interface]['ip_address'] %}
-      {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
+      {%-   set partitions = hostvars[host]['onpc_netboot_profiles'][profile]['partitions'] | default([]) %}
       {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
       {%-   set _ = sel.append(record) %}
       {%- endfor %}
@@ -239,7 +240,7 @@
       {%-   set name = host.split('.')[0] %}
       {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_network_interface]['ip_address'] %}
       {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': [] } %}
       {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
@@ -249,7 +250,7 @@
       {%-   set name = host.split('.')[0] %}
       {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_network_interface]['ip_address'] %}
       {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': [] } %}
       {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}
@@ -259,7 +260,7 @@
       {%-   set name = host.split('.')[0] %}
       {%-   set ip_v4 = hostvars[host]['cobbler']['interfaces'][management_network_interface]['ip_address'] %}
       {%-   set partitions = hostvars[host]['partitions'] | default([]) %}
-      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': partitions} %}
+      {%-   set record = {'name': name, 'ip_v4': ip_v4, 'partitions': [] } %}
       {%-   set _ = sel.append(record) %}
       {%- endfor %}
       {{- sel | list }}

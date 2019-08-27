@@ -54,7 +54,7 @@
         that: "{{ oncp_master_root_public_key | length > 0 }}"
         msg: "user 'root' public key is not defined"
 
-    - name: Set networking facts
+    - name: Setup networking facts
       import_tasks: tasks/setup-networking-facts.yml
       tags: always
 

@@ -6,7 +6,7 @@
 {% if 'ceilometer' in onpc_services_list %}
 # The compute hosts that the ceilometer compute agent will be running on
 metering-compute_hosts:
-{% for h in compute_hosts %}
+{% for h in compute_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
@@ -15,14 +15,14 @@ metering-compute_hosts:
 # For running Ceilometer in HA for workload partitioning, see
 # https://docs.openstack.org/pike/admin/#support-for-ha-deployment
 metering-infra_hosts:
-{% for h in infrastructure_hosts %}
+{% for h in controller_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
 
 # The hosts that run the Gnocchi component of Ceilometer
 metrics_hosts:
-{% for h in infrastructure_hosts %}
+{% for h in controller_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
@@ -31,7 +31,7 @@ metrics_hosts:
 {% if 'aodh' in onpc_services_list %}
 # The hosts that run the Ceilometer service associated with alarms (Aodh)
 metering-alarm_hosts:
-{% for h in infrastructure_hosts %}
+{% for h in controller_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}

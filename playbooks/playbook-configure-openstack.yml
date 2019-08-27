@@ -14,7 +14,7 @@
 
   vars_files:
     - vars/main.yml
-    - vars/openstack-services-config.yml
+    - vars/openstack-config.yml
 
   tasks:
   - name: Ensure python-shade library is present to run ansible os_xxx modules
@@ -22,12 +22,26 @@
       name: python-shade
       state: present
     tags: always
-  - include_tasks: tasks/setup-user-flavors.yml
+  
+  - name: Create user flavors
+    include_tasks: tasks/create-flavor.yml
     with_items: "{{ vm_flavors }}"
-    tags: create-flavors 
-  - include_tasks: tasks/setup-user-images.yml
+  
+  - name: Create user images
+    include_tasks: tasks/create-image.yml
     with_items: "{{ images }}"
-    tags: create-images
-  - import_tasks: tasks/setup-user-networks.yml
+  
+  - name: Create user networks
+    include_tasks: tasks/create-network.yml
     with_items: "{{ networks }}"
-    tags: create-network
+
+  - name: Create user subnets
+    include_tasks: tasks/create-subnet.yml
+    with_items: "{{ subnets }}"
+
+  - name: Create user routers
+    include_tasks: tasks/create-router.yml
+
+  - name: Create user security group
+    include_tasks: tasks/create-security-group.yml
+

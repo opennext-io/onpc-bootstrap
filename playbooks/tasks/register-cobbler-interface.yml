@@ -16,8 +16,9 @@
 
 - name: "Get system report for '{{ system_name }}''"
   command: >
-    cobbler system report --name {{ system_name }}
-    register: result
+    cobbler system report
+      --name="{{ system_name }}"
+  register: result
   failed_when: result.rc != 0
   tags: register-cobbler-interfaces
 
@@ -26,16 +27,11 @@
     registered_interfaces: "{{ result.results[0].stdout_lines | select('match', '^Interface =====') | map('regex_replace', '^.*: (.*)$', '\\1') | list }}"
   tags: register-cobbler-interfaces
 
-- name: "Delete (cleanup) existing registered interface '{{ item }}'"
-  command: >
-    cobbler system edit
-      --name="{{ system_name }}"
-      --interface="{{ item }}"
-      --delete-interface
-  with_items: registered_interfaces
-  register: result
-  failed_when: result.rc != 0
-  tags: register-cobbler-interfaces
+- name: "Delete (cleanup) existing registered interfaces '{{ item }}'"
+  include_tasks: tasks/delete_cobbler_interface.yml
+  vars:
+   interface_name: "{{ item }}"
+  with_list: "{{ registered_interfaces }}"
 
 - name: "Register interface '{{ interface.interface_name }}' for '{{ system_name }}'"
   command: >

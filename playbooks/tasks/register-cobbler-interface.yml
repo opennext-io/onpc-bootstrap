@@ -14,6 +14,29 @@
 # limitations under the License.
 #
 
+- name: "Get system report for '{{ system_name }}''"
+  command: >
+    cobbler system report --name {{ system_name }}
+    register: result
+  failed_when: result.rc != 0
+  tags: register-cobbler-interfaces
+
+- name: Set registered_interfaces facts
+  set_fact:
+    registered_interfaces: "{{ result.results[0].stdout_lines | select('match', '^Interface =====') | map('regex_replace', '^.*: (.*)$', '\\1') | list }}"
+  tags: register-cobbler-interfaces
+
+- name: "Delete (cleanup) existing registered interface '{{ item }}'"
+  command: >
+    cobbler system edit
+      --name="{{ system_name }}"
+      --interface="{{ item }}"
+      --delete-interface
+  with_items: registered_interfaces
+  register: result
+  failed_when: result.rc != 0
+  tags: register-cobbler-interfaces
+
 - name: "Register interface '{{ interface.interface_name }}' for '{{ system_name }}'"
   command: >
     cobbler system edit
@@ -31,9 +54,8 @@
       --management="{{ interface.management | default(False) }}"
       --netmask="{{ interface.netmask | default('') }}"
       --static-routes="{{ interface.static_routes | default([]) | join(' ') }}"
+      --mtu="{{ interface.mtu | default('1500') }}"
   register: result
   failed_when: result.rc != 0
-  tags:
-    - register-cobbler-systems
-    - register-cobbler-interfaces
+  tags: register-cobbler-interfaces
 

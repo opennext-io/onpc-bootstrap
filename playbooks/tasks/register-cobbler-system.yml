@@ -19,7 +19,7 @@
     system_roles: "{{ (profile_roles | intersect(infra_group)) | ternary((profile_roles + ['infra']) | unique | list, profile_roles | unique | list) }}"
   vars:
     infra_group: ['controller', 'network', 'haproxy', 'image']
-  tags: always
+  tags: register-cobbler-systems
 
 - name: "Add cobbler system '{{ system_name }}'"
   command: >

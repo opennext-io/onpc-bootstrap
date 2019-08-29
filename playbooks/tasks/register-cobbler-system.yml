@@ -38,7 +38,7 @@
     - item.state == "present"
   tags: register-cobbler-systems
 
-- name: "Edit cobbler system '{{ item.value.name }}'"
+- name: "Edit cobbler system '{{ system_name }}''"
   command: >
     cobbler system edit
       --name="{{ system_name }}"
@@ -55,7 +55,7 @@
     - item.state == "present"
   tags: register-cobbler-systems
 
-- name: "Delete cobbler system '{{ item.value.name }}'"
+- name: "Delete cobbler system '{{ system_name }}'"
   command: >
     cobbler system remove
       --name={{ system_name }}

@@ -29,6 +29,7 @@
       --name={{ item.key | lower }}
       --arch={{ item.value.arch | lower}}
       --path=/mnt/{{ distro_name }}
+      --os_version={{ item.value.os_version }}
   register: result
   failed_when: result.rc != 0
   when: distro_name not in registered_distros

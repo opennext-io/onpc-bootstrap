@@ -23,6 +23,7 @@ onpc_netboot_distros:
     # device_or_iso_path: /var/tmp/isos/CentOS-7-x86_64-DVD-1810.iso
     url: "http://mirror.plusserver.com/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso"
     arch: x86_64
+    os_version: rhel7
 
 ##
 ## Dictionary of netboot profiles to register in Cobbler

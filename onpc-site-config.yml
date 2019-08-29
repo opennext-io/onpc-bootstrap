@@ -44,76 +44,68 @@ onpc_netboot_profiles:
       - "{{ onpc_infra_domain }}"
     roles: ['controller', 'network', 'haproxy', 'image']
     metadata: []
+    # Boot architecture ('bios' or 'efi')
+    boot_arch: bios
     #
     # Standard partitions
     #
     partitions:
-      - partition_name: biosboot
-        type: part
-        size: 1
-        fstype: biosboot
-        drive: sda
-        asprimary: true
-      - partition_name: boot
-        type: part
-        size: 1024
-        fstype: ext4
-        drive: sda
-        mountpoint: /boot
-        asprimary: true
-      - partition_name: swap
-        type: part
-        fstype: swap
-        drive: sda
-        asprimary: true
       #
       # System physical volume
       #
-      - partition_name: system_pv
+      - partition_name: pv.01
         type: part
         size: 40000
         maxsize: 72000
         drive: sda
-      - partition_name: system_vg
+      - partition_name: sys_vg
         type: volgroup
-        pvname: system_pv
+        pvname: pv.01
       - partition_name: root_lv
         type: logvol
         size: 16000
         maxsize: 32000
         fstype: xfs
         mountpoint: /
-        vgname: system_vg
-      - partition_name: varlog_lv
+        vgname: sys_vg
+      - partition_name: var_log_lv
         type: logvol
         size: 1000
         maxsize: 32000
         fstype: xfs
         mountpoint: /var/log
-        vgname: system_vg
+        vgname: sys_vg
       - partition_name: tmp_lv
         type: logvol
         size: 8000
         fstype: xfs
         mountpoint: /tmp
-        vgname: system_vg
+        vgname: sys_vg
       #
       # Openstack physical volume
       #
-      - partition_name: openstack_pv
+      - partition_name: pv.02
         type: part
         size: 32000
         maxsize: 96000
         drive: sda
-      - partition_name: openstack_vg
+      - partition_name: osa_vg
         type: volgroup
-        pvname: openstack_pv
-      - partition_name: openstack_lv
+        pvname: pv.02
+      - partition_name: osa_lv
         type: logvol
-        percent: 100
+        percent: 20
         fstype: xfs
         mountpoint: /openstack
-        vgname: openstack_vg
+        vgname: osa_vg
+        grow: true
+      - partition_name: osa_log_lv
+        type: logvol
+        percent: 80
+        fstype: xfs
+        mountpoint: /openstack/logs
+        vgname: osa_vg
+        grow: true
     ##
     ## Standard network interfaces
     ##
@@ -138,13 +130,11 @@ onpc_netboot_profiles:
       - interface_name: "{{ bond0_interface }}"
         interface_type: bond
         bonding_opts: "miimon=100 mode=1"
-        static: 1
       # bond1 interface used for tenants networking (flat, vlan, vxlan)
       - interface_name: "{{ bond1_interface }}"
         interface_type: bonded_bridge_slave
         interface_master: "{{ external_interface }}"
         bonding_opts: "miimon=100 mode=1"
-        static: 1
       ##
       ## VLANS
       ##
@@ -204,89 +194,82 @@ onpc_netboot_profiles:
       - "{{ onpc_infra_domain }}"
     roles: ['compute']
     metadata: []
+    # Boot architecture ('bios' or 'efi')
+    boot_arch: bios
     ##
     ## Standard partitions
     ##
     partitions:
-      - partition_name: biosboot
-        type: part
-        size: 1
-        fstype: biosboot
-        drive: sda
-        asprimary: true
-      - partition_name: boot
-        type: part
-        size: 1024
-        fstype: ext4
-        drive: sda
-        mountpoint: /boot
-        asprimary: true
-      - partition_name: swap
-        type: part
-        fstype: swap
-        drive: sda
-        asprimary: true
       #
       # System physical volume
       #
-      - partition_name: system_pv
+      - partition_name: pv.01
         type: part
         size: 40000
         maxsize: 72000
         drive: sda
-      - partition_name: system_vg
+      - partition_name: sys_vg
         type: volgroup
-        pvname: system_pv
+        pvname: pv.01
       - partition_name: root_lv
         type: logvol
         size: 16000
         maxsize: 32000
         fstype: xfs
         mountpoint: /
-        vgname: system_vg
-      - partition_name: varlog_lv
+        vgname: sys_vg
+      - partition_name: var_log_lv
         type: logvol
         size: 1000
         maxsize: 32000
         fstype: xfs
         mountpoint: /var/log
-        vgname: system_vg
+        vgname: sys_vg
       - partition_name: tmp_lv
         type: logvol
         size: 8000
         fstype: xfs
         mountpoint: /tmp
-        vgname: system_vg
+        vgname: sys_vg
       #
       # Openstack physical volume
       #
-      - partition_name: openstack_pv
+      - partition_name: pv.02
         type: part
         size: 32000
         maxsize: 96000
         drive: sda
-      - partition_name: openstack_vg
+      - partition_name: osa_vg
         type: volgroup
-        pvname: openstack_pv
-      - partition_name: openstack_lv
+        pvname: pv.02
+      - partition_name: osa_lv
         type: logvol
-        percent: 100
+        percent: 20
         fstype: xfs
         mountpoint: /openstack
-        vgname: openstack_vg
+        vgname: osa_vg
+        grow: true
+      - partition_name: osa_lv
+        type: logvol
+        percent: 80
+        fstype: xfs
+        mountpoint: /openstack/logs
+        vgname: osa_vg
+        grow: true
       #
       # Compute (instances storage) physical volume
       #
-      - partition_name: compute_pv
+      - partition_name: pv.03
         type: part
         size: 1000
-        maxsize: 128000
+        grow: true
       - partition_name: compute_vg
         type: volgroup
-        pvname: compute_pv
+        pvname: pv.03
       - partition_name: compute_lv
         type: logvol
-        percent: 100
+        size: 1000
+        grow: true
         fstype: xfs
         mountpoint: /var/lib/nova/instances
         vgname: compute_vg
@@ -384,69 +367,53 @@ onpc_netboot_profiles:
       - "{{ onpc_infra_domain }}"
     roles: ['ceph']
     metadata: []
+    # Boot architecture ('bios' or 'efi')
+    boot_arch: bios
     partitions:
-      - partition_name: biosboot
-        type: part
-        size: 1
-        fstype: biosboot
-        drive: sda
-        asprimary: true
-      - partition_name: boot
-        type: part
-        size: 1024
-        fstype: ext4
-        drive: sda
-        mountpoint: /boot
-        asprimary: true
-      - partition_name: swap
-        type: part
-        fstype: swap
-        drive: sda
-        asprimary: true
       #
       # System physical volume
       #
-      - partition_name: system_pv
+      - partition_name: pv.01
         type: part
         size: 40000
         maxsize: 72000
         drive: sda
-      - partition_name: system_vg
+      - partition_name: sys_vg
         type: volgroup
-        pvname: system_pv
+        pvname: pv.01
       - partition_name: root_lv
         type: logvol
         size: 16000
         maxsize: 32000
         fstype: xfs
         mountpoint: /
-        vgname: system_vg
-      - partition_name: varlog_lv
+        vgname: sys_vg
+      - partition_name: var_log_lv
         type: logvol
         size: 1000
         maxsize: 32000
         fstype: xfs
         mountpoint: /var/log
-        vgname: system_vg
+        vgname: sys_vg
       - partition_name: tmp_lv
         type: logvol
         size: 8000
         fstype: xfs
         mountpoint: /tmp
-        vgname: system_vg
+        vgname: sys_vg
       #
       # Ceph physical volume
       #
-      - partition_name: ceph_pv
+      - partition_name: pv.05
         type: part
         size: 1000
-        maxsize: 256000
+        grow: true
       - partition_name: ceph_data_vg
         type: volgroup
-        pvname: ceph_pv
+        pvname: pv.05
       - partition_name: ceph_journal_vg
         type: volgroup
-        pvname: ceph_pv
+        pvname: pv.05
     ##
     ## Standard network interfaces
     ##    
@@ -524,69 +491,53 @@ onpc_netboot_profiles:
       - "{{ onpc_infra_domain }}"
     roles: ['storage']
     metadata: []
+    # Boot architecture ('bios' or 'efi')
+    boot_arch: bios
     ##
     ## Standard partitions
     ##
     partitions:
-      - partition_name: biosboot
-        type: part
-        size: 1
-        fstype: biosboot
-        drive: sda
-        asprimary: true
-      - partition_name: boot
-        type: part
-        size: 1024
-        fstype: ext4
-        drive: sda
-        mountpoint: /boot
-        asprimary: true
-      - partition_name: swap
-        type: part
-        fstype: swap
-        drive: sda
-        asprimary: true
       #
       # System physical volume
       #
-      - partition_name: system_pv
+      - partition_name: pv.01
         type: part
         size: 40000
         maxsize: 72000
         drive: sda
-      - partition_name: system_vg
+      - partition_name: sys_vg
         type: volgroup
-        pvname: system_pv
+        pvname: pv.01
       - partition_name: root_lv
         type: logvol
         size: 16000
         maxsize: 32000
         fstype: xfs
         mountpoint: /
-        vgname: system_vg
-      - partition_name: varlog_lv
+        vgname: sys_vg
+      - partition_name: var_log_lv
         type: logvol
         size: 1000
         maxsize: 32000
         fstype: xfs
         mountpoint: /var/log
-        vgname: system_vg
+        vgname: sys_vg
       - partition_name: tmp_lv
         type: logvol
         size: 8000
         fstype: xfs
         mountpoint: /tmp
-        vgname: system_vg
+        vgname: sys_vg
       #
       # Cinder storage physical volume
       #
-      - partition_name: cinder_pv
+      - partition_name: pv.04
         type: part
         size: 1000
-        maxsize: 256000
+        grow: true
       - partition_name: cinder_vg
         type: volgroup
-        pvname: cinder_pv
+        pvname: pv.04
     ##
     ## Standard network interfaces
     ##   
@@ -664,74 +615,60 @@ onpc_netboot_profiles:
       - "{{ onpc_infra_domain }}"
     roles: ['swift']
     metadata: []
+    # Boot architecture ('bios' or 'efi')
+    boot_arch: bios
     ##
     ## Standard partitions
     ##
     partitions:
-      - partition_name: biosboot
-        type: part
-        size: 1
-        fstype: biosboot
-        drive: sda
-        asprimary: true
-      - partition_name: boot
-        type: part
-        size: 1024
-        fstype: ext4
-        drive: sda
-        mountpoint: /boot
-        asprimary: true
-      - partition_name: swap
-        type: part
-        fstype: swap
-        drive: sda
-        asprimary: true
       #
       # System physical volume
       #
-      - partition_name: system_pv
+      - partition_name: pv.01
         type: part
         size: 40000
         maxsize: 72000
         drive: sda
-      - partition_name: system_vg
+      - partition_name: sys_vg
         type: volgroup
-        pvname: system_pv
+        pvname: pv.01
       - partition_name: root_lv
         type: logvol
         size: 16000
         fstype: xfs
         mountpoint: /
-        vgname: system_vg
-      - partition_name: varlog_lv
+        vgname: sys_vg
+      - partition_name: var_log_lv
         type: logvol
         size: 1000
         maxsize: 32000
         fstype: xfs
         mountpoint: /var/log
-        vgname: system_vg
+        vgname: sys_vg
       - partition_name: tmp_lv
         type: logvol
         size: 8000
         fstype: xfs
         mountpoint: /tmp
-        vgname: system_vg
+        vgname: sys_vg
       #
       # Swift physical volume
       #
-      - partition_name: swift_pv
+      - partition_name: pv.06
         type: part
         size: 1000
-        maxsize: 256000
+        grow: true
       - partition_name: swift_vg
         type: volgroup
-        pvname: swift_pv
+        pvname: pv.06
       - partition_name: swift-sdb
         type: logvol
         percent: 50
         fstype: xfs
         mountpoint: /srv/node/sdb
         vgname: swift_vg
+        mnt_opts: "noatime,nodiratime,nobarrier,logbufs=8"
+        grow: true
       - partition_name: swift-sdc
         type: logvol
         percent: 50
@@ -739,6 +676,7 @@ onpc_netboot_profiles:
         mountpoint: /srv/node/sdc
         vgname: swift_vg
         mnt_opts: "noatime,nodiratime,nobarrier,logbufs=8"
+        grow: true
     ##
     ## Standard network interfaces
     ##
@@ -842,40 +780,40 @@ onpc_netboot_profiles:
       #
       # System physical volume
       #
-      - partition_name: system_pv
+      - partition_name: pv.01
         type: part
         size: 40000
         maxsize: 312000
         drive: sda
-      - partition_name: system_vg
+      - partition_name: sys_vg
         type: volgroup
-        pvname: system_pv
+        pvname: pv.01
       - partition_name: root_lv
         type: logvol
         size: 16000
         fstype: xfs
         mountpoint: /
-        vgname: system_vg
-      - partition_name: varlog_lv
+        vgname: sys_vg
+      - partition_name: var_log_lv
         type: logvol
         size: 1000
         maxsize: 32000
         fstype: xfs
         mountpoint: /var/log
-        vgname: system_vg
+        vgname: sys_vg
       - partition_name: tmp_lv
         type: logvol
         size: 8000
         fstype: xfs
         mountpoint: /tmp
-        vgname: system_vg
+        vgname: sys_vg
       - partition_name: opt_lv
         type: logvol
         size: 1000
         maxsize: 128000
         fstype: xfs
         mountpoint: /opt
-        vgname: system_vg
+        vgname: sys_vg
     #
     # Standard network interfaces
     #

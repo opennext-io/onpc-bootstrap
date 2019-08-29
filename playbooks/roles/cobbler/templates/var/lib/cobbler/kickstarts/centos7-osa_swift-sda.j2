@@ -51,7 +51,7 @@ user --groups=wheel --name={{ user.name }} --password={{ user.encrypted_password
 {% endfor %}
 {% endif %}
 # Partition clearing information
-clearpart --all --initlabel
+clearpart --all --initlabel --drives=sda
 # Clear the Master Boot Record
 zerombr
 # Disk partitioning

@@ -14,15 +14,13 @@
 # limitations under the License.
 #
 
-
-
-- name: "Delete (cleanup) registered Cobbler interface '{{ item }}'"
+- name: "Delete system interface '{{ interface_name }}'"
   command: >
     cobbler system edit
       --name="{{ system_name }}"
       --interface="{{ interface_name }}"
       --delete-interface
-  with_items: registered_interfaces
   register: result
   failed_when: result.rc != 0
-  tags: register-cobbler-interfaces
+  when: interface_name is not regex('^eth\d+$')
+  tags: delete-cobbler-interfaces

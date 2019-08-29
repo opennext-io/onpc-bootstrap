@@ -19,7 +19,7 @@
     system_roles: "{{ (profile_roles | intersect(infra_group)) | ternary((profile_roles + ['infra']) | unique | list, profile_roles | unique | list) }}"
   vars:
     infra_group: ['controller', 'network', 'haproxy', 'image']
-  tags: register-cobbler-systems
+  tags: always
 
 - name: "Add cobbler system '{{ system_name }}'"
   command: >
@@ -64,9 +64,39 @@
     - item.state == "absent"
   tags: register-cobbler-systems
 
-- name: Set system_interfaces_list fact
+
+- name: "Get system report for '{{ system_name }}''"
+  command: >
+    cobbler system report
+      --name="{{ system_name }}"
+  register: result
+  failed_when: result.rc != 0
+  when:
+    - system_name in registered_systems
+    - item.state == "present"
+  tags: cleanup-cobbler-interfaces
+
+- name: Set registered_interfaces facts
   set_fact:
-    system_interfaces_list: >-
+    registered_interfaces: "{{ result.stdout_lines | select('match', '^Interface =====') | map('regex_replace', '^.*: (.*)$', '\\1') | list }}"
+  when:
+    - system_name in registered_systems
+    - item.state == "present"
+  tags: delete-cobbler-interfaces
+
+- name: "Delete (cleanup) existing system interfaces for '{{ system_name }}'"
+  include_tasks: tasks/delete_cobbler_interface.yml
+  loop: "{{ registered_interfaces }}"
+  loop_control:
+    loop_var: interface_name
+  when:
+    - system_name in registered_systems
+    - item.state == "present"
+  tags: delete-cobbler-interfaces
+
+- name: Set system_interfaces fact
+  set_fact:
+    system_interfaces: >-
       {%- set sel = [] %}
       {%- for val in onpc_netboot_profiles[item.profile]['interfaces'] %}
       {%-   set interface = val %}
@@ -79,13 +109,15 @@
       {%-   set _ = sel.append(interface) %}
       {%- endfor %}
       {{- sel | list }}
-  tags:
-    - register-cobbler-systems
-    - register-cobbler-interfaces
+  when:
+    - item.state == "present"
+  tags: register-cobbler-interfaces
 
--  include: tasks/register-cobbler-interface.yml
+-  name: Register Cobbler interfaces
+   include_tasks: tasks/register-cobbler-interface.yml
    when:
     - item.state == "present"
-   loop: "{{ system_interfaces_list }}"
+   loop: "{{ system_interfaces }}"
    loop_control:
      loop_var: interface
+   tags: register-cobbler-interfaces

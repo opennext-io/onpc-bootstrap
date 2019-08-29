@@ -51,10 +51,17 @@ user --groups=wheel --name={{ user.name }} --password={{ user.encrypted_password
 {% endfor %}
 {% endif %}
 # Partition clearing information
-clearpart --all --initlabel
+clearpart --all --initlabel --drives=sda
 # Clear the Master Boot Record
 zerombr
 # Disk partitioning
+{% if onpc_netboot_profiles['infra']['boot_arch'] == 'bios' %}
+part biosboot --fstype=biosboot --size=1 --ondrive=sda
+part /boot --fstype=ext4 --size=1024 --ondrive=sda
+{% else if onpc_netboot_profiles['infra']['boot_arch'] == 'efi' %}
+part /boot/efi --fstype=efi --size=200 --ondrive=sda
+{% endif %}
+part swap --fstype=swap --recommended --ondrive=sda
 {% for val in onpc_netboot_profiles['infra']['partitions'] %}
 {%   set args = [] %}
 {%   if val.type is defined and val.type in onpc_valid_partition_types %}
@@ -81,6 +88,8 @@ zerombr
 {%     endif %}
 {%     if val.maxsize is defined and (val.maxsize | string | length > 0) %}
 {%       set _ = args.append('--maxsize=' + (val.maxsize | string)) %}
+{%       set _ = args.append('--grow') %}
+{%     elif val.grow is defined and val.grow is sameas true %}
 {%       set _ = args.append('--grow') %}
 {%     endif %}
 {%     if val.drive is defined and (val.drive | length > 0) %}

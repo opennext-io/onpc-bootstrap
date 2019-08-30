@@ -105,6 +105,7 @@
       {%-    endif %}
       {%-   if val.assign_ip is defined and val.assign_ip is sameas true %}
       {%-     set _ = interface.update({'ip_address': item['interfaces'][val.label]['ip_address']}) %}
+      {%-     set _ = interface.update({'static': 1})}
       {%-   endif %}
       {%-   set _ = sel.append(interface) %}
       {%- endfor %}

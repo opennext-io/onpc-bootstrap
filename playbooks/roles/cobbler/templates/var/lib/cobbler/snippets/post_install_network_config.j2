@@ -188,8 +188,8 @@ EOF
 echo "SLAVE=yes" >> $devfile
 echo "MASTER=$iface_master" >> $devfile
 echo "HOTPLUG=no" >> $devfile
-        #end if
-        #if $iface_type == "bridge"
+
+        #elif $iface_type == "bridge"
 echo "TYPE=Bridge" >> $devfile
             #for $bridge_opt in $bridge_opts
                 #if $bridge_opt.strip() != ""

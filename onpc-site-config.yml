@@ -52,7 +52,7 @@ onpc_netboot_profiles:
     #
     partitions:
       #
-      # System physical volume
+      # System volumes
       #
       - partition_name: pv.01
         type: part
@@ -83,7 +83,7 @@ onpc_netboot_profiles:
         mountpoint: /tmp
         vgname: sys_vg
       #
-      # Openstack physical volume
+      # OSA volumes
       #
       - partition_name: pv.02
         type: part
@@ -131,6 +131,10 @@ onpc_netboot_profiles:
       - interface_name: "{{ bond0_interface }}"
         interface_type: bond
         bonding_opts: "miimon=100 mode=1"
+        network: "{{ api_network }}"
+        netmask: "{{ api_network | ipaddr('netmask') }}"
+        label: api_network_interface
+        assign_ip: true
       # bond1 interface used for tenants networking (flat, vlan, vxlan)
       - interface_name: "{{ bond1_interface }}"
         interface_type: bonded_bridge_slave
@@ -143,17 +147,12 @@ onpc_netboot_profiles:
       - interface_name: "{{ management_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ management_network_interface }}"
-      # OpenStack services APIs VLAN interface
-      - interface_name: "{{ api_vlan_interface }}"
-        label: api_network_interface
-        network: "{{ api_network }}"
-        netmask: "{{ api_network | ipaddr('netmask') }}"
-        assign_ip: true
-        static: 1
       # OpenStack Networking (tunnel/overlay) VLAN interface
       - interface_name: "{{ tunnel_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ tunnel_network_interface }}"
+        mtu: 9000
+
       ##
       ## Bridges
       ##
@@ -166,7 +165,6 @@ onpc_netboot_profiles:
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         assign_ip: true
-        static: 1
       # OpenStack Networking VXLAN (tunnel/overlay) network bridge interface.
       - interface_name: "{{ tunnel_network_interface }}"
         label: tunnel_network_interface
@@ -175,7 +173,6 @@ onpc_netboot_profiles:
         network: "{{ tunnel_network }}"
         netmask: "{{ tunnel_network | ipaddr('netmask') }}"
         assign_ip: true
-        static: 1
         mtu: 9000
       # OpenStack Networking (provider) network bridge interface
       - interface_name: "{{ external_interface }}"
@@ -202,7 +199,7 @@ onpc_netboot_profiles:
     ##
     partitions:
       #
-      # System physical volume
+      # System  volumes
       #
       - partition_name: pv.01
         type: part
@@ -233,7 +230,7 @@ onpc_netboot_profiles:
         mountpoint: /tmp
         vgname: sys_vg
       #
-      # Openstack physical volume
+      # OSA volumes
       #
       - partition_name: pv.02
         type: part
@@ -372,7 +369,7 @@ onpc_netboot_profiles:
     boot_arch: bios
     partitions:
       #
-      # System physical volume
+      # System  volumes
       #
       - partition_name: pv.01
         type: part
@@ -403,7 +400,7 @@ onpc_netboot_profiles:
         mountpoint: /tmp
         vgname: sys_vg
       #
-      # Ceph physical volume
+      # Ceph volumes
       #
       - partition_name: pv.05
         type: part
@@ -499,7 +496,7 @@ onpc_netboot_profiles:
     ##
     partitions:
       #
-      # System physical volume
+      # System volumes
       #
       - partition_name: pv.01
         type: part
@@ -530,7 +527,7 @@ onpc_netboot_profiles:
         mountpoint: /tmp
         vgname: sys_vg
       #
-      # Cinder storage physical volume
+      # Cinder storage volumes
       #
       - partition_name: pv.04
         type: part
@@ -623,7 +620,7 @@ onpc_netboot_profiles:
     ##
     partitions:
       #
-      # System physical volume
+      # System volumes
       #
       - partition_name: pv.01
         type: part
@@ -653,7 +650,7 @@ onpc_netboot_profiles:
         mountpoint: /tmp
         vgname: sys_vg
       #
-      # Swift physical volume
+      # Swift volumes
       #
       - partition_name: pv.06
         type: part
@@ -760,31 +757,13 @@ onpc_netboot_profiles:
     ## Standard partitions
     ##
     partitions:
-      - partition_name: biosboot
-        type: part
-        size: 1
-        fstype: biosboot
-        drive: sda
-        asprimary: true
-      - partition_name: boot
-        type: part
-        size: 1024
-        fstype: ext4
-        drive: sda
-        mountpoint: /boot
-        asprimary: true
-      - partition_name: swap
-        type: part
-        fstype: swap
-        drive: sda
-        asprimary: true
       #
-      # System physical volume
+      # System  volumes
       #
       - partition_name: pv.01
         type: part
         size: 40000
-        maxsize: 312000
+        maxsize: 72000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -808,13 +787,22 @@ onpc_netboot_profiles:
         fstype: xfs
         mountpoint: /tmp
         vgname: sys_vg
-      - partition_name: opt_lv
-        type: logvol
+      - partition_name: pv.07
+        type: part
         size: 1000
         maxsize: 128000
+        drive: sda
+      - partition_name: onpc_vg
+        type: volgroup
+        pvname: pv.07
+      - partition_name: onpc_lv
+        type: logvol
+        percent: 1000
         fstype: xfs
-        mountpoint: /opt
-        vgname: sys_vg
+        mountpoint: /opt/onpc_data
+        vgname: onpc_vg
+        grow: true
+
     #
     # Standard network interfaces
     #
@@ -839,6 +827,11 @@ onpc_netboot_profiles:
       - interface_name: "{{ bond0_interface }}"
         interface_type: bond
         bonding_opts: "miimon=100 mode=1"
+        network: "{{ api_network }}"
+        netmask: "{{ api_network | ipaddr('netmask') }}"
+        label: api_network_interface
+        assign_ip: true
+        static: 1
       ##
       ## VLANS
       ##
@@ -846,13 +839,6 @@ onpc_netboot_profiles:
       - interface_name: "{{ management_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ management_network_interface }}"
-      # OpenStack services APIs VLAN interface
-      - interface_name: "{{ api_vlan_interface }}"
-        label: api_network_interface
-        network: "{{ api_network }}"
-        netmask: "{{ api_network | ipaddr('netmask') }}"
-        assign_ip: true
-        static: 1
       ##
       ## Bridges
       ##

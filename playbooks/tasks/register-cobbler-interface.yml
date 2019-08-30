@@ -31,7 +31,7 @@
       --management="{{ interface.management | default(False) }}"
       --netmask="{{ interface.netmask | default('') }}"
       --static-routes="{{ interface.static_routes | default([]) | join(' ') }}"
-      --mtu="{{ interface.mtu | default('1500') }}"
+      --mtu="{{ interface.mtu | default('') }}"
   register: result
   failed_when: result.rc != 0
   tags: register-cobbler-interfaces

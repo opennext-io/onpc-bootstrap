@@ -102,7 +102,7 @@ onpc_users_list: [
     name: centos,
     password: 'change@me',
     encrypted_password: '$1$xMkVZGyn$oORYOQ74r.WPrFNvStfeF0',
-    key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCoGCe7PlRSC7nBIEuGRF1ZX07TTNUYTN0uTAmjIINr8dsSb0jaQ+/Zqmzh/Wn9PSEh3w92IY1FE3IQFnvJUo5t+aDDqIYPF5BkcAzMZFtkLwheAegYUzYGve+iqvk2j0jb5jntRYcFagbJJoYZGCchvO0agJia5PMzMYdeGqdPuDD00ASyUUewVq/WViNou4Ob4+W1ffi+Y39kK9yN+nnxlrTyhuuNd/sLdfgRwKzrCc3P3fAYogGpsDEnXJ7SMVwvf21t5RO2JS/ucZmZsmezwv2TqtnsD8K0sH2apxiPqkcTpFNPFsGaavlQwuhBMSLMdORzCwiR/5oEc8Bit/n centos@master'
+    key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBZ5zyF/0iyCQhPR5ix+ZxU0HZzytskdfzJQxjWlZQb20kGteulZXm11JYZzFmZ4l8hqwz1iHHTTTNUghrSrQguWWyNVPeTsmCEhtyC08R5H/G5AabbV1dYrG/kdBng00FCui9dqQT7AueL3YNPMJCkEocNsJLho2Fw4vW3ePPyNzceAFCz5Ezjc1Y/HcXLMx81Mp5dlARXtS0C3E0+YXd/7sRQ6Sg6qHvLJ2v05lAI+xY1hSRBZME5mosKxk27IhqKFKhSnEhTLRZ04VFSGWreSGlfMVEZ1/PCvcuMwLTtJg7Kzl8oZ6Uu9dM+z3TDZ0D8BY1MQhdkrKQOYg5Y+fWiX6C+0u9AFNG/Wrbsn6aDmE82q2IuXq8t1OAFuaFh0fcwuwE/rpsdWZzWk6ZHVvJM+VHH+MgjzgPD+d0ow6hZi1rLU1XzAEeQNi/yLc/vY2eSeGe62JFL1c00BbHDUGfxFMNQZC2YuU35vg/NwHl//hVkVXGxKvHohrQsLAxSxrN33JSAwRAiQZjYNJXhOuGL62RvU3sfBu0qZq6zu2J7n+E/tLJl+7+0kx1JVcGNQTGFNGLnKoqvETRml/gxR/zl0jAQUt8DJyDB2rAFNfHZq78O2sfPpKYmgVWigKZgCTqp5afXLeCo3lcfTmtqL77AMgwrZ4wkZk1SgzgGTG+TQ== centos@master.opennext.local'
   }
 ]
 
@@ -149,10 +149,9 @@ management_network_interface: br-mgmt
 tunnel_network_interface: br-vxlan
 storage_network_interface: br-storage
 external_interface: br-vlan
-api_network_interface: "{{ api_vlan_interface }}"
+api_network_interface: "{{ bond0_interface }}"
 
 management_vlan_interface: "{{ bond0_interface + '.' + management_vlan_id }}"
-api_vlan_interface: "{{ bond0_interface + '.' + api_vlan_id }}"
 tunnel_vlan_interface: "{{ bond1_interface + '.' + tunnel_vlan_id }}"
 storage_vlan_interface: "{{ bond0_interface + '.' + storage_vlan_id }}"
 

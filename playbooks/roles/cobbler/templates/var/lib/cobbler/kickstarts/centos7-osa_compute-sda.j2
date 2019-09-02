@@ -47,7 +47,7 @@ timezone --utc {{ cobbler_default_time_zone }}
 {% if onpc_users_list is defined and onpc_users_list | length > 0 %}
 # Create users
 {% for user in onpc_users_list %}
-user --groups=wheel --name={{ user.name }} --password={{ user.encrypted_password }} --iscrypted
+user --groups={{ user.group }} --name={{ user.name }} --password={{ user.encrypted_password }} --iscrypted
 {% endfor %}
 {% endif %}
 # Partition clearing information

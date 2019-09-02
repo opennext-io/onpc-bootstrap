@@ -107,6 +107,9 @@
       {%-     set _ = interface.update({'ip_address': item['interfaces'][val.label]['ip_address']}) %}
       {%-     set _ = interface.update({'static': 1}) %}
       {%-   endif %}
+      {%-   if val.assign_dns_name is defined and val.assign_dns_name is sameas true %}
+      {%-     set _ = interface.update({'dns_name': item['interfaces'][val.label]['dns_name']}) %}
+      {%-    endif %}
       {%-   set _ = sel.append(interface) %}
       {%- endfor %}
       {{- sel | list }}

@@ -60,9 +60,13 @@
   set_fact:
     master_mgmt_interface: "{{ ansible_br_mgmt.device }}"
 
+- name: Set master_mgmt_addr fact
+  set_fact:
+    master_mgmt_addr: "{{ ansible_br_mgmt.device.ipv4.address }}"
+
 - name: Set proxy_server_addr facts
   set_fact:
-    proxy_server_addr: "{{ onpc_proxy_server | default(default_gateway_addr) }}"
+    proxy_server_addr: "{{ onpc_proxy_server | default(master_mgmt_addr) }}"
     proxy_server_port: "{{ item.port }}"
     proxy_is_transparent: "{{ item.transparent }}"
   with_items:
@@ -76,11 +80,11 @@
   
 - name: Set time_server_addr fact
   set_fact:
-    time_server_addr: "{{ onpc_time_server | default(default_gateway_addr) }}"
+    time_server_addr: "{{ onpc_time_server | default(master_mgmt_addr) }}"
 
 - name: Set dns_server_addr fact
   set_fact:
-    dns_server_addr: "{{ onpc_dns_server | default(default_gateway_addr) }}"
+    dns_server_addr: "{{ onpc_dns_server | default(master_mgmt_addr) }}"
 
 - name: Set internal_vip_network facts
   set_fact:

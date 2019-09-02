@@ -16,17 +16,17 @@
 
 - fail:
     msg: "Wrong network specification"
-  when: (netconf is not defined
-         or not netconf.get('cidr')
-         or not netconf.get('interface'))
+  when: (network is not defined
+         or not network.get('cidr')
+         or not network.get('interface'))
 
 - name: Set network roles fact
   set_fact:
-    network_roles: "{{ netconf.get('roles', []) }}"
+    network_roles: "{{ network.get('roles', []) }}"
 
 - name: Set interface name
   set_fact:
-    interface_name: "{{ netconf.get('interface') }}"
+    interface_name: "{{ network.get('interface') }}"
 
 - name: "Set network interface '{{ interface_name }}' fact"
   set_fact:
@@ -40,7 +40,7 @@
 
 - name: "Set interface '{{ interface_name }}' state fact"
   set_fact:
-    active_state: "{{ network_interface.get('active', False) }}" 
+    active_state: "{{ network_interface.get('active', False) }}"
 
 - name: "Assert the interface '{{ interface_name }}' state"
   assert:
@@ -51,7 +51,7 @@
 
 - name: "Set interface '{{ interface_name }}' IP address fact"
   set_fact:
-    interface_address: "{{ network_interface.get('ipv4', {}).get('address', '') }}" 
+    interface_address: "{{ network_interface.get('ipv4', {}).get('address', '') }}"
 
 - name: "Assert that the interface '{{ external_interface }}' is not assigned an IP address"
   assert:
@@ -61,7 +61,7 @@
 
 - name: "Set interface '{{ interface_name }}' type"
   set_fact:
-    interface_type: "{{ network_interface.get('type', {}) }}" 
+    interface_type: "{{ network_interface.get('type', {}) }}"
 
 - name: "Assert that the interface '{{ interface_name }}' is a bridge"
   assert:
@@ -74,8 +74,8 @@
 - name: "Assert that the interface '{{ interface_name }}' has a valid IP address"
   assert:
     that:
-      - interface_address | ipaddr(netconf.get('cidr')) | length > 0
-    msg: "The address '{{ interface_address }}' must be  within range '{{ netconf.get('cidr') }}'"
+      - interface_address | ipaddr(network.get('cidr')) | length > 0
+    msg: "The address '{{ interface_address }}' must be  within range '{{ network.get('cidr') }}'"
   when:
     - (network_roles | length == 0) or (network_roles | intersect(host_roles) | length > 0)
     - interface_name != external_interface

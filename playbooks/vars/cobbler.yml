@@ -26,7 +26,7 @@ cobbler_install_web: true
 cobbler_manage_dns: 1
 cobbler_web_user_pwd:
   - user_name: cobbler
-    password: change@me
+    password: "{{ cobbler_password }}"
 cobbler_default_time_zone: "Europe/Paris"
 cobbler_root_public_keys:
         - "{{ oncp_master_root_public_key }}" 

@@ -23,7 +23,9 @@ onpc_cpu_overcommit: 8.0
 onpc_openstack_domain: openstacklocal
 onpc_infra_domain: "{{ ansible_domain | default('openstack.local') }}"
 onpc_region_name: RegionOne
-onpc_multidomain_support: False
+# Enable / disable multi-domain support in Horizon
+onpc_multidomain_support: false
+onpc_partitions_check: true
 
 # The variable onpc_environment_name is used to tag the monitoring metrics
 # and alerts. To be removed.
@@ -91,18 +93,22 @@ onpc_services_list: >-
   {%- set _ = service_list.extend(service_list_extra) %}
   {{- (service_list | unique) | sort }}
 
-oncp_master_root_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') | default('') }}"
 
 ##
 ## List of users and ssh keys to provision on target hosts
 ##   This must be defined in onpc_user_config.yml
 ##
+oncp_master_root_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') | default('') }}"
+onpc_default_user: centos
+onpc_default_user_group: wheel
+onpc_default_user_password: "{{ default_user_password | default('change@me') }}"
 onpc_users_list: [
   {
-    name: centos,
-    password: 'change@me',
-    encrypted_password: '$1$xMkVZGyn$oORYOQ74r.WPrFNvStfeF0',
-    key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBZ5zyF/0iyCQhPR5ix+ZxU0HZzytskdfzJQxjWlZQb20kGteulZXm11JYZzFmZ4l8hqwz1iHHTTTNUghrSrQguWWyNVPeTsmCEhtyC08R5H/G5AabbV1dYrG/kdBng00FCui9dqQT7AueL3YNPMJCkEocNsJLho2Fw4vW3ePPyNzceAFCz5Ezjc1Y/HcXLMx81Mp5dlARXtS0C3E0+YXd/7sRQ6Sg6qHvLJ2v05lAI+xY1hSRBZME5mosKxk27IhqKFKhSnEhTLRZ04VFSGWreSGlfMVEZ1/PCvcuMwLTtJg7Kzl8oZ6Uu9dM+z3TDZ0D8BY1MQhdkrKQOYg5Y+fWiX6C+0u9AFNG/Wrbsn6aDmE82q2IuXq8t1OAFuaFh0fcwuwE/rpsdWZzWk6ZHVvJM+VHH+MgjzgPD+d0ow6hZi1rLU1XzAEeQNi/yLc/vY2eSeGe62JFL1c00BbHDUGfxFMNQZC2YuU35vg/NwHl//hVkVXGxKvHohrQsLAxSxrN33JSAwRAiQZjYNJXhOuGL62RvU3sfBu0qZq6zu2J7n+E/tLJl+7+0kx1JVcGNQTGFNGLnKoqvETRml/gxR/zl0jAQUt8DJyDB2rAFNfHZq78O2sfPpKYmgVWigKZgCTqp5afXLeCo3lcfTmtqL77AMgwrZ4wkZk1SgzgGTG+TQ== centos@master.opennext.local'
+    name: "{{ onpc_default_user }}",
+    group: "{{ onpc_default_user_group }}",
+    password: "{{ onpc_default_user_password }}",
+    encrypted_password: "{{ onpc_default_user_crypted_password }}",
+    key: "{{ onpc_default_user_key }}"
   }
 ]
 
@@ -151,13 +157,15 @@ storage_network_interface: br-storage
 external_interface: br-vlan
 api_network_interface: "{{ bond0_interface }}"
 
-management_vlan_interface: "{{ bond0_interface + '.' + management_vlan_id }}"
+#management_vlan_interface: "{{ bond0_interface + '.' + management_vlan_id }}"
+management_vlan_interface: "{{ bond1_interface + '.' + management_vlan_id }}"
 tunnel_vlan_interface: "{{ bond1_interface + '.' + tunnel_vlan_id }}"
-storage_vlan_interface: "{{ bond0_interface + '.' + storage_vlan_id }}"
+#storage_vlan_interface: "{{ bond0_interface + '.' + storage_vlan_id }}"
+storage_vlan_interface: "{{ bond1_interface + '.' + storage_vlan_id }}"
 
 external_vip_addr: "{{ (api_network.split('.')[:-1] + ['100']) | join('.') }}"
 internal_vip_addr: "{{ (management_network.split('.')[:-1] + ['100']) | join('.') }}"
-default_gateway_addr: "{{ (management_network.split('.')[:-1] + ['1']) | join('.') }}"
+default_gateway_addr: "{{ (api_network.split('.')[:-1] + ['254']) | join('.') }}"
 
 ##
 ## ONPC standards networks CIDR definition
@@ -177,7 +185,6 @@ api_network: 172.31.0.0/24
 # included any reserved IP addresses for physical growth too).
 # Single IP addresses or ranges (start and end placed either side
 # of a ',') can be placed under the 'reserved' stanza for each OSA network.
-
 onpc_osa_networks_check: True
 onpc_osa_networks:
   management:
@@ -186,7 +193,6 @@ onpc_osa_networks:
     reserved:
       - "172.29.236.10,172.29.236.20"
       - "{{ internal_vip_addr }}"
-      - "{{ default_gateway_addr }}"
     roles: ['all']
   tunnel:
     cidr: "{{ tunnel_network }}"
@@ -205,13 +211,6 @@ onpc_osa_networks:
     interface: "{{ external_interface }}"
     reserved: []
     roles: ['network', 'compute']
-#  api:
-#    cidr: "{{ api_network }}"
-#    interface: "{{ api_network_interface }}"
-#    reserved:
-#      - "172.29.252.10,172.29.252.20"
-#      - "{{ external_vip_addr }}"
-#    roles: ['haproxy']
 
 ##
 ## Dictionary of netboot ISOs to register in Cobbler

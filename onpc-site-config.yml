@@ -135,6 +135,7 @@ onpc_netboot_profiles:
         netmask: "{{ api_network | ipaddr('netmask') }}"
         label: api_network_interface
         assign_ip: true
+        assign_dns_name: true
       # bond1 interface used for tenants networking (flat, vlan, vxlan)
       - interface_name: "{{ bond1_interface }}"
         interface_type: bonded_bridge_slave
@@ -178,6 +179,7 @@ onpc_netboot_profiles:
       - interface_name: "{{ external_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
+        static: 1
   ##
   ## Compute profile host config
   ##
@@ -879,5 +881,6 @@ onpc_netboot_systems:
         ip_address: 172.31.0.56
       management_network_interface:
         ip_address: 172.29.236.56
+        dns_name: "{{ 'infra-01' + '.' + onpc_infra_domain }}"
       tunnel_network_interface:
         ip_address: 172.29.240.56

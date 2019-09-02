@@ -33,12 +33,15 @@
 
     - name: Setup networking facts
       import_tasks: tasks/setup-networking-facts.yml
+      tags: always
 
     - name: Setup deployment facts
       import_tasks: tasks/setup-deployment-facts.yml
+      tags: always
 
     - name: Check deployment facts
       import_tasks: tasks/check-deployment-facts.yml
+      tags: always
 
     - name: Import OSA repositories
       import_tasks: tasks/import-osa-repos.yml

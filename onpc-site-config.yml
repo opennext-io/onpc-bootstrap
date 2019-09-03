@@ -290,7 +290,7 @@ onpc_netboot_profiles:
     ## Network interfaces
     ##
     interfaces:
-      # Storage VLAN interface
+      # Primary physical interface
       - interface_name: "{{ primary_interface | default('eth0') }}"
         label: primary_network_interface
         interface_type: bond_slave
@@ -310,6 +310,10 @@ onpc_netboot_profiles:
       - interface_name: "{{ bond0_interface }}"
         interface_type: bond
         bonding_opts: "miimon=100 mode=1"
+        network: "{{ api_network }}"
+        netmask: "{{ api_network | ipaddr('netmask') }}"
+        label: api_network_interface
+        assign_ip: true
       # bond1 interface used for tenants networking (flat, vlan, vxlan)
       - interface_name: "{{ bond1_interface }}"
         interface_type: bonded_bridge_slave
@@ -331,7 +335,6 @@ onpc_netboot_profiles:
         interface_type: bridge_slave
         interface_master: "{{ storage_network_interface }}"
         assign_ip: true
-        static: 1
       ##
       ## Bridges
       ##
@@ -344,7 +347,7 @@ onpc_netboot_profiles:
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         assign_ip: true
-        static: 1
+        assign_dns_name: true
       # OpenStack Networking VXLAN (tunnel/overlay) network bridge interface.
       - interface_name: "{{ tunnel_network_interface }}"
         label: tunnel_network_interface
@@ -353,19 +356,20 @@ onpc_netboot_profiles:
         network: "{{ tunnel_network }}"
         netmask: "{{ tunnel_network | ipaddr('netmask') }}"
         assign_ip: true
-        static: 1
+        mtu: 9000
       # OpenStack Networking (provider) network bridge interface
       - interface_name: "{{ external_interface }}"
         bridge_opts: 'STP=no'
         interface_type: bridge
+        static: 1
       # Storage network bridge interface
       - interface_name: "{{ storage_network_interface }}"
+        label: storage_network_interface
         bridge_opts: 'STP=no'
         interface_type: bridge
         network: "{{ storage_network }}"
         netmask: "{{ storage_network | ipaddr('netmask') }}"
         assign_ip: true
-        static: 1
   ##
   ## Ceph role host config
   ##
@@ -431,7 +435,7 @@ onpc_netboot_profiles:
     ## Standard network interfaces
     ##
     interfaces:
-      # Storage VLAN interface
+      # Primary physical interface
       - interface_name: "{{ primary_interface | default('eth0') }}"
         label: primary_network_interface
         interface_type: bond_slave
@@ -451,11 +455,10 @@ onpc_netboot_profiles:
       - interface_name: "{{ bond0_interface }}"
         interface_type: bond
         bonding_opts: "miimon=100 mode=1"
-      # bond1 interface used for tenants networking (flat, vlan, vxlan)
-      - interface_name: "{{ bond1_interface }}"
-        interface_type: bonded_bridge_slave
-        interface_master: "{{ external_interface }}"
-        bonding_opts: "miimon=100 mode=1"
+        network: "{{ api_network }}"
+        netmask: "{{ api_network | ipaddr('netmask') }}"
+        label: api_network_interface
+        assign_ip: true
       ##
       ## VLANS
       ##
@@ -468,7 +471,6 @@ onpc_netboot_profiles:
         interface_type: bridge_slave
         interface_master: "{{ storage_network_interface }}"
         assign_ip: true
-        static: 1
       ##
       ## Bridges
       ##
@@ -481,15 +483,15 @@ onpc_netboot_profiles:
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         assign_ip: true
-        static: 1
+        assign_dns_name: true
       # Storage network bridge interface
       - interface_name: "{{ storage_network_interface }}"
+        label: storage_network_interface
         bridge_opts: 'STP=no'
         interface_type: bridge
         network: "{{ storage_network }}"
         netmask: "{{ storage_network | ipaddr('netmask') }}"
         assign_ip: true
-        static: 1
   ##
   ## Storage role host config
   ##
@@ -555,7 +557,7 @@ onpc_netboot_profiles:
     ## Standard network interfaces
     ##
     interfaces:
-      # Storage VLAN interface
+      # Primary physical interface
       - interface_name: "{{ primary_interface | default('eth0') }}"
         label: primary_network_interface
         interface_type: bond_slave
@@ -575,11 +577,10 @@ onpc_netboot_profiles:
       - interface_name: "{{ bond0_interface }}"
         interface_type: bond
         bonding_opts: "miimon=100 mode=1"
-      # bond1 interface used for tenants networking (flat, vlan, vxlan)
-      - interface_name: "{{ bond1_interface }}"
-        interface_type: bonded_bridge_slave
-        interface_master: "{{ external_interface }}"
-        bonding_opts: "miimon=100 mode=1"
+        network: "{{ api_network }}"
+        netmask: "{{ api_network | ipaddr('netmask') }}"
+        label: api_network_interface
+        assign_ip: true
       ##
       ## VLANS
       ##
@@ -592,7 +593,6 @@ onpc_netboot_profiles:
         interface_type: bridge_slave
         interface_master: "{{ storage_network_interface }}"
         assign_ip: true
-        static: 1
       ##
       ## Bridges
       ##
@@ -605,15 +605,15 @@ onpc_netboot_profiles:
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         assign_ip: true
-        static: 1
+        assign_dns_name: true
       # Storage network bridge interface
       - interface_name: "{{ storage_network_interface }}"
+        label: storage_network_interface
         bridge_opts: 'STP=no'
         interface_type: bridge
         network: "{{ storage_network }}"
         netmask: "{{ storage_network | ipaddr('netmask') }}"
         assign_ip: true
-        static: 1
   ##
   ## Swift role host config
   ##
@@ -748,12 +748,12 @@ onpc_netboot_profiles:
         static: 1
       # Storage network bridge interface
       - interface_name: "{{ storage_network_interface }}"
+        label: storage_network_interface
         bridge_opts: 'STP=no'
         interface_type: bridge
         network: "{{ storage_network }}"
         netmask: "{{ storage_network | ipaddr('netmask') }}"
         assign_ip: true
-        static: 1
   ##
   ## monitoring role host config
   ##
@@ -768,6 +768,8 @@ onpc_netboot_profiles:
       - "{{ onpc_infra_domain }}"
     roles: ['monitoring', 'logging']
     metadata: []
+    boot_arch: bios
+
     ##
     ## Standard partitions
     ##
@@ -846,7 +848,11 @@ onpc_netboot_profiles:
         netmask: "{{ api_network | ipaddr('netmask') }}"
         label: api_network_interface
         assign_ip: true
-        static: 1
+      # bond1 interface used for tenants networking (flat, vlan, vxlan)
+      - interface_name: "{{ bond1_interface }}"
+        interface_type: bonded_bridge_slave
+        interface_master: "{{ external_interface }}"
+        bonding_opts: "miimon=100 mode=1"
       ##
       ## VLANS
       ##
@@ -866,7 +872,7 @@ onpc_netboot_profiles:
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         assign_ip: true
-        static: 1
+        assign_dns_name: true
 
   logging: *monitoring
 
@@ -875,7 +881,7 @@ onpc_netboot_profiles:
 ##
 onpc_netboot_systems:
   - name: infra-01
-    comment: "This node is an infra node"
+    comment: "This is an infra node"
     profile: infra
     hostname: "{{ 'infra-01' + '.' + onpc_infra_domain }}"
     gateway: "{{ default_gateway_addr }}"
@@ -897,3 +903,51 @@ onpc_netboot_systems:
         dns_name: "{{ 'infra-01' + '.' + onpc_infra_domain }}"
       tunnel_network_interface:
         ip_address: "172.29.240.56"
+  - name: compute-01
+    comment: "This is a compute node"
+    profile: compute
+    hostname: "{{ 'compute-01' + '.' + onpc_infra_domain }}"
+    gateway: "{{ default_gateway_addr }}"
+    state: present
+    netboot: true
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    interfaces:
+      primary_network_interface:
+        mac_address: "ac:1f:6b:46:94:ec"
+      secondary_network_interface:
+        mac_address: "ac:1f:6b:46:94:ed"
+      api_network_interface:
+        ip_address: "172.31.0.57"
+      management_network_interface:
+        ip_address: "172.29.236.57"
+        dns_name: "{{ 'compute-01' + '.' + onpc_infra_domain }}"
+      tunnel_network_interface:
+        ip_address: "172.29.240.57"
+      storage_network_interface:
+        ip_address: "172.29.244.57"
+  - name: ceph-01
+    comment: "This is a ceph node"
+    profile: ceph
+    hostname: "{{ 'ceph-01' + '.' + onpc_infra_domain }}"
+    gateway: "{{ default_gateway_addr }}"
+    state: present
+    netboot: true
+    name_servers:
+      - "{{ dns_server_addr }}"
+    name_servers_search:
+      - "{{ onpc_infra_domain }}"
+    interfaces:
+      primary_network_interface:
+        mac_address: "0c:c4:7a:6c:99:06"
+      secondary_network_interface:
+        mac_address: "0c:c4:7a:6c:99:07"
+      api_network_interface:
+        ip_address: "172.31.0.58"
+      management_network_interface:
+        ip_address: "172.29.236.58"
+        dns_name: "{{ 'ceph-01' + '.' + onpc_infra_domain }}"
+      storage_network_interface:
+        ip_address: "172.29.244.58"

@@ -2,7 +2,7 @@
 # Start add_root_ssh_keys generated code
 mkdir --mode=700 /root/.ssh
 {% for key in cobbler_root_public_keys %}
-echo '{{ key }}'' >> /root/.ssh/authorized_keys
+echo '{{ key }}' >> /root/.ssh/authorized_keys
 {% endfor %}
 chmod 600 /root/.ssh/authorized_keys
 # End add_root_ssh_keys generated code

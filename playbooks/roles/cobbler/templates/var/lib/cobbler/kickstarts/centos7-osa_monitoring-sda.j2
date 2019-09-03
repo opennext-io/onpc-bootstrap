@@ -46,11 +46,11 @@ skipx
 timezone --utc {{ cobbler_default_time_zone }}
 
 # Create default user account
-user --groups={{ onpc_default_group }} --name={{ onpc_default_user }} --password='{{ onpc_default_user_crypted_password }}'' --iscrypted
+user --groups={{ onpc_default_group }} --name={{ onpc_default_user }} --password='{{ onpc_default_user_crypted_password }}' --iscrypted
 # Create custom user accounts
 {% if onpc_users_list is defined and onpc_users_list | length > 0 %}
 {% for user in onpc_users_list %}
-user --groups={{ user.group }} --name={{ user.name }} --password='{{ user.crypted_password }}'' --iscrypted
+user --groups={{ user.group }} --name={{ user.name }} --password='{{ user.crypted_password }}' --iscrypted
 {% endfor %}
 {% endif %}
 # Partition clearing information

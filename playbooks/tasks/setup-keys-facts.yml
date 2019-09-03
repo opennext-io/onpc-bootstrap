@@ -1,0 +1,50 @@
+
+---
+# Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
+
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- name: Get root public key
+  set_fact:
+    oncp_master_root_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') | default('') }}"
+
+- name: Generate default user crypted password
+  command: openssl passwd -1 {{ onpc_default_user_password }}
+  register: result
+  failed_when: result.rc != 0
+  no_log: true
+
+- name: Set default user crypted password
+  set_fact:
+    onpc_default_user_crypted_password: "{{ result.stdout }}"
+  no_log: true
+
+- name: Generate centos RSA host key
+  command : ssh-keygen -q -t rsa -f /home/centos/.ssh/id_rsa.pub -C "" -N ""
+  args:
+    creates: /home/centos/.ssh/id_rsa.pub
+
+- name: Get default user RSA Key
+  set_fact:
+    onpc_default_user_key: "{{ lookup('file', '/home/centos/.ssh/id_rsa.pub') | default('') }}"
+
+- name: Assert that oncp_master_root_public_key is properly defined
+  assert:
+    that: "{{ oncp_master_root_public_key | length > 0 }}"
+    msg: "'root' public key is not properly defined"
+
+- name: Assert that onpc_default_user_key is properly defined
+  assert:
+    that: "{{ onpc_default_user_key | length > 0 }}"
+    msg: "'default user' public key is not properly defined"

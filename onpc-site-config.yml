@@ -15,6 +15,19 @@
 # limitations under the License.
 
 ##
+## List of users to provision on target hosts
+##
+onpc_users_list: [
+  {
+    name: "{{ onpc_default_user | default('centos') }}",
+    group: "{{ onpc_default_user_group | default('wheel') }}",
+    password: "{{ onpc_default_user_password') }}",
+    encrypted_password: "{{ onpc_default_user_crypted_password }}",
+    key: "{{ onpc_default_user_key }}"
+  }
+]
+
+##
 ## Dictionary of netboot ISOs to install in Cobbler
 ##   This must be defined in onpc-site-config.yml
 ##

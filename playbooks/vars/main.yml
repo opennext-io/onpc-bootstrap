@@ -98,19 +98,9 @@ onpc_services_list: >-
 ## List of users and ssh keys to provision on target hosts
 ##   This must be defined in onpc_user_config.yml
 ##
-oncp_master_root_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') | default('') }}"
 onpc_default_user: centos
 onpc_default_user_group: wheel
 onpc_default_user_password: "{{ default_user_password | default('change@me') }}"
-onpc_users_list: [
-  {
-    name: "{{ onpc_default_user }}",
-    group: "{{ onpc_default_user_group }}",
-    password: "{{ onpc_default_user_password }}",
-    encrypted_password: "{{ onpc_default_user_crypted_password }}",
-    key: "{{ onpc_default_user_key }}"
-  }
-]
 
 ## 
 ## ONPC Networking configuration

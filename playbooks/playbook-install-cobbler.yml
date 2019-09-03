@@ -49,13 +49,12 @@
         msg: >
           The only supported Linux distribution to install Cobbler is CentOS 7
 
-    - name: Assert that oncp_master_root_public_key is properly defined
-      assert:
-        that: "{{ oncp_master_root_public_key | length > 0 }}"
-        msg: "user 'root' public key is not properly defined"
+    - name: Setup users' keys facts
+      import_tasks: tasks/setup-keys-facts.yml
+      tags: always
 
     - name: Setup networking facts
-      import_tasks: tasks/setup-networking-facts.yml
+      import_tasks: tasks/setup-user-facts.yml
       tags: always
 
   roles:

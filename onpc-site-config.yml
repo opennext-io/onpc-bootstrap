@@ -334,7 +334,6 @@ onpc_netboot_profiles:
       - interface_name: "{{ storage_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ storage_network_interface }}"
-        assign_ip: true
       ##
       ## Bridges
       ##
@@ -470,7 +469,6 @@ onpc_netboot_profiles:
       - interface_name: "{{ storage_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ storage_network_interface }}"
-        assign_ip: true
       ##
       ## Bridges
       ##
@@ -592,7 +590,6 @@ onpc_netboot_profiles:
       - interface_name: "{{ storage_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ storage_network_interface }}"
-        assign_ip: true
       ##
       ## Bridges
       ##
@@ -731,8 +728,6 @@ onpc_netboot_profiles:
       - interface_name: "{{ storage_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ storage_network_interface }}"
-        assign_ip: true
-        static: 1
       ##
       ## Bridges
       ##

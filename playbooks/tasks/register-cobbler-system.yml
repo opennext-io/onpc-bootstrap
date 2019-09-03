@@ -94,7 +94,7 @@
     - item.state == "present"
   tags: delete-cobbler-interfaces
 
-- name: Set system_interfaces fact
+- name: "Set system_interfaces fact for {{ system_name }}"
   set_fact:
     system_interfaces: >-
       {%- set sel = [] %}

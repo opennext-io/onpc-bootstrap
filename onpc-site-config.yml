@@ -262,7 +262,7 @@ onpc_netboot_profiles:
         mountpoint: /openstack
         vgname: osa_vg
         grow: true
-      - partition_name: osa_lv
+      - partition_name: osa_log_lv
         type: logvol
         percent: 80
         fstype: xfs
@@ -276,6 +276,7 @@ onpc_netboot_profiles:
         type: part
         size: 1000
         grow: true
+        drive: sda
       - partition_name: compute_vg
         type: volgroup
         pvname: pv.03
@@ -424,6 +425,7 @@ onpc_netboot_profiles:
         type: part
         size: 1000
         grow: true
+        drive: sda
       - partition_name: ceph_data_vg
         type: volgroup
         pvname: pv.05
@@ -548,6 +550,7 @@ onpc_netboot_profiles:
         type: part
         size: 1000
         grow: true
+        drive: sda
       - partition_name: cinder_vg
         type: volgroup
         pvname: pv.04
@@ -668,6 +671,7 @@ onpc_netboot_profiles:
         type: part
         size: 1000
         grow: true
+        drive: sda
       - partition_name: swift_vg
         type: volgroup
         pvname: pv.06

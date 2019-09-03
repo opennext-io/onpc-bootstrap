@@ -17,7 +17,7 @@
 
 - name: Get root public key
   set_fact:
-    oncp_master_root_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') | default('') }}"
+    oncp_root_public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') | default('') }}"
 
 - name: Generate default user crypted password
   command: openssl passwd -1 {{ onpc_default_user_password }}
@@ -27,7 +27,7 @@
 
 - name: Set default user crypted password
   set_fact:
-    onpc_default_user_crypted_password: "{{ result.stdout }}"
+    onpc_default_user_crypted_password "{{ result.stdout }}"
   no_log: true
 
 - name: Generate centos RSA host key
@@ -39,12 +39,19 @@
   set_fact:
     onpc_default_user_key: "{{ lookup('file', '/home/centos/.ssh/id_rsa.pub') | default('') }}"
 
-- name: Assert that oncp_master_root_public_key is properly defined
+- name: Assert that onpc_default_user_crypted_password is properly defined
   assert:
-    that: "{{ oncp_master_root_public_key | length > 0 }}"
+    that: "{{ onpc_default_user_crypted_password | length > 0 }}"
+    msg: "'default user' public key is not properly defined"
+
+- name: Assert that oncp_root_public_key is properly defined
+  assert:
+    that: "{{ oncp_root_public_key | length > 0 }}"
     msg: "'root' public key is not properly defined"
 
 - name: Assert that onpc_default_user_key is properly defined
   assert:
     that: "{{ onpc_default_user_key | length > 0 }}"
     msg: "'default user' public key is not properly defined"
+
+

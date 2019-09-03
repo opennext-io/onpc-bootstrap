@@ -15,17 +15,17 @@
 # limitations under the License.
 
 ##
-## List of users to provision on target hosts
+## List of custom users to provision on target hosts
 ##
-onpc_users_list: [
-  {
-    name: "{{ onpc_default_user | default('centos') }}",
-    group: "{{ onpc_default_user_group | default('wheel') }}",
-    password: "{{ onpc_default_user_password') }}",
-    encrypted_password: "{{ onpc_default_user_crypted_password }}",
-    key: "{{ onpc_default_user_key }}"
-  }
-]
+#onpc_users_list: [
+#  {
+#    name: foo,
+#    group: bar,
+#    password: "password",
+#    crypted_password: "<crypted password>",
+#    key: "<public ssh key>"
+#  }
+#]
 
 ##
 ## Dictionary of netboot ISOs to install in Cobbler
@@ -148,7 +148,6 @@ onpc_netboot_profiles:
         netmask: "{{ api_network | ipaddr('netmask') }}"
         label: api_network_interface
         assign_ip: true
-        assign_dns_name: true
       # bond1 interface used for tenants networking (flat, vlan, vxlan)
       - interface_name: "{{ bond1_interface }}"
         interface_type: bonded_bridge_slave
@@ -179,6 +178,7 @@ onpc_netboot_profiles:
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         assign_ip: true
+        assign_dns_name: true
       # OpenStack Networking VXLAN (tunnel/overlay) network bridge interface.
       - interface_name: "{{ tunnel_network_interface }}"
         label: tunnel_network_interface
@@ -429,7 +429,7 @@ onpc_netboot_profiles:
         pvname: pv.05
     ##
     ## Standard network interfaces
-    ##    
+    ##
     interfaces:
       # Storage VLAN interface
       - interface_name: "{{ primary_interface | default('eth0') }}"
@@ -553,7 +553,7 @@ onpc_netboot_profiles:
         pvname: pv.04
     ##
     ## Standard network interfaces
-    ##   
+    ##
     interfaces:
       # Storage VLAN interface
       - interface_name: "{{ primary_interface | default('eth0') }}"
@@ -891,9 +891,9 @@ onpc_netboot_systems:
       secondary_network_interface:
         mac_address: "ac:1f:6b:47:3f:c9"
       api_network_interface:
-        ip_address: 172.31.0.56
+        ip_address: "172.31.0.56"
       management_network_interface:
-        ip_address: 172.29.236.56
+        ip_address: "172.29.236.56"
         dns_name: "{{ 'infra-01' + '.' + onpc_infra_domain }}"
       tunnel_network_interface:
-        ip_address: 172.29.240.56
+        ip_address: "172.29.240.56"

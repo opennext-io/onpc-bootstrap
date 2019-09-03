@@ -99,8 +99,10 @@ onpc_services_list: >-
 ##   This must be defined in onpc_user_config.yml
 ##
 onpc_default_user: centos
-onpc_default_user_group: wheel
+onpc_default_group: wheel
 onpc_default_user_password: "{{ default_user_password | default('change@me') }}"
+onpc_users_list: []
+
 
 ## 
 ## ONPC Networking configuration

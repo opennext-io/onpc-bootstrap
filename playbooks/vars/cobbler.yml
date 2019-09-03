@@ -29,7 +29,7 @@ cobbler_web_user_pwd:
     password: "{{ cobbler_password }}"
 cobbler_default_time_zone: "Europe/Paris"
 cobbler_root_public_keys:
-        - "{{ oncp_master_root_public_key }}" 
+  - "{{ oncp_root_public_key }}" 
 cobbler_forward_zones:
   - "{{ onpc_infra_domain }}"
 cobbler_reverse_zones:

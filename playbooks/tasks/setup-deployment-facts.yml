@@ -14,24 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
    
-- name: Generate default user crypted password
-  command: openssl passwd -1 {{ onpc_default_user_password }}
-  register: result
-  failed_when: result.rc != 0
-
-- name: Set default user crypted password
-  set_fact:
-    onpc_default_user_crypted_password: "{{ result.stdout }}"
-
-- name: Generate centos RSA host key
-  command : ssh-keygen -q -t rsa -f /home/centos/.ssh/id_rsa.pub -C "" -N ""
-  args:
-    creates: /home/centos/.ssh/id_rsa.pub
-
-- name: Get default user RSA Key
-  set_fact:
-    onpc_default_user_key: "{{ lookup('file', '/home/centos/.ssh/id_rsa.pub') | default('') }}"
-
 - name: Set hosts list facts by role
   set_fact:
     controller_hosts_list: >-

@@ -98,18 +98,18 @@
   set_fact:
     system_interfaces: >-
       {%- set sel = [] %}
-      {%- for val in onpc_netboot_profiles[item.profile]['interfaces'] %}
-      {%-   set interface = val %}
-      {%-   if val.assign_mac is defined and val.assign_mac is sameas true %}
-      {%-     set _ = interface.update({'mac_address': item['interfaces'][val.label]['mac_address']}) %}
-      {%-    endif %}
-      {%-   if val.assign_ip is defined and val.assign_ip is sameas true %}
-      {%-     set _ = interface.update({'ip_address': item['interfaces'][val.label]['ip_address']}) %}
+      {%- for _interface in onpc_netboot_profiles[item.profile]['interfaces'] %}
+      {%-   set interface = _interface.copy() %}
+      {%-   if interface.assign_mac is defined and interface.assign_mac is sameas true %}
+      {%-     set _ = interface.update({'mac_address': item['interfaces'][interface.label]['mac_address'] | default('')}) %}
+      {%-   endif %}
+      {%-   if interface.assign_ip is defined and interface.assign_ip is sameas true %}
+      {%-     set _ = interface.update({'ip_address': item['interfaces'][interface.label]['ip_address'] | default('')}) %}
       {%-     set _ = interface.update({'static': 1}) %}
       {%-   endif %}
-      {%-   if val.assign_dns_name is defined and val.assign_dns_name is sameas true %}
-      {%-     set _ = interface.update({'dns_name': item['interfaces'][val.label]['dns_name']}) %}
-      {%-    endif %}
+      {%-   if interface.assign_dns_name is defined and interface.assign_dns_name is sameas true %}
+      {%-     set _ = interface.update({'dns_name': item['interfaces'][interface.label]['dns_name'] | default('')}) %}
+      {%-   endif %}
       {%-   set _ = sel.append(interface) %}
       {%- endfor %}
       {{- sel | list }}
@@ -117,11 +117,11 @@
     - item.state == "present"
   tags: register-cobbler-interfaces
 
--  name: Register Cobbler interfaces
-   include_tasks: tasks/register-cobbler-interface.yml
-   when:
+- name: Register Cobbler interfaces
+  include_tasks: tasks/register-cobbler-interface.yml
+  when:
     - item.state == "present"
-   loop: "{{ system_interfaces }}"
-   loop_control:
-     loop_var: interface
-   tags: register-cobbler-interfaces
+  loop: "{{ system_interfaces }}"
+  loop_control:
+    loop_var: interface
+  tags: register-cobbler-interfaces

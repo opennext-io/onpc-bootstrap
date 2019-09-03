@@ -45,9 +45,12 @@ skipx
 # System timezone
 timezone --utc {{ cobbler_default_time_zone }}
 {% if onpc_users_list is defined and onpc_users_list | length > 0 %}
-# Create users
+# Create default user account
+user --groups={{ onpc_default_group }} --name={{ onpc_default_user }} --password='{{ onpc_default_user_crypted_password }}'' --iscrypted
+# Create custom user accounts
+{% if onpc_users_list is defined and onpc_users_list | length > 0 %}
 {% for user in onpc_users_list %}
-user --groups={{ user.group }} --name={{ user.name }} --password={{ user.encrypted_password }} --iscrypted
+user --groups={{ user.group }} --name={{ user.name }} --password='{{ user.crypted_password }}'' --iscrypted
 {% endfor %}
 {% endif %}
 # Partition clearing information
@@ -55,15 +58,15 @@ clearpart --all --initlabel --drives=sda
 # Clear the Master Boot Record
 zerombr
 # Disk partitioning
-{% if onpc_netboot_profiles is defined and onpc_netboot_profiles['infra']['boot_arch'] == 'efi' %}
+{% if onpc_netboot_profiles is defined %}
+{%   if onpc_netboot_profiles['ceph']['boot_arch'] == 'efi' %}
 part /boot/efi --fstype=efi --size=200 --ondrive=sda
-{% else %}
+{%   else %}
 part biosboot --fstype=biosboot --size=1 --ondrive=sda
 part /boot --fstype=ext4 --size=1024 --ondrive=sda
-{% endif %}
+{%   endif %}
 part swap --fstype=swap --recommended --ondrive=sda
-{% if onpc_netboot_profiles is defined and onpc_netboot_profiles['infra']['boot_arch'] == 'efi' %}
-{% for val in onpc_netboot_profiles['infra']['partitions'] %}
+{% for val in onpc_netboot_profiles['ceph']['partitions'] %}
 {%   set args = [] %}
 {%   if val.type is defined and val.type in onpc_valid_partition_types %}
 {%     set _ = args.append(val.type) %}

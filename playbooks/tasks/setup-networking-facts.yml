@@ -33,13 +33,11 @@
       msg: "The 'external_vip_addr' is not properly defined"
     - conditional: "{{ internal_vip_addr is defined and internal_vip_addr | ipaddr }}"
       msg: "The 'internal_vip_addr' is not properly defined"
-    - conditional: "{{ default_gateway_addr is defined and default_gateway_addr | ipaddr }}"
-      msg: "The 'default_gateway_addr' is not properly defined"
     - conditional: "{{ internal_vip_addr | ipsubnet(management_network | ipaddr('prefix')) == management_network }}"
       msg: "The 'internal_vip_addr' is not properly defined"
     - conditional: "{{ external_vip_addr | ipsubnet(api_network | ipaddr('prefix')) == api_network }}"
       msg: "The 'external_vip_addr' is not properly defined"
-    - conditional: "{{ default_gateway_addr | ipsubnet(management_network | ipaddr('prefix')) == management_network }}"
+    - conditional: "{{ default_gateway_addr | ipsubnet(api_network | ipaddr('prefix')) == api_network }}"
       msg: "The 'default_gateway_addr' is not properly defined"
 
 - name: Set master_infra_network fact
@@ -62,7 +60,7 @@
 
 - name: Set master_mgmt_addr fact
   set_fact:
-    master_mgmt_addr: "{{ ansible_br_mgmt.device.ipv4.address }}"
+    master_mgmt_addr: "{{ ansible_br_mgmt.ipv4.address }}"
 
 - name: Set proxy_server_addr facts
   set_fact:

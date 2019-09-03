@@ -44,7 +44,7 @@ selinux --disabled
 skipx
 # System timezone
 timezone --utc {{ cobbler_default_time_zone }}
-{% if onpc_users_list is defined and onpc_users_list | length > 0 %}
+
 # Create default user account
 user --groups={{ onpc_default_group }} --name={{ onpc_default_user }} --password='{{ onpc_default_user_crypted_password }}'' --iscrypted
 # Create custom user accounts

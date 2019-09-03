@@ -27,7 +27,7 @@
 
 - name: Set default user crypted password
   set_fact:
-    onpc_default_user_crypted_password "{{ result.stdout }}"
+    onpc_default_user_crypted_password: "{{ result.stdout }}"
   no_log: true
 
 - name: Generate centos RSA host key

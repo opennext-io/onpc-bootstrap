@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Check the ONPC deployment hosts
+- name: Setup the OSA hosts
   hosts: all
   become: true
   become_user: root
@@ -33,10 +33,6 @@
         that: "ansible_version.full is version_compare('2.7', '>=')"
         msg: >-
           "You must upgrade Ansible version to 2.7 or greater (current version is {{ ansible_version.full }})"
-
-    - name: Setup networking facts
-      import_tasks: tasks/setup-networking-facts.yml
-      tags: always
 
     - name: Check OSA networks
       include_tasks: tasks/check-osa-networks.yml
@@ -66,11 +62,15 @@
 #      when: managed_host
 #      tags: import-root-public-key
 
+    - name: Set time_server_addr from local facts
+      set_fact:
+        time_server_addr: "{{ ansible_facts['ansible_local']['master']['network']['time_server_addr'] }}"
+
     - name: Install and configure Chrony
       include_role:
         name: roles/chrony
       vars:
-        chrony_server: "{{ time_server_addr | default('pool.ntp.org') }} prefer iburst"
+        chrony_server: "{{ time_server_addr }} prefer iburst"
       when:
         - managed_host
       tags: configure-host-chrony

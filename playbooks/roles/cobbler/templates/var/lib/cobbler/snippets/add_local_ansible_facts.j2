@@ -1,0 +1,6 @@
+## "Add local ansible facts"
+# Begin add_local_ansible_facts
+mkdir -p --mode=755 /etc/ansible/facts.d
+echo "[network]" > /etc/ansible/facts.d/master.fact
+echo "time_server_addr={{ time_server_addr }}" >> /etc/ansible/facts.d/master.fact
+# End add_local_ansible_facts

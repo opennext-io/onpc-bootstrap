@@ -26,20 +26,7 @@ master_packages_remove:
   - firewalld
 
 packages_install:
-  - openssh-server
-  - sudo
-  - python
-  - bridge-utils
-  - iputils
-  - lsof
-  - lvm2
-  - curl
   - wget
-  - dig
-  - ethtool
-  - iputils
-  - lvm2
-  - lsof
   - tcpdump
   - chrony
 

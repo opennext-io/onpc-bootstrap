@@ -49,13 +49,12 @@
       when: managed_host
       tags: install-host-packages
 
-
     - name: Configure host kernel
       import_tasks: tasks/configure-host-kernel.yml
       when: managed_host
       tags: configure-host-kernel
 
-## Note PP: Already done by kickstart during netboot process
+## Note PP: Already done through kickstart
 #    - include_tasks: tasks/import-root-public-key.yml
 #      vars:
 #       public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"

@@ -32,17 +32,3 @@
     sysctl_set: yes
     state: present
     reload: yes
-
-- name: Configure Bridges for proper VLAN support via sysctl
-  sysctl:
-    name: "{{ item }}"
-    value: 0
-    sysctl_set: yes
-    state: present
-    reload: yes
-  with_items:
-    - net.bridge.bridge-nf-call-ip6tables
-    - net.bridge.bridge-nf-call-iptables
-    - net.bridge.bridge-nf-call-arptables
-    - net.bridge.bridge-nf-filter-pppoe-tagged
-    - net.bridge.bridge-nf-filter-vlan-tagged

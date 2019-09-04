@@ -152,6 +152,7 @@ $SNIPPET('log_ks_post')
 sed -i -e 's|^# %wheel\tALL=(ALL)\tNOPASSWD: ALL|%wheel\tALL=(ALL)\tNOPASSWD: ALL|; s|^Defaults requiretty|#&|' /etc/sudoers
 # Start yum configuration
 $yum_config_stanza
+yum -y upgrade
 # End yum configuration
 $SNIPPET('post_install_kernel_options')
 ## NetworkManager is incompatible with Linux Bridge

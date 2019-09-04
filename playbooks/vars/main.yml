@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-onpc_openstack_release: 19.0.3
+onpc_openstack_release: 19.0.2
 onpc_openstack_branch: stable/stein
 onpc_openstack_rdo: https://rdoproject.org/repos/openstack-stein/rdo-release-stein.rpm
 onpc_lma_branch: master

@@ -48,15 +48,16 @@
         - managed_host
       tags: check-osa-networks
 
-    - include_tasks: tasks/install-host-packages.yml
+    - name: Install host packages
+      include_tasks: tasks/install-host-packages.yml
       when: managed_host
       tags: install-host-packages
 
-# Note PP: Commented out until proven necessary.
-# Kernel tuning is already taken care of by OpenStack-Ansible
-#    - import_tasks: tasks/configure-kernel.yml
-#      when: managed_host
-#      tags: configure-host-kernel
+
+    - name: Configure host kernel
+      import_tasks: tasks/configure-kernel.yml
+      when: managed_host
+      tags: configure-host-kernel
 
 ## Note PP: Already done by kickstart during netboot process
 #    - include_tasks: tasks/import-root-public-key.yml
@@ -65,7 +66,8 @@
 #      when: managed_host
 #      tags: import-root-public-key
 
-    - include_role:
+    - name: Install and configure Chrony
+      include_role:
         name: roles/chrony
       vars:
         chrony_server: "{{ time_server_addr | default('pool.ntp.org') }} prefer iburst"

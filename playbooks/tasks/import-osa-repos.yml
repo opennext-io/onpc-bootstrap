@@ -21,5 +21,5 @@
     accept_hostkey: yes
     force: yes
     recursive: no
-    version: "{{ onpc_openstack_release | default('stable/rocky') }}"
+    version: "{{ onpc_openstack_release | default('latest') }}"
   environment: "{{ proxy_env | default('{}') }}"

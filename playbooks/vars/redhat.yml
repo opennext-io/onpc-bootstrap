@@ -20,7 +20,6 @@ master_packages_install:
   - python-pip 
   - python-devel
   - '@Development Tools'
-  - https://rdoproject.org/repos/openstack-rocky/rdo-release-rocky.rpm
 
 master_packages_remove:
   - firewalld
@@ -29,6 +28,9 @@ packages_install:
   - wget
   - tcpdump
   - chrony
+  - python-devel
+  - "{{ onpc_openstack_rdo }}"
+  - '@Development Tools'
 
 packages_remove:
   - centos-openstack-release-*

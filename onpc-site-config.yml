@@ -52,8 +52,7 @@ onpc_netboot_profiles:
     distro_name: centos-7-x86_64
     kickstart_file: centos7-osa_infra-sda.ks
     gateway: "{{ default_gateway_addr }}"
-    name_servers:
-      - "{{ dns_server_addr }}"
+    name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     roles: ['controller', 'network', 'haproxy', 'image']
@@ -201,8 +200,7 @@ onpc_netboot_profiles:
     distro_name: centos-7-x86_64
     kickstart_file: centos7-osa_compute-sda.ks
     gateway: "{{ default_gateway_addr }}"
-    name_servers:
-      - "{{ dns_server_addr }}"
+    name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     roles: ['compute']
@@ -378,8 +376,7 @@ onpc_netboot_profiles:
     distro_name: centos-7-x86_64
     kickstart_file: centos7-osa_ceph-sda.ks
     gateway: "{{ default_gateway_addr }}"
-    name_servers:
-      - "{{ dns_server_addr }}"
+    name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     roles: ['ceph']
@@ -421,17 +418,49 @@ onpc_netboot_profiles:
       #
       # Ceph volumes
       #
-      - partition_name: pv.05
+      - partition_name: pv.02
         type: part
         size: 1000
         grow: true
         drive: sda
+      - partition_name: pv.03
+        type: part
+        size: 10000
+        grow: true
+        drive: sda
+      - partition_name: pv.04
+        type: part
+        size: 16000
+        grow: true
+        drive: sda
       - partition_name: ceph_data_vg
         type: volgroup
-        pvname: pv.05
-      - partition_name: ceph_journal_vg
+        pvname: pv.02
+      - partition_name: ceph_db_vg
         type: volgroup
-        pvname: pv.05
+        pvname: pv.03
+      - partition_name: ceph_wal_vg
+        type: volgroup
+        pvname: pv.04
+      - partition_name: ceph_data_lv
+        type: logvol
+        percent: 100
+        fstype: xfs
+        mountpoint: /srv/ceph/data_lv
+        vgname: ceph_data_vg
+      - partition_name: ceph_db_lv
+        type: logvol
+        percent: 100
+        fstype: xfs
+        mountpoint: /srv/ceph/db_lv
+        vgname: ceph_db_vg
+      - partition_name: ceph_wal_lv
+        type: logvol
+        percent: 100
+        fstype: xfs
+        mountpoint: /srv/ceph/wal_lv
+        vgname: ceph_wal_vg
+
     ##
     ## Standard network interfaces
     ##
@@ -460,6 +489,11 @@ onpc_netboot_profiles:
         netmask: "{{ api_network | ipaddr('netmask') }}"
         label: api_network_interface
         assign_ip: true
+      # bond1 interface used for tenants networking (flat, vlan, vxlan)
+      - interface_name: "{{ bond1_interface }}"
+        interface_type: bonded_bridge_slave
+        interface_master: "{{ external_interface }}"
+        bonding_opts: "miimon=100 mode=1"
       ##
       ## VLANS
       ##
@@ -500,8 +534,7 @@ onpc_netboot_profiles:
     distro_name: centos-7-x86_64
     kickstart_file: centos7-osa_storage-sda.ks
     gateway: "{{ default_gateway_addr }}"
-    name_servers:
-      - "{{ dns_server_addr }}"
+    name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     roles: ['storage']
@@ -582,6 +615,11 @@ onpc_netboot_profiles:
         netmask: "{{ api_network | ipaddr('netmask') }}"
         label: api_network_interface
         assign_ip: true
+      # bond1 interface used for tenants networking (flat, vlan, vxlan)
+      - interface_name: "{{ bond1_interface }}"
+        interface_type: bonded_bridge_slave
+        interface_master: "{{ external_interface }}"
+        bonding_opts: "miimon=100 mode=1"
       ##
       ## VLANS
       ##
@@ -622,8 +660,7 @@ onpc_netboot_profiles:
     distro_name: centos-7-x86_64
     kickstart_file: centos7-osa_swift-sda.ks
     gateway: "{{ default_gateway_addr }}"
-    name_servers:
-      - "{{ dns_server_addr }}"
+    name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     roles: ['swift']
@@ -761,8 +798,7 @@ onpc_netboot_profiles:
     distro_name: centos-7-x86_64
     kickstart_file: centos7-default-sda.ks
     gateway: "{{ default_gateway_addr }}"
-    name_servers:
-      - "{{ dns_server_addr }}"
+    name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     roles: ['monitoring', 'logging']
@@ -886,8 +922,7 @@ onpc_netboot_systems:
     gateway: "{{ default_gateway_addr }}"
     state: present
     netboot: true
-    name_servers:
-      - "{{ dns_server_addr }}"
+    name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     interfaces:
@@ -909,8 +944,7 @@ onpc_netboot_systems:
     gateway: "{{ default_gateway_addr }}"
     state: present
     netboot: true
-    name_servers:
-      - "{{ dns_server_addr }}"
+    name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     interfaces:
@@ -934,8 +968,7 @@ onpc_netboot_systems:
     gateway: "{{ default_gateway_addr }}"
     state: present
     netboot: true
-    name_servers:
-      - "{{ dns_server_addr }}"
+    name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
     interfaces:

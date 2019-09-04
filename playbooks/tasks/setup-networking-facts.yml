@@ -80,10 +80,12 @@
   set_fact:
     time_server_addr: "{{ onpc_time_server | default(master_mgmt_addr) }}"
 
-- name: Set dns_server_addr fact
+- name: Set dns_servers_addr fact
   set_fact:
-    dns_server_addr: "{{ onpc_dns_server | default(master_mgmt_addr) }}"
-
+    dns_servers_addr:
+      - "{{ master_infra_addr }}"
+      - "{{ master_mgmt_addr }}"
+      
 - name: Set internal_vip_network facts
   set_fact:
     internal_vip_network: "{{ management_network.split('/')[0] }}"

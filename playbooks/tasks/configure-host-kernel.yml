@@ -14,12 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- include_tasks: tasks/kernel-drivers.yml
-  vars:
-    module: "{{ item }}"
-  with_items:
-    - bonding
-    - 8021q
+- name: Add kernel modules
+  include_tasks: tasks/add-kernel-modules.yml
+
+- name: lower kernel logging level
+  lineinfile:
+    line: "kernel.printk='4 1 7 4'"
+    insertafter: EOF
+    path: /etc/sysctl.conf
+    state: present
+  when: ansible_distribution | lower == 'centos'
 
 - name: Configure IP forwarding via sysctl
   sysctl:

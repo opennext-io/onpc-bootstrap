@@ -55,7 +55,7 @@
 
 
     - name: Configure host kernel
-      import_tasks: tasks/configure-kernel.yml
+      import_tasks: tasks/configure-host-kernel.yml
       when: managed_host
       tags: configure-host-kernel
 

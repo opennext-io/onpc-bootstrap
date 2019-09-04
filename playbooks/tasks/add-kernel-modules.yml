@@ -24,7 +24,7 @@
     modules_file: /etc/modules-load.d/openstack-ansible.conf
   when: ansible_distribution | lower == 'centos'
 
-- name: Ensure that {{ modules_file }} exists (CentOS)
+- name: "Ensure that {{ modules_file }} exists (CentOS)"
   file:
     path: "{{ modules_file }}"
     state: touch
@@ -35,33 +35,25 @@
   when: ansible_distribution | lower == 'centos'
 
 # Add the specified module into configuration
-- name: Configuring system module {{ module }}
+- name: "Configuring system module {{ item }}"
   lineinfile:
     path: "{{ modules_file }}"
-    line: "{{ module }}"
+    line: "{{ item }}"
     state: present
     owner: root
     group: root
     mode: 0644
+  with_items:
+    - bonding
+    - 8021q
 
 # Add the specified module into running system
-- name: Loading system module {{ module }}
+- name: "Load kernel module {{ item }}"
   modprobe:
-    name: "{{ module }}"
+    name: "{{ item }}"
     state: present
-
-- name: lower kernel logging level
-  lineinfile:
-    line: "kernel.printk='4 1 7 4'"
-    insertafter: EOF
-    path: /etc/sysctl.conf
-    state: present
-  when: ansible_distribution | lower == 'centos'
-
-- name: stop and mask firewalld service
-  systemd:
-    name: firewalld
-    state: stopped
-    masked: yes
-  when: ansible_distribution | lower == 'centos'
+  with_items:
+    - bonding
+    - 8021q
+    
 

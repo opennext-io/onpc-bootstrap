@@ -13,7 +13,7 @@ sensu_hosts: *monitoring_cluster
 redis_hosts: *monitoring_cluster
 sentinel_hosts: *monitoring_cluster
 
-# Temporay workaround until collectd is deployed in HA cluster
+# Workaround until collectd can deployed in cluster
 # Currently only the 'first' host with monitoring role is selected
 collectd_hosts:
   {{ monitoring_hosts_dict[0].name }}:

@@ -271,14 +271,4 @@
   when:
     - "'nfs' in onpc_services_list"
 
-## Commented for now because this may end up in inconsistencies 
-#- name:  Add ceph to onpc_services_list
-#  set_fact:
-#    onpc_services_list: "{{ onpc_services_list + ['ceph'] }}"
-#  when: ceph_hosts_list is defined and ceph_hosts_list | length > 0
-
-#- name: Add swift to onpc_services_list
-#  set_fact:
-#    onpc_services_list: "{{ onpc_services_list + ['swift'] }}"
-#  when: swift_hosts_list is defined and swift_hosts_list | length > 0
 

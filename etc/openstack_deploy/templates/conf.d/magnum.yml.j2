@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 ---
-# The infra hosts that will be running the magnum services
+# COE (magnum) services hosts
 {% if 'magnum' in onpc_services_list %}
 magnum-infra_hosts:
 {% for h in controller_hosts_dict %}

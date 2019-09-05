@@ -165,8 +165,7 @@ onpc_netboot_profiles:
       - interface_name: "{{ tunnel_vlan_interface }}"
         interface_type: bridge_slave
         interface_master: "{{ tunnel_network_interface }}"
-        mtu: 9000
-
+        mtu: "{{ (onpc_use_jumbo_frames | default(False)) | ternary('9000', '1500') }}"
       ##
       ## Bridges
       ##
@@ -188,7 +187,7 @@ onpc_netboot_profiles:
         network: "{{ tunnel_network }}"
         netmask: "{{ tunnel_network | ipaddr('netmask') }}"
         assign_ip: true
-        mtu: 9000
+        mtu: "{{ (onpc_use_jumbo_frames | default(False)) | ternary('9000', '1500') }}"
       # OpenStack Networking (provider) network bridge interface
       - interface_name: "{{ external_interface }}"
         bridge_opts: 'STP=no'
@@ -356,7 +355,7 @@ onpc_netboot_profiles:
         network: "{{ tunnel_network }}"
         netmask: "{{ tunnel_network | ipaddr('netmask') }}"
         assign_ip: true
-        mtu: 9000
+        mtu: "{{ (onpc_use_jumbo_frames | default(False)) | ternary('9000', '1500') }}"
       # OpenStack Networking (provider) network bridge interface
       - interface_name: "{{ external_interface }}"
         bridge_opts: 'STP=no'

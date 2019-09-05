@@ -1,8 +1,27 @@
 #jinja2: lstrip_blocks: True
 # {{ ansible_managed }}
 ---
-# The hosts that will be running the Swift services
+# The Swift services hosts
 {% if 'swift' in onpc_services_list %}
+swift:
+  part_power: 8
+  repl_number: 3
+  min_part_hours: 1
+{%- raw %}
+  storage_network: "{{ (container_tech != 'nspawn') | ternary(storage_network_interface, ansible_default_ipv4['alias']) }}"
+  replication_network: "{{ (container_tech != 'nspawn') | ternary(storage_network_interface, ansible_default_ipv4['alias']) }}"
+{% endraw %}
+  statsd_host: localhost
+  statsd_port: 8125
+{%- raw %}
+  statsd_metric_prefix: "{{ inventory_hostname }}.swift"
+{% endraw %}
+  storage_policies:
+    - policy:
+        name: default
+        index: 0
+        default: True
+{% endif %} 
 swift-proxy_hosts:
 {% for h in controller_hosts_dict %}
   {{ h.name }}:

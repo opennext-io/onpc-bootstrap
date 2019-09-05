@@ -188,6 +188,7 @@ api_network: 172.31.0.0/24
 ## Proxy server
 ## Example:
 #onpc_proxy_server: 172.29.236.1
+onpc_use_jumbo_frames: False
 onpc_osa_networks_check: True
 onpc_osa_networks:
   management:
@@ -195,6 +196,7 @@ onpc_osa_networks:
     interface: "{{ management_network_interface }}"
     reserved:
       - "172.29.236.10,172.29.236.20"
+      - "172.29.236.1"
       - "{{ internal_vip_addr }}"
     roles: ['all']
   tunnel:

@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+---
+# List of target hosts on which to deploy the nova compute service for Ironic.
+{% if ironic_hosts_dict is defined and ironic_hosts_dict | length > 0 %}
+ironic-compute_hosts:
+{% for h in ironic_hosts_dict %}
+  {{ h.name }}:
+    ip: {{ h.ip_v4 }}
+{% endfor %}
+{% endif %}

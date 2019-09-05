@@ -22,7 +22,20 @@
 ###
 
 ## Debug and Verbose options (pay attention to high log verbosity when debug set to true).
-debug: "{{ onpc_debug_enabled | default(false) }}"
+debug: "{{ onpc_debug_enabled | default(False) }}"
+
+## Set the service setup host
+# The default is to use localhost (the deploy host where ansible runs),
+# but any other host can be used. If using an alternative host with all
+# required libraries in a venv (eg: the utility container) then the
+# python interpreter needs to be set. If it is not, the default is to
+# the system python interpreter.
+# If you wish to use the first utility container in the inventory for
+# all service setup tasks, uncomment the following.
+#
+#openstack_service_setup_host: "{{ groups['utility_all'][0] }}"
+#openstack_service_setup_host_python_interpreter: "/openstack/venvs/utility-{{ openstack_release }}/bin/python"
+
 service_region: "{{ onpc_region_name }}"
 haproxy_ssl: true
 
@@ -83,6 +96,9 @@ haproxy_user_ssl_cert: {{ haproxy_ssl_cert_path | default('/etc/openstack_deploy
 haproxy_user_ssl_key: {{ haproxy_ssl_key_path | default('/etc/openstack_deploy/ssl/openstack_key.key') }}
 haproxy_user_ssl_ca_cert: {{ haproxy_ssl_ca_cert_path | default('/etc/openstack_deploy/ssl/openstack_ca.pem') }}
 {% endif %}
+
+# To always deploy (or upgrade to) the latest stable version of keepalived.
+keepalived_package_state: latest
 
 # Defines the default VRRP id used for keepalived with haproxy.
 # Overwrite it to your value to make sure you don't overlap
@@ -148,10 +164,10 @@ neutron_plugin_base:
 # Enable L2 population driver
 neutron_l2_population: True
 
-{% if 'ceph' in onpc_services_list %}
 ## Common Nova Overrides
 # When nova_libvirt_images_rbd_pool is defined, ceph will be installed on nova
 # hosts.
+{% if 'ceph' in onpc_services_list %}
 nova_libvirt_images_rbd_pool: vms
 {% endif %}
 

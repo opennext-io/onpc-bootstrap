@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 ---
-# The infra hosts that will be running the octavia services
+# The Octavia services hosts
 {% if 'octavia' in onpc_services_list %}
 octavia-infra_hosts:
 {% for h in controller_hosts_dict %}

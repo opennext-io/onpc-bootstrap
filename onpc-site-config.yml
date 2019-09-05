@@ -42,6 +42,8 @@ onpc_netboot_distros:
 ## Dictionary of netboot profiles to register in Cobbler
 ##   This must be defined in onpc-site-config.yml
 ##
+primary_interface: eno1
+secondary_interface: eno2
 onpc_netboot_profiles:
   ##
   ## Infra profile host config
@@ -51,7 +53,7 @@ onpc_netboot_profiles:
     comment: "Infra profile host config"
     distro_name: centos-7-x86_64
     kickstart_file: centos7-osa_infra-sda.ks
-    gateway: "{{ default_gateway_addr }}"
+    gateway: "{{ external_gateway_addr }}"
     name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
@@ -173,7 +175,7 @@ onpc_netboot_profiles:
         label: management_network_interface
         interface_type: bridge
         bridge_opts: 'STP=no'
-        if_gateway: "{{ default_gateway_addr }}"
+        if_gateway: "{{ external_gateway_addr }}"
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         assign_ip: true
@@ -199,7 +201,7 @@ onpc_netboot_profiles:
     comment: "Nova compute profile config"
     distro_name: centos-7-x86_64
     kickstart_file: centos7-osa_compute-sda.ks
-    gateway: "{{ default_gateway_addr }}"
+    gateway: "{{ external_gateway_addr }}"
     name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
@@ -341,7 +343,7 @@ onpc_netboot_profiles:
         label: management_network_interface
         interface_type: bridge
         bridge_opts: 'STP=no'
-        if_gateway: "{{ default_gateway_addr }}"
+        if_gateway: "{{ external_gateway_addr }}"
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         assign_ip: true
@@ -375,7 +377,7 @@ onpc_netboot_profiles:
     comment: "This is a Ceph OSD host"
     distro_name: centos-7-x86_64
     kickstart_file: centos7-osa_ceph-sda.ks
-    gateway: "{{ default_gateway_addr }}"
+    gateway: "{{ external_gateway_addr }}"
     name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
@@ -513,7 +515,7 @@ onpc_netboot_profiles:
         label: management_network_interface
         interface_type: bridge
         bridge_opts: 'STP=no'
-        if_gateway: "{{ default_gateway_addr }}"
+        if_gateway: "{{ external_gateway_addr }}"
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         assign_ip: true
@@ -533,7 +535,7 @@ onpc_netboot_profiles:
     comment: "This is a Cinder block storage host"
     distro_name: centos-7-x86_64
     kickstart_file: centos7-osa_storage-sda.ks
-    gateway: "{{ default_gateway_addr }}"
+    gateway: "{{ external_gateway_addr }}"
     name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
@@ -639,7 +641,7 @@ onpc_netboot_profiles:
         label: management_network_interface
         interface_type: bridge
         bridge_opts: 'STP=no'
-        if_gateway: "{{ default_gateway_addr }}"
+        if_gateway: "{{ external_gateway_addr }}"
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         assign_ip: true
@@ -659,7 +661,7 @@ onpc_netboot_profiles:
     comment: "This is a Swift object storage host"
     distro_name: centos-7-x86_64
     kickstart_file: centos7-osa_swift-sda.ks
-    gateway: "{{ default_gateway_addr }}"
+    gateway: "{{ external_gateway_addr }}"
     name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
@@ -777,7 +779,7 @@ onpc_netboot_profiles:
         label: management_network_interface
         interface_type: bridge
         bridge_opts: 'STP=no'
-        if_gateway: "{{ default_gateway_addr }}"
+        if_gateway: "{{ external_gateway_addr }}"
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         assign_ip: true
@@ -797,7 +799,7 @@ onpc_netboot_profiles:
     comment: "This is a monitoring / logging host"
     distro_name: centos-7-x86_64
     kickstart_file: centos7-default-sda.ks
-    gateway: "{{ default_gateway_addr }}"
+    gateway: "{{ external_gateway_addr }}"
     name_servers: "{{ dns_servers_addr }}"
     name_servers_search:
       - "{{ onpc_infra_domain }}"
@@ -903,7 +905,7 @@ onpc_netboot_profiles:
         label: management_network_interface
         interface_type: bridge
         bridge_opts: 'STP=no'
-        if_gateway: "{{ default_gateway_addr }}"
+        if_gateway: "{{ external_gateway_addr }}"
         network: "{{ management_network }}"
         netmask: "{{ management_network | ipaddr('netmask') }}"
         assign_ip: true
@@ -919,7 +921,7 @@ onpc_netboot_systems:
     comment: "This is an infra node"
     profile: infra
     hostname: "{{ 'infra-01' + '.' + onpc_infra_domain }}"
-    gateway: "{{ default_gateway_addr }}"
+    gateway: "{{ external_gateway_addr }}"
     state: present
     netboot: true
     name_servers: "{{ dns_servers_addr }}"
@@ -941,7 +943,7 @@ onpc_netboot_systems:
     comment: "This is a compute node"
     profile: compute
     hostname: "{{ 'compute-01' + '.' + onpc_infra_domain }}"
-    gateway: "{{ default_gateway_addr }}"
+    gateway: "{{ external_gateway_addr }}"
     state: present
     netboot: true
     name_servers: "{{ dns_servers_addr }}"
@@ -965,7 +967,7 @@ onpc_netboot_systems:
     comment: "This is a ceph node"
     profile: ceph
     hostname: "{{ 'ceph-01' + '.' + onpc_infra_domain }}"
-    gateway: "{{ default_gateway_addr }}"
+    gateway: "{{ external_gateway_addr }}"
     state: present
     netboot: true
     name_servers: "{{ dns_servers_addr }}"

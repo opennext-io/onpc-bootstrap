@@ -97,7 +97,6 @@ squid_http_access:
 
 squid_http_port: '3128'
 squid_http_bind: '0.0.0.0'
-squid_http_interface: 'eno1'
 squid_icp_access: 'all'
 squid_icp_port: '3130'
 

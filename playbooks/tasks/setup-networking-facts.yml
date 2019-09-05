@@ -37,8 +37,8 @@
       msg: "The 'internal_vip_addr' is not properly defined"
     - conditional: "{{ external_vip_addr | ipsubnet(api_network | ipaddr('prefix')) == api_network }}"
       msg: "The 'external_vip_addr' is not properly defined"
-    - conditional: "{{ default_gateway_addr | ipsubnet(api_network | ipaddr('prefix')) == api_network }}"
-      msg: "The 'default_gateway_addr' is not properly defined"
+    - conditional: "{{ external_gateway_addr | ipsubnet(api_network | ipaddr('prefix')) == api_network }}"
+      msg: "The 'external_gateway_addr' is not properly defined"
 
 - name: Set master_infra_network fact
   set_fact:
@@ -76,9 +76,13 @@
       transparent: False
   when: item.conditional == True
   
+- name: Set external_gateway_addr fact
+  set_fact:
+    external_gateway_addr: "{{ onpc_gateway_addr | default(master_mgmt_addr) }}"
+
 - name: Set time_server_addr fact
   set_fact:
-    time_server_addr: "{{ onpc_time_server | default(master_mgmt_addr) }}"
+    time_server_addr: "{{ onpc_time_addr | default(master_mgmt_addr) }}"
 
 - name: Set dns_servers_addr fact
   set_fact:

@@ -158,7 +158,6 @@ storage_vlan_interface: "{{ bond1_interface + '.' + storage_vlan_id }}"
 
 external_vip_addr: "{{ (api_network.split('.')[:-1] + ['100']) | join('.') }}"
 internal_vip_addr: "{{ (management_network.split('.')[:-1] + ['100']) | join('.') }}"
-default_gateway_addr: "{{ (api_network.split('.')[:-1] + ['254']) | join('.') }}"
 
 ##
 ## ONPC standards networks CIDR definition
@@ -178,6 +177,17 @@ api_network: 172.31.0.0/24
 # included any reserved IP addresses for physical growth too).
 # Single IP addresses or ranges (start and end placed either side
 # of a ',') can be placed under the 'reserved' stanza for each OSA network.
+## Platform default gateway.
+## Example:
+#onpc_gateway_addr: 172.29.236.1
+
+## NTP time server addr
+## Example:
+# onpc_time_addr: 172.29.236.1
+
+## Proxy server
+## Example:
+#onpc_proxy_server: 172.29.236.1
 onpc_osa_networks_check: True
 onpc_osa_networks:
   management:

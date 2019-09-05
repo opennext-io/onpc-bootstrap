@@ -44,6 +44,7 @@
     
     - name: Setup networking facts
       include_tasks: tasks/setup-networking-facts.yml
+      tags: always
 
   roles:
     - role: roles/squid
@@ -52,6 +53,6 @@
         - "{{ master_infra_network }}"
       squid_pri_domain_name: "{{ onpc_infra_domain }}"
       squid_transparent_proxy: "{{ proxy_is_transparent | default(True) }}"
-      squid_http_port: "{{ proxy_server_port | default(3128) }}"
-      squid_http_bind: "{{ proxy_server_addr | default(ansible_default_ipv4.address)}}"
-      squid_http_interface: "{{ master_mgmt_interface | default(ansible_default_ipv4.interface)}}"
+      squid_http_port: "{{ proxy_server_port }}"
+      squid_http_bind: "{{ proxy_server_addr }}"
+      squid_http_interface: "{{ master_mgmt_interface }}"

@@ -60,9 +60,5 @@ lvm_volumes:
     wal: ceph_wal_lv
     wal_vg: ceph_wal_vg
 dmcrypt: false
-# Set a default 16G journal size (size in MB)
-# Used in 'collocated' and 'filestore' scenarios
-# journal_size: {{ ceph_journal_partition_size | default(16000) }} 
-# ceph-ansible automatically creates pools & keys for OpenStack services
 openstack_config: true
 cinder_ceph_client: cinder

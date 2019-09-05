@@ -33,8 +33,10 @@ debug: "{{ onpc_debug_enabled | default(False) }}"
 # If you wish to use the first utility container in the inventory for
 # all service setup tasks, uncomment the following.
 #
-#openstack_service_setup_host: "{{ groups['utility_all'][0] }}"
-#openstack_service_setup_host_python_interpreter: "/openstack/venvs/utility-{{ openstack_release }}/bin/python"
+{%- raw %}
+# openstack_service_setup_host: "{{ groups['utility_all'][0] }}"
+# openstack_service_setup_host_python_interpreter: "/openstack/venvs/utility-{{ openstack_release }}/bin/python"
+{% endraw %}
 
 service_region: "{{ onpc_region_name }}"
 haproxy_ssl: true

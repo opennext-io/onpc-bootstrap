@@ -495,7 +495,7 @@ storage_hosts:
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
-      cinder_storage_availability_zone: {{ h.zone | default(h.nane ~ '_az') }}
+      cinder_storage_availability_zone: {{ h.zone | default('nova') }}
       cinder_default_availability_zone: "{{ onpc_cinder_default_az | default('nova') }}"
       cinder_backends:
         limit_container_types: cinder_volume
@@ -544,5 +544,4 @@ image_hosts:
           options: "_netdev,auto"
 {% endif %}
 {% endfor %}
-{% endif %}
 

@@ -33,7 +33,7 @@
       tags: check-ansible-version
     
     - name: Install master packages
-      include_tasks: tasks/install-master-packages.yml
+      import_tasks: tasks/install-master-packages.yml
       
     - name: Setup master firewall rules
-      include_tasks: tasks/setup-master-firewall.yml
+      import_tasks: tasks/setup-master-firewall.yml

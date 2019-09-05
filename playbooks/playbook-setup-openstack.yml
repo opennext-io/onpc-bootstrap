@@ -40,8 +40,8 @@
     with_items: "{{ subnets }}"
 
   - name: Create user routers
-    include_tasks: tasks/create-router.yml
+    import_tasks: tasks/create-router.yml
 
   - name: Create user security group
-    include_tasks: tasks/create-security-group.yml
+    import_tasks: tasks/create-security-group.yml
 

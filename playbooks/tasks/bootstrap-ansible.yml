@@ -18,7 +18,6 @@
   stat:
     path: /opt/ansible-runtime/bin/
   register: bootstrap
-  tags: bootstrap-ansible
 
 - name: Bootstrap Ansible
   shell: ./scripts/bootstrap-ansible.sh
@@ -26,4 +25,3 @@
     chdir: /opt/openstack-ansible
   when: bootstrap.stat.exists == false
   environment: "{{ proxy_env | default('{}') }}"
-  tags: bootstrap-ansible

@@ -52,7 +52,8 @@
       tags: import-onpc-repos
 
     - name: Bootstrap ansible
-      include_tasks: tasks/bootstrap-ansible.yml
+      import_tasks: tasks/bootstrap-ansible.yml
+      tags: bootstrap-ansible
 
     - name: Setup common configuration files
       import_tasks: tasks/setup-common-files.yml

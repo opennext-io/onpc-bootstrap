@@ -15,7 +15,7 @@
 # limitations under the License.
 
 - name: Add kernel modules
-  include_tasks: tasks/add-kernel-modules.yml
+  import_tasks: tasks/add-kernel-modules.yml
 
 - name: lower kernel logging level
   lineinfile:

@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Setup the ONPC deployment environment
+- name: Setup the OpenNext deployment environment
   hosts: localhost
   become: true
   become_user: root

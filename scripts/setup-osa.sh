@@ -23,7 +23,7 @@ export ANSIBLE_VARS_PLUGINS="/dev/null"
 export HOST_VARS_PATH="/dev/null"
 export GROUP_VARS_PATH="/dev/null"
         
-# Run ONPC bootstrap playbook
+# Run OpenNext bootstrap playbook
 pushd playbooks 
   if [ -z "${BOOTSTRAP_OPTS}" ]; then
     /usr/bin/ansible-playbook playbook-osa-environment.yml

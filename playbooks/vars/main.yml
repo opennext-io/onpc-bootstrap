@@ -56,11 +56,11 @@ onpc_valid_partition_types:
 ##
 ## OpenStack environment bootstrap scenarios
 ##
-# Note: Cobbler is the only supported and functional way
-# to provision the target hosts in ONPC.
+# Note: Cobbler is the only supported tool
+# to provision the target hosts in OpenNext.
 # Other host provisioning tools (such as MAAS) have been
 # tested with various degrees of success but are not
-# supported here at this time.
+# supported  at this time.
 onpc_bootstrap_scenario: "{{ lookup('env','SCENARIO') | default('cobbler_distro_lxc_standard_ceph', true) }}"
 onpc_bootstrap_config_path: ../etc/openstack_deploy
 onpc_install_method: "{{ (onpc_bootstrap_scenario is search('distro')) | ternary('distro', 'source') }}"
@@ -106,7 +106,7 @@ onpc_users_list: []
 
 
 ## 
-## ONPC Networking configuration
+## OpenNext Networking configuration
 ##
 
 # management_network: used to provide access the internal services and containers
@@ -135,7 +135,7 @@ onpc_users_list: []
 # ----------------------------------------------------------------------
 
 ##
-## ONPC VLAN IDs.
+## OpenNext VLAN IDs.
 ##   This can be adjusted for your environment in onpc-site-config.yml
 management_vlan_id: "10"
 tunnel_vlan_id: "20"
@@ -160,7 +160,7 @@ external_vip_addr: "{{ (api_network.split('.')[:-1] + ['100']) | join('.') }}"
 internal_vip_addr: "{{ (management_network.split('.')[:-1] + ['100']) | join('.') }}"
 
 ##
-## ONPC standards networks CIDR definition
+## OpenNext standards networks CIDR definition
 ##   This can be adjusted for your environment in onpc-site-config.yml
 management_network: 172.29.236.0/22
 tunnel_network: 172.29.240.0/22

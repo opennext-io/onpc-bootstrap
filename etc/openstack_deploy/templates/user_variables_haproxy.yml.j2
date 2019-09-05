@@ -95,10 +95,10 @@ haproxy_extra_services:
 #  - service:
 #      haproxy_service_name: redis
 #      haproxy_ssl: False
-#{%- raw %}
+# {%- raw %}
 #      haproxy_backend_nodes: "{{ groups['redis'] | default([]) }}"
 #      haproxy_port: "{{ redis_port }}"
-#{% endraw %}
+# {% endraw %}
 #      haproxy_balance_type: tcp
 #      haproxy_balance_alg: roundrobin
 #      haproxy_timeout_server: "6s"

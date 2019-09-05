@@ -106,7 +106,7 @@
   when: "'logging' in onpc_services_list"
   tags: drop-logging-variables
 
-- name: Drop the ONPC ansible roles
+- name: Drop the OpenNext ansible roles
   shell: ../scripts/get-onpc-roles.sh
   args:
     executable: /bin/bash

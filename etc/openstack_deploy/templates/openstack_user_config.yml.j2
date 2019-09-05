@@ -128,7 +128,7 @@ global_overrides:
   management_bridge: "{{ management_network_interface }}"
   tunnel_bridge: "{{ tunnel_network_interface }}"
   storage_bridge: "{{ storage_network_interface }}"
-  lb_name: haproxy
+  lb_name: "haproxy"
 
 #   Level: provider_networks (required)
 #   List of container and bare metal networks on target hosts.
@@ -337,16 +337,6 @@ repo-infra_hosts: *infrastructure_hosts
 # target hosts as the 'shared-infra_hosts' level.
 identity_hosts: *infrastructure_hosts
 
-# Level: orchestration_hosts (optional)
-# List of target hosts on which to deploy Heat.
-orchestration_hosts:  *infrastructure_hosts
-
-# Nova API services
-compute-infra_hosts: *infrastructure_hosts# Level: network_hosts (required)
-# List of target hosts on which to deploy neutron services. Recommend three
-# minimum target hosts for this service. Typically contains the same target
-# hosts as the 'shared-infra_hosts' level.
-
 # Level: dashboard_hosts (optional)
 # List of target hosts on which to deploy Horizon.
 dashboard_hosts: *infrastructure_hosts
@@ -365,54 +355,25 @@ network_hosts:
 # List of target hosts on which to deploy the cinder API. Recommend three
 # minimum target hosts for this service. Typically contains the same target
 # hosts as the 'shared-infra_hosts' level.
-#storage-infra_hosts:
-#{% for h in controller_hosts_dict %}
-#  {{ h.name }}:
-#    ip: {{ h.ip_v4 }}
-#    container_vars:
-#      cinder_qos_specs:
-#        - name: low-iops
-#          options:
-#            consumer: front-end
-#            read_iops_sec: 75
-#            write_iops_sec: 75
-#          cinder_volume_types:
-#            - low-iops
-#        - name: high-iops
-#          options:
-#            consumer: front-end
-#            read_iops_sec: 150
-#            write_iops_sec: 150
-#          cinder_volume_types:
-#            - high-iops
-#        - name: ultra-high-iops
-#          options:
-#            consumer: front-end
-#            read_iops_sec: 300
-#            write_iops_sec: 300
-#          cinder_volume_types:
-#            - ultra-high-iops
-#{% endfor %}
 storage-infra_hosts: *infrastructure_hosts
 
-
+{% if compute_hosts_dict is defined and compute_hosts_dict | length > 0 %}
 # Level: compute_hosts (optional)
 # List of target hosts on which to deploy the nova compute service. Recommend
 # one minimum target host for this service. Typically contains target hosts
 # that do not reside in other levels.
 compute_hosts:
-{% if compute_hosts_dict is defined and compute_hosts_dict | length > 0 %}
 {% for h in compute_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
 {% endif %}
 
+{% if rsyslog_hosts_dict is defined and rsyslog_hosts_dict | length > 0 %}
 # Level: log_hosts (optional)
 # List of target hosts on which to deploy logging services. Recommend
 # one minimum target host for this service.
 log_hosts:
-{% if rsyslog_hosts_dict is defined and rsyslog_hosts_dict | length > 0 %}
   "{{ rsyslog_hosts_dict[0]['name'] }}":
     ip: "{{ rsyslog_hosts_dict[0]['ip_v4'] }}"
 {% endif %}
@@ -455,7 +416,9 @@ log_hosts:
 #           Option: shares (required)
 #           List of shares to populate the 'nfs_shares_config' file. Each share
 #           uses the following format:
+{%- raw %}
 #           - { ip: "{{ ip_nfs_server }}", share "/vol/cinder" }
+{% endraw %}
 #
 #           The following options apply to the NetApp backend driver:
 #
@@ -489,6 +452,11 @@ log_hosts:
 #           NetApp server password.
 
 {% if storage_hosts_dict is defined and storage_hosts_dict | length > 0 %}
+# Level: storage_hosts (required)
+# List of target hosts on which to deploy the cinder volume service. Recommend
+# one minimum target host for this service. Typically contains target hosts
+# that do not reside in other levels.
+#
 # Cinder volume hosts with LVM iSCSI backend
 storage_hosts:
 {% for h in storage_hosts_dict %}
@@ -515,18 +483,19 @@ storage_hosts:
 storage_hosts: *infrastructure_hosts
 {% endif %}
 
+{% if haproxy_hosts_dict is defined and haproxy_hosts_dict | length > 0 %}
 # Level: haproxy_hosts (optional)
 # List of target hosts on which to deploy HAProxy. Recommend at least one
 # target host for this service if hardware load balancers are not being
 # used.
 haproxy_hosts:
-{% if haproxy_hosts_dict is defined and haproxy_hosts_dict | length > 0 %}
 {% for h in haproxy_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
 {% endfor %}
 {% endif %}
 
+{% if image_hosts_dict is defined and image_hosts_dict | length > 0 %}
 # Level: image_hosts (optional)
 # List of target hosts on which to deploy Glance
 image_hosts:

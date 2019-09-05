@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Setup ONPC config files environment
+- name: Setup OpenNext config files environment
   hosts: localhost
   become: true
   become_user: root
@@ -47,7 +47,7 @@
       import_tasks: tasks/import-osa-repos.yml
       tags: import-osa-repos
 
-    - name: Import ONPC repositories
+    - name: Import OpenNext repositories
       import_tasks: tasks/import-onpc-repos.yml
       tags: import-onpc-repos
 

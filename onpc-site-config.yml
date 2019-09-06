@@ -64,14 +64,16 @@ onpc_netboot_profiles:
     #
     # Standard partitions
     #
+    # Mininim disk size with this profile is 96GB
+    #
     partitions:
       #
       # System volumes
       #
       - partition_name: pv.01
         type: part
-        size: 38000
-        maxsize: 64000
+        size: 64000
+        maxsize: 96000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -85,14 +87,14 @@ onpc_netboot_profiles:
         vgname: sys_vg
       - partition_name: var_lv
         type: logvol
-        size: 1000
-        maxsize: 32000
+        size: 32000
         fstype: xfs
         mountpoint: /var
         vgname: sys_vg
+        grow: true
       - partition_name: audit_lv
         type: logvol
-        size: 8000
+        size: 4000
         fstype: xfs
         mountpoint: /var/log/audit
         vgname: sys_vg
@@ -114,7 +116,7 @@ onpc_netboot_profiles:
       - partition_name: pv.02
         type: part
         size: 32000
-        maxsize: 96000
+        maxsize: 64000
         drive: sda
       - partition_name: osa_vg
         type: volgroup
@@ -229,8 +231,8 @@ onpc_netboot_profiles:
       #
       - partition_name: pv.01
         type: part
-        size: 38000
-        maxsize: 64000
+        size: 64000
+        maxsize: 96000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -244,14 +246,14 @@ onpc_netboot_profiles:
         vgname: sys_vg
       - partition_name: var_lv
         type: logvol
-        size: 1000
-        maxsize: 32000
+        size: 32000
         fstype: xfs
         mountpoint: /var
         vgname: sys_vg
+        grow: true
       - partition_name: audit_lv
         type: logvol
-        size: 8000
+        size: 4000
         fstype: xfs
         mountpoint: /var/log/audit
         vgname: sys_vg
@@ -273,7 +275,7 @@ onpc_netboot_profiles:
       - partition_name: pv.02
         type: part
         size: 32000
-        maxsize: 96000
+        maxsize: 64000
         drive: sda
       - partition_name: osa_vg
         type: volgroup
@@ -414,8 +416,8 @@ onpc_netboot_profiles:
       #
       - partition_name: pv.01
         type: part
-        size: 38000
-        maxsize: 64000
+        size: 64000
+        maxsize: 96000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -429,14 +431,14 @@ onpc_netboot_profiles:
         vgname: sys_vg
       - partition_name: var_lv
         type: logvol
-        size: 1000
-        maxsize: 32000
+        size: 32000
         fstype: xfs
         mountpoint: /var
         vgname: sys_vg
+        grow: true
       - partition_name: audit_lv
         type: logvol
-        size: 8000
+        size: 4000
         fstype: xfs
         mountpoint: /var/log/audit
         vgname: sys_vg
@@ -453,32 +455,57 @@ onpc_netboot_profiles:
         mountpoint: /home
         vgname: sys_vg
       #
-      # Ceph volumes
+      # OSA volumes
       #
       - partition_name: pv.02
+        type: part
+        size: 32000
+        maxsize: 64000
+        drive: sda
+      - partition_name: osa_vg
+        type: volgroup
+        pvname: pv.02
+      - partition_name: osa_lv
+        type: logvol
+        percent: 20
+        fstype: xfs
+        mountpoint: /openstack
+        vgname: osa_vg
+        grow: true
+      - partition_name: osa_log_lv
+        type: logvol
+        percent: 80
+        fstype: xfs
+        mountpoint: /openstack/logs
+        vgname: osa_vg
+        grow: true
+      #
+      # Ceph volumes
+      #
+      - partition_name: pv.03
         type: part
         size: 1000
         grow: true
         drive: sda
-      - partition_name: pv.03
+      - partition_name: pv.04
         type: part
         size: 10000
         grow: true
         drive: sda
-      - partition_name: pv.04
+      - partition_name: pv.05
         type: part
         size: 16000
         grow: true
         drive: sda
       - partition_name: ceph_data_vg
         type: volgroup
-        pvname: pv.02
+        pvname: pv.03
       - partition_name: ceph_db_vg
         type: volgroup
-        pvname: pv.03
+        pvname: pv.04
       - partition_name: ceph_wal_vg
         type: volgroup
-        pvname: pv.04
+        pvname: pv.05
       - partition_name: ceph_data_lv
         type: logvol
         percent: 100
@@ -587,8 +614,8 @@ onpc_netboot_profiles:
       #
       - partition_name: pv.01
         type: part
-        size: 38000
-        maxsize: 64000
+        size: 64000
+        maxsize: 96000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -602,14 +629,14 @@ onpc_netboot_profiles:
         vgname: sys_vg
       - partition_name: var_lv
         type: logvol
-        size: 1000
-        maxsize: 32000
+        size: 32000
         fstype: xfs
         mountpoint: /var
         vgname: sys_vg
+        grow: true
       - partition_name: audit_lv
         type: logvol
-        size: 8000
+        size: 4000
         fstype: xfs
         mountpoint: /var/log/audit
         vgname: sys_vg
@@ -626,16 +653,41 @@ onpc_netboot_profiles:
         mountpoint: /home
         vgname: sys_vg
       #
+      # OSA volumes
+      #
+      - partition_name: pv.02
+        type: part
+        size: 32000
+        max_size: 64000
+        drive: sda
+      - partition_name: osa_vg
+        type: volgroup
+        pvname: pv.02
+      - partition_name: osa_lv
+        type: logvol
+        percent: 20
+        fstype: xfs
+        mountpoint: /openstack
+        vgname: osa_vg
+        grow: true
+      - partition_name: osa_log_lv
+        type: logvol
+        percent: 80
+        fstype: xfs
+        mountpoint: /openstack/logs
+        vgname: osa_vg
+        grow: true
+      #
       # Cinder storage volumes
       #
-      - partition_name: pv.04
+      - partition_name: pv.03
         type: part
         size: 1000
         grow: true
         drive: sda
-      - partition_name: cinder_vg
+      - partition_name: cinder_volumes
         type: volgroup
-        pvname: pv.04
+        pvname: pv.03
     ##
     ## Standard network interfaces
     ##
@@ -725,8 +777,8 @@ onpc_netboot_profiles:
       #
       - partition_name: pv.01
         type: part
-        size: 38000
-        maxsize: 64000
+        size: 64000
+        maxsize: 96000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -740,14 +792,14 @@ onpc_netboot_profiles:
         vgname: sys_vg
       - partition_name: var_lv
         type: logvol
-        size: 1000
-        maxsize: 32000
+        size: 32000
         fstype: xfs
         mountpoint: /var
         vgname: sys_vg
+        grow: true
       - partition_name: audit_lv
         type: logvol
-        size: 8000
+        size: 4000
         fstype: xfs
         mountpoint: /var/log/audit
         vgname: sys_vg
@@ -764,16 +816,41 @@ onpc_netboot_profiles:
         mountpoint: /home
         vgname: sys_vg
       #
+      # OSA volumes
+      #
+      - partition_name: pv.02
+        type: part
+        size: 32000
+        max_size: 64000
+        drive: sda
+      - partition_name: osa_vg
+        type: volgroup
+        pvname: pv.02
+      - partition_name: osa_lv
+        type: logvol
+        percent: 20
+        fstype: xfs
+        mountpoint: /openstack
+        vgname: osa_vg
+        grow: true
+      - partition_name: osa_log_lv
+        type: logvol
+        percent: 80
+        fstype: xfs
+        mountpoint: /openstack/logs
+        vgname: osa_vg
+        grow: true
+      #
       # Swift volumes
       #
-      - partition_name: pv.06
+      - partition_name: pv.03
         type: part
         size: 1000
         grow: true
         drive: sda
       - partition_name: swift_vg
         type: volgroup
-        pvname: pv.06
+        pvname: pv.03
       - partition_name: swift-sdb
         type: logvol
         percent: 50
@@ -876,8 +953,8 @@ onpc_netboot_profiles:
       #
       - partition_name: pv.01
         type: part
-        size: 38000
-        maxsize: 64000
+        size: 64000
+        maxsize: 96000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -891,14 +968,14 @@ onpc_netboot_profiles:
         vgname: sys_vg
       - partition_name: var_lv
         type: logvol
-        size: 1000
-        maxsize: 32000
+        size: 32000
         fstype: xfs
         mountpoint: /var
         vgname: sys_vg
+        grow: true
       - partition_name: audit_lv
         type: logvol
-        size: 8000
+        size: 4000
         fstype: xfs
         mountpoint: /var/log/audit
         vgname: sys_vg
@@ -915,22 +992,29 @@ onpc_netboot_profiles:
         mountpoint: /home
         vgname: sys_vg
       #
-      # OpenNext monitoring / logging databases
+      # OSA volumes
       #
-      - partition_name: pv.07
+      - partition_name: pv.02
         type: part
-        size: 1000
-        maxsize: 256000
+        size: 32000
+        max_size: 128000
         drive: sda
-      - partition_name: onpc_vg
+      - partition_name: osa_vg
         type: volgroup
-        pvname: pv.07
-      - partition_name: onpc_lv
+        pvname: pv.02
+      - partition_name: osa_lv
         type: logvol
-        percent: 1000
+        percent: 20
         fstype: xfs
-        mountpoint: /opt/onpc_data
-        vgname: onpc_vg
+        mountpoint: /openstack
+        vgname: osa_vg
+        grow: true
+      - partition_name: osa_log_lv
+        type: logvol
+        percent: 80
+        fstype: xfs
+        mountpoint: /openstack/logs
+        vgname: osa_vg
         grow: true
 
     #

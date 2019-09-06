@@ -70,8 +70,8 @@ onpc_netboot_profiles:
       #
       - partition_name: pv.01
         type: part
-        size: 40000
-        maxsize: 72000
+        size: 38000
+        maxsize: 64000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -83,18 +83,30 @@ onpc_netboot_profiles:
         fstype: xfs
         mountpoint: /
         vgname: sys_vg
-      - partition_name: var_log_lv
+      - partition_name: var_lv
         type: logvol
         size: 1000
         maxsize: 32000
         fstype: xfs
-        mountpoint: /var/log
+        mountpoint: /var
         vgname: sys_vg
-      - partition_name: tmp_lv
+      - partition_name: audit_lv
         type: logvol
         size: 8000
         fstype: xfs
+        mountpoint: /var/log/audit
+        vgname: sys_vg
+      - partition_name: tmp_lv
+        type: logvol
+        size: 4000
+        fstype: xfs
         mountpoint: /tmp
+        vgname: sys_vg
+      - partition_name: home_lv
+        type: logvol
+        size: 8000
+        fstype: xfs
+        mountpoint: /home
         vgname: sys_vg
       #
       # OSA volumes
@@ -217,8 +229,8 @@ onpc_netboot_profiles:
       #
       - partition_name: pv.01
         type: part
-        size: 40000
-        maxsize: 72000
+        size: 38000
+        maxsize: 64000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -230,18 +242,30 @@ onpc_netboot_profiles:
         fstype: xfs
         mountpoint: /
         vgname: sys_vg
-      - partition_name: var_log_lv
+      - partition_name: var_lv
         type: logvol
         size: 1000
         maxsize: 32000
         fstype: xfs
-        mountpoint: /var/log
+        mountpoint: /var
         vgname: sys_vg
-      - partition_name: tmp_lv
+      - partition_name: audit_lv
         type: logvol
         size: 8000
         fstype: xfs
+        mountpoint: /var/log/audit
+        vgname: sys_vg
+      - partition_name: tmp_lv
+        type: logvol
+        size: 4000
+        fstype: xfs
         mountpoint: /tmp
+        vgname: sys_vg
+      - partition_name: home_lv
+        type: logvol
+        size: 8000
+        fstype: xfs
+        mountpoint: /home
         vgname: sys_vg
       #
       # OSA volumes
@@ -390,8 +414,8 @@ onpc_netboot_profiles:
       #
       - partition_name: pv.01
         type: part
-        size: 40000
-        maxsize: 72000
+        size: 38000
+        maxsize: 64000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -403,18 +427,30 @@ onpc_netboot_profiles:
         fstype: xfs
         mountpoint: /
         vgname: sys_vg
-      - partition_name: var_log_lv
+      - partition_name: var_lv
         type: logvol
         size: 1000
         maxsize: 32000
         fstype: xfs
-        mountpoint: /var/log
+        mountpoint: /var
         vgname: sys_vg
-      - partition_name: tmp_lv
+      - partition_name: audit_lv
         type: logvol
         size: 8000
         fstype: xfs
+        mountpoint: /var/log/audit
+        vgname: sys_vg
+      - partition_name: tmp_lv
+        type: logvol
+        size: 4000
+        fstype: xfs
         mountpoint: /tmp
+        vgname: sys_vg
+      - partition_name: home_lv
+        type: logvol
+        size: 8000
+        fstype: xfs
+        mountpoint: /home
         vgname: sys_vg
       #
       # Ceph volumes
@@ -551,8 +587,8 @@ onpc_netboot_profiles:
       #
       - partition_name: pv.01
         type: part
-        size: 40000
-        maxsize: 72000
+        size: 38000
+        maxsize: 64000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -564,18 +600,30 @@ onpc_netboot_profiles:
         fstype: xfs
         mountpoint: /
         vgname: sys_vg
-      - partition_name: var_log_lv
+      - partition_name: var_lv
         type: logvol
         size: 1000
         maxsize: 32000
         fstype: xfs
-        mountpoint: /var/log
+        mountpoint: /var
         vgname: sys_vg
-      - partition_name: tmp_lv
+      - partition_name: audit_lv
         type: logvol
         size: 8000
         fstype: xfs
+        mountpoint: /var/log/audit
+        vgname: sys_vg
+      - partition_name: tmp_lv
+        type: logvol
+        size: 4000
+        fstype: xfs
         mountpoint: /tmp
+        vgname: sys_vg
+      - partition_name: home_lv
+        type: logvol
+        size: 8000
+        fstype: xfs
+        mountpoint: /home
         vgname: sys_vg
       #
       # Cinder storage volumes
@@ -677,8 +725,8 @@ onpc_netboot_profiles:
       #
       - partition_name: pv.01
         type: part
-        size: 40000
-        maxsize: 72000
+        size: 38000
+        maxsize: 64000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -686,21 +734,34 @@ onpc_netboot_profiles:
       - partition_name: root_lv
         type: logvol
         size: 16000
+        maxsize: 32000
         fstype: xfs
         mountpoint: /
         vgname: sys_vg
-      - partition_name: var_log_lv
+      - partition_name: var_lv
         type: logvol
         size: 1000
         maxsize: 32000
         fstype: xfs
-        mountpoint: /var/log
+        mountpoint: /var
         vgname: sys_vg
-      - partition_name: tmp_lv
+      - partition_name: audit_lv
         type: logvol
         size: 8000
         fstype: xfs
+        mountpoint: /var/log/audit
+        vgname: sys_vg
+      - partition_name: tmp_lv
+        type: logvol
+        size: 4000
+        fstype: xfs
         mountpoint: /tmp
+        vgname: sys_vg
+      - partition_name: home_lv
+        type: logvol
+        size: 8000
+        fstype: xfs
+        mountpoint: /home
         vgname: sys_vg
       #
       # Swift volumes
@@ -815,8 +876,8 @@ onpc_netboot_profiles:
       #
       - partition_name: pv.01
         type: part
-        size: 40000
-        maxsize: 72000
+        size: 38000
+        maxsize: 64000
         drive: sda
       - partition_name: sys_vg
         type: volgroup
@@ -824,26 +885,42 @@ onpc_netboot_profiles:
       - partition_name: root_lv
         type: logvol
         size: 16000
+        maxsize: 32000
         fstype: xfs
         mountpoint: /
         vgname: sys_vg
-      - partition_name: var_log_lv
+      - partition_name: var_lv
         type: logvol
         size: 1000
         maxsize: 32000
         fstype: xfs
-        mountpoint: /var/log
+        mountpoint: /var
         vgname: sys_vg
-      - partition_name: tmp_lv
+      - partition_name: audit_lv
         type: logvol
         size: 8000
         fstype: xfs
+        mountpoint: /var/log/audit
+        vgname: sys_vg
+      - partition_name: tmp_lv
+        type: logvol
+        size: 4000
+        fstype: xfs
         mountpoint: /tmp
         vgname: sys_vg
+      - partition_name: home_lv
+        type: logvol
+        size: 8000
+        fstype: xfs
+        mountpoint: /home
+        vgname: sys_vg
+      #
+      # OpenNext monitoring / logging databases
+      #
       - partition_name: pv.07
         type: part
         size: 1000
-        maxsize: 128000
+        maxsize: 256000
         drive: sda
       - partition_name: onpc_vg
         type: volgroup

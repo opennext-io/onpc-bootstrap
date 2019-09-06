@@ -20,6 +20,7 @@ master_packages_install:
   - python-pip 
   - python-devel
   - '@Development Tools'
+  - "{{ onpc_openstack_rdo }}"
 
 master_packages_remove:
   - firewalld
@@ -28,9 +29,6 @@ packages_install:
   - wget
   - tcpdump
   - chrony
-  - python-devel
-  - "{{ onpc_openstack_rdo }}"
-  - '@Development Tools'
 
 packages_remove:
   - centos-openstack-release-*

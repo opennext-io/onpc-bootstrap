@@ -49,18 +49,6 @@
       when: managed_host
       tags: install-host-packages
 
-    - name: Configure host kernel
-      import_tasks: tasks/configure-host-kernel.yml
-      when: managed_host
-      tags: configure-host-kernel
-
-## Note PP: Already done through kickstart
-#    - include_tasks: tasks/import-root-public-key.yml
-#      vars:
-#       public_key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
-#      when: managed_host
-#      tags: import-root-public-key
-
     - name: Set time_server_addr from local facts
       set_fact:
         time_server_addr: "{{ ansible_facts['ansible_local']['master']['network']['time_server_addr'] }}"

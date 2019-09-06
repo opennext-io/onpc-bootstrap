@@ -19,57 +19,69 @@
   when: (network is not defined
          or not network.get('cidr')
          or not network.get('interface'))
+  tags: check-osa-networks
 
 - name: Set network roles fact
   set_fact:
     network_roles: "{{ network.get('roles', []) }}"
+  tags: check-osa-networks
 
 - name: Set interface name
   set_fact:
-    interface_name: "{{ network.get('interface') }}"
+    interface_name: "{{ network.get('interface')  | replace('-', '_') }}"
+  tags: check-osa-networks
 
 - name: "Set network interface '{{ interface_name }}' fact"
   set_fact:
-    network_interface: "{{ hostvars.get(inventory_hostname, {}).get('ansible_' + interface_name | replace('-', '_'), {}) }}"
+    network_interface: "{{ hostvars[inventory_hostname]['ansible_' + interface_name] | default({}) }}"
+  tags: check-osa-networks
 
-- name: "Assert that the interface '{{ interface_name }}' exists"
+- name: "Assert that interface '{{ interface_name }}' exists"
   assert:
     that:
-      - network_interface is defined
+      - network_interface is defined and network_interface | length > 0
     msg: "Interface '{{ interface_name }}' doesn't exists"
+  when:
+    - ('all' in network_roles) or (network_roles | intersect(host_roles) | length > 0)
+  tags: check-osa-networks
 
-- name: "Set interface '{{ interface_name }}' state fact"
+- name: "Set interface '{{ interface_name }}' active state fact"
   set_fact:
-    active_state: "{{ network_interface.get('active', False) }}"
+    active_state: "{{ network_interface['active'] | default(False) }}"
+  when:
+    - ('all' in network_roles) or (network_roles | intersect(host_roles) | length > 0)
+  tags: check-osa-networks
 
-- name: "Assert the interface '{{ interface_name }}' state"
+- name: "Assert interface '{{ interface_name }}' state"
   assert:
-    that: active_state == True
+    that: active_state | bool
     msg: "Interface '{{ interface_name }}' is not active"
   when:
-    - (network_roles | length == 0) or (network_roles | intersect(host_roles) | length > 0)
-
-- name: "Set interface '{{ interface_name }}' IP address fact"
-  set_fact:
-    interface_address: "{{ network_interface.get('ipv4', {}).get('address', '') }}"
-
-- name: "Assert that the interface '{{ external_interface }}' is not assigned an IP address"
-  assert:
-    that: interface_address | length == 0
-    msg: "Interface external_interface must not have '{{ interface_address }}' IP address assigned"
-  when: interface_name == external_interface
+    - ('all' in network_roles) or (network_roles | intersect(host_roles) | length > 0)
+  tags: check-osa-networks
 
 - name: "Set interface '{{ interface_name }}' type"
   set_fact:
-    interface_type: "{{ network_interface.get('type', {}) }}"
+    interface_type: "{{ network_interface['type'] | default('') }}"
+  when:
+    - ('all' in network_roles) or (network_roles | intersect(host_roles) | length > 0)
+  tags: check-osa-networks
 
 - name: "Assert that the interface '{{ interface_name }}' is a bridge"
   assert:
-    that:
-    - interface_type == 'bridge'
-    msg: "The interface type'{{ interface_type }}' must be 'bridge' }}'"
+    that: interface_type == 'bridge'
+    msg: "The interface type '{{ interface_type }}' must be 'bridge' }}'"
   when:
-    - (network_roles | length == 0) or (network_roles | intersect(host_roles) | length > 0)
+    - ('all' in network_roles) or (network_roles | intersect(host_roles) | length > 0)
+  tags: check-osa-networks
+
+- name: "Set interface '{{ interface_name }}' IP address fact"
+  set_fact:
+    interface_address: "{{ network_interface['ipv4']['address'] }}"
+  when:
+    - ('all' in network_roles) or (network_roles | intersect(host_roles) | length > 0)
+    - interface_name != (external_interface | replace('-', '_'))
+  tags: check-osa-networks
 
 - name: "Assert that the interface '{{ interface_name }}' has a valid IP address"
   assert:
@@ -77,5 +89,6 @@
       - interface_address | ipaddr(network.get('cidr')) | length > 0
     msg: "The address '{{ interface_address }}' must be  within range '{{ network.get('cidr') }}'"
   when:
-    - (network_roles | length == 0) or (network_roles | intersect(host_roles) | length > 0)
-    - interface_name != external_interface
+    - ('all' in network_roles) or (network_roles | intersect(host_roles) | length > 0)
+    - interface_name != (external_interface | replace('-', '_'))
+  tags: check-osa-networks

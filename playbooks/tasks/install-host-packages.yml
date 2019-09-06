@@ -27,7 +27,8 @@
   package:
     name: "{{ packages_remove }}"
     state: absent
-  tags: remove-host-packages
+  tags:
+    - remove-host-packages
 
 - name: Install OSA hosts packages (RedHat/CentOS)
   yum:

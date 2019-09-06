@@ -40,14 +40,12 @@
         network: "{{ item.value }}"
       with_dict: "{{ onpc_osa_networks }}"
       when:
-        - onpc_osa_networks_check | default(true) | bool
+        - onpc_osa_networks_check | default(True) | bool
         - managed_host
-      tags: check-osa-networks
 
     - name: Install host packages
       include_tasks: tasks/install-host-packages.yml
       when: managed_host
-      tags: install-host-packages
 
     - name: Set time_server_addr from local facts
       set_fact:
@@ -60,4 +58,3 @@
         chrony_server: "{{ time_server_addr }} prefer iburst"
       when:
         - managed_host
-      tags: configure-host-chrony

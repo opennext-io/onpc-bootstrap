@@ -132,7 +132,7 @@ onpc_netboot_profiles:
         type: logvol
         percent: 80
         fstype: xfs
-        mountpoint: /openstack/logs
+        mountpoint: /openstack/log
         vgname: osa_vg
         grow: true
     ##
@@ -291,7 +291,7 @@ onpc_netboot_profiles:
         type: logvol
         percent: 80
         fstype: xfs
-        mountpoint: /openstack/logs
+        mountpoint: /openstack/log
         vgname: osa_vg
         grow: true
       #
@@ -476,7 +476,7 @@ onpc_netboot_profiles:
         type: logvol
         percent: 80
         fstype: xfs
-        mountpoint: /openstack/logs
+        mountpoint: /openstack/log
         vgname: osa_vg
         grow: true
       #
@@ -489,13 +489,11 @@ onpc_netboot_profiles:
         drive: sda
       - partition_name: pv.04
         type: part
-        size: 10000
-        grow: true
+        size: 16000
         drive: sda
       - partition_name: pv.05
         type: part
         size: 16000
-        grow: true
         drive: sda
       - partition_name: ceph_data_vg
         type: volgroup
@@ -674,7 +672,7 @@ onpc_netboot_profiles:
         type: logvol
         percent: 80
         fstype: xfs
-        mountpoint: /openstack/logs
+        mountpoint: /openstack/log
         vgname: osa_vg
         grow: true
       #
@@ -837,7 +835,7 @@ onpc_netboot_profiles:
         type: logvol
         percent: 80
         fstype: xfs
-        mountpoint: /openstack/logs
+        mountpoint: /openstack/log
         vgname: osa_vg
         grow: true
       #
@@ -1013,7 +1011,7 @@ onpc_netboot_profiles:
         type: logvol
         percent: 80
         fstype: xfs
-        mountpoint: /openstack/logs
+        mountpoint: /openstack/log
         vgname: osa_vg
         grow: true
 

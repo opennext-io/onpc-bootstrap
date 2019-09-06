@@ -180,6 +180,10 @@ onpc_netboot_profiles:
         interface_type: bridge_slave
         interface_master: "{{ tunnel_network_interface }}"
         mtu: "{{ (onpc_use_jumbo_frames | default(False)) | ternary('9000', '1500') }}"
+        # Storage network VLAN interface
+      - interface_name: "{{ storage_vlan_interface }}"
+        interface_type: bridge_slave
+        interface_master: "{{ storage_network_interface }}"
       ##
       ## Bridges
       ##
@@ -202,6 +206,14 @@ onpc_netboot_profiles:
         netmask: "{{ tunnel_network | ipaddr('netmask') }}"
         assign_ip: true
         mtu: "{{ (onpc_use_jumbo_frames | default(False)) | ternary('9000', '1500') }}"
+      # Storage network bridge interface
+      - interface_name: "{{ storage_network_interface }}"
+        label: storage_network_interface
+        bridge_opts: 'STP=no'
+        interface_type: bridge
+        network: "{{ storage_network }}"
+        netmask: "{{ storage_network | ipaddr('netmask') }}"
+        assign_ip: true
       # OpenStack Networking (provider) network bridge interface
       - interface_name: "{{ external_interface }}"
         bridge_opts: 'STP=no'
@@ -1097,6 +1109,8 @@ onpc_netboot_systems:
         dns_name: "{{ 'infra-01' + '.' + onpc_infra_domain }}"
       tunnel_network_interface:
         ip_address: "172.29.240.56"
+      storage_network_interface:
+        ip_address: "172.29.244.56"
   - name: compute-01
     comment: "This is a compute node"
     profile: compute

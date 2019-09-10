@@ -31,11 +31,8 @@ packages_install:
   - chrony
 
 packages_remove:
-  - centos-openstack-release-*
-  - centos-release-ceph-jewel
-  - centos-release-qemu-ev
-  - centos-release-storage-common
-  - firewalld
-
-rc_local: /etc/rc.d/rc.local
-rc_local_insert_before: "^touch /var/lock/subsys/local$"
+#  - centos-openstack-release-*
+#  - centos-release-ceph-jewel
+#  - centos-release-qemu-ev
+#  - centos-release-storage-common
+   - firewalld

@@ -24,29 +24,6 @@
 ## Debug and Verbose options (pay attention to high log verbosity when debug set to true).
 debug: "{{ onpc_debug_enabled | default(False) }}"
 
-
-## Workaround
-
-#openstack_hosts_package_repos: "{{ _package_repos + (user_external_repos_list | default([])) }}"
-#
-#_package_repos:
-#  - name: rdo-qemu-ev
-#    file: rdo
-#    description: "RDO CentOS-$releasever - QEMU EV"
-#    baseurl: "http://mirror.centos.org/centos/7/virt/$basearch/kvm-common/"
-#    gpgcheck: yes
-#    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Virtualization-RDO"
-#  - name: openstack-stein
-#    file: rdo
-#    description: "OpenStack Stein Repository"
-#    baseurl: "http://mirror.centos.org/centos/7/cloud/$basearch/openstack-stein/"
-#    priority: 99
-#    gpgcheck: yes
-#    mirrorlist: "http://mirrorlist.centos.org/?release=7&arch=$basearch&repo=cloud-openstack-stein"
-#    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-SIG-Cloud"
-#    exclude: "sip,PyQt4"
-
-
 ## Set the service setup host
 # The default is to use localhost (the deploy host where ansible runs),
 # but any other host can be used. If using an alternative host with all

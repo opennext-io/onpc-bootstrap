@@ -494,7 +494,7 @@ Provision the target via PXE netboot
 The target hosts should provision automatically according to their
 assigned roles and profiles defined in 'onpc-site-config.yml'.
 It's critically important that the primary network interface is assigned
-a correct MAC address for Cobbler to be able to pick the correct and profile
+a correct MAC address for Cobbler to be able to pick the correct profile
 and system configuration at time of netboot. 
 
 Setup the target hosts once they are provisionned

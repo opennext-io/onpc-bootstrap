@@ -61,7 +61,14 @@ Install master node
 Install Cobbler on master node
 ------------------------------
 Prior to installing and configuring Cobbler, you may need to customise
-your deployement profile in onpc-site-config.yml file
+your deployement profile in 'onpc-site-config.yml' file.
+In addition to this, Ansible deployments will fail if the master can’t use
+Secure Shell (SSH) to connect to the containers.
+
+Configure the master (where Ansible is executed) to be on the same layer 2
+network as the network designated for container management.
+By default, this is the br-mgmt network. This configuration reduces the
+rate of failure caused by connectivity issues.
 
 .. code-block:: bash
     sudo bash
@@ -484,6 +491,8 @@ This should return something like this:
 
 Setup the OSA / ONPC environment
 --------------------------------
+This may take a relatively long time...!
+
 .. code-block:: bash
     sudo bash
     cd /opt/onpc-bootstrap/playbooks

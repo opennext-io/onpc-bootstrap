@@ -86,7 +86,7 @@
   when: onpc_slack_alerts is defined and onpc_slack_alerts['channels'] | length > 0
   tags: always
 
-- name: Drop the monitoring user_variables file
+- name: Drop the user_variables_monitoring.yml file
   template:
     src: "/opt/onpc-monitoring/templates/user_variables_monitoring.yml.j2"
     dest: "/etc/openstack_deploy/user_variables_monitoring.yml"
@@ -96,7 +96,7 @@
   when: "'monitoring' in onpc_services_list"
   tags: drop-monitoring-variables
 
-- name: Drop the logging user_variables file
+- name: Drop the user_variables_logging.yml file
   template:
     src: "/opt/onpc-logging/templates/user_variables_logging.yml.j2"
     dest: "/etc/openstack_deploy/user_variables_logging.yml"

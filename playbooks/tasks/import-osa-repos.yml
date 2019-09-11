@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: Get OSA repositories from GitHub
+- name: "Get 'openstack-ansible' repo from GitHub"
   git:
     repo: "https://github.com/openstack/openstack-ansible"
     dest: "/opt/openstack-ansible"

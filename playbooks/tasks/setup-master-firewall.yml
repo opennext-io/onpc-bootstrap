@@ -14,9 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# As per OSA documentation, firewalld on the deployment host should be disabled.
-# See https://docs.openstack.org/project-deploy-guide/openstack-ansible/rocky/deploymenthost.html
-
+# NetworkManager is incompatible with Linux bridging 
 - name: Disable Network Manager
   systemd:
     state: stopped
@@ -25,6 +23,8 @@
     name: NetworkManager
   ignore_errors: True
 
+# As per OSA documentation, firewalld on the deployment host should be disabled.
+# See https://docs.openstack.org/project-deploy-guide/openstack-ansible/rocky/deploymenthost.html
 - name: Disable firewalld (RedHat/CentOS)
   systemd:
     name: firewalld

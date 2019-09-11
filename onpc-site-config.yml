@@ -37,6 +37,7 @@ onpc_netboot_distros:
     url: "http://mirror.plusserver.com/centos/7.6.1810/isos/x86_64/CentOS-7-x86_64-DVD-1810.iso"
     arch: x86_64
     os_version: rhel7
+    breed: redhat
 
 ##
 ## Dictionary of netboot profiles to register in Cobbler

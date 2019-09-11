@@ -33,6 +33,9 @@ $SNIPPET('network_config')
 # Reboot after installation
 reboot
 
+# Create default user account
+user --groups={{ onpc_default_group }} --name={{ onpc_default_user }} --password='{{ onpc_default_user_crypted_password }}' --iscrypted
+
 #Root password
 rootpw --iscrypted $default_password_crypted
 # SELinux configuration
@@ -46,12 +49,13 @@ install
 # Clear the Master Boot Record
 zerombr
 # Allow anaconda to partition the system as needed
-#autopart
-part / --fstype ext4 --size 30000
-part /data --fstype ext4 --size 1 --grow
-part /boot --fstype ext4 --size 500
-part swap --size 16000
-part biosboot --fstype=biosboot --size=1
+autopart
+#part biosboot --fstype=biosboot --size=1
+#part /boot --fstype ext4 --size 1024
+#part swap --fstype swap --recommended
+#part / --fstype xfs --size 16000
+#part /var --fstype xfs --size=32000
+#part /opt --fstype xfs --size 1 --grow
 
 %pre
 $SNIPPET('log_ks_pre')

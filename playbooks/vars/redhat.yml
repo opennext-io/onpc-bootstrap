@@ -19,6 +19,7 @@ master_packages_install:
   - epel-release
   - python-pip 
   - python-devel
+  - bridge-utils
   - '@Development Tools'
   - "{{ onpc_openstack_rdo }}"
 

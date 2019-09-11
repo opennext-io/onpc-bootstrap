@@ -7,76 +7,43 @@ OpenNext Private Cloud Basic Model
 
 About this repository
 ---------------------
-This repository defines the OpenNext deployment model for a basic (a.k.a Starter Kit)
-OpenStack infrastructure. Supports all-in-one or multi-host deployment in virtual or
-physical machines.
+This repository contains the OpenNext environment setup for
+OpenStack-Ansible deployment.
 
-Process
--------
+Master node setup process
+-------------------------
 
-Prior to its integration within onpc-provisioning project, most of the files
-contained in this repository were usable using the Former Process section hereafter.
-
-However, due to the very automated nature of onpc-provisioning, most of these files
-have now become Jinja templates which needs to be instanciated for the various
-{{ var }} pattern that they now contain.
-
-The Former Process section hereafter has been kept as a reference to what was to
-be done manually before and which is now done in an automated way.
-
-Former Process
---------------
-
-You have to become root to execute the following steps.
-
-Clone the onpc-bootstrap repo
+* Install the EPEL repo
 
 .. code-block:: bash
 
+    yum install epel-release -y
+    yum update
+
+* Install git
+
+.. code-block:: bash
+
+    yum install git -y
+
+* Install python >= 2.7
+
+  .. code-block:: bash
+
+    yum install python -y
+
+* Generate RSA key pair for root
+  Use defaults with no password
+
+  .. code-block:: bash
+
+    sudo ssh-keygen -t rsa
+
+* Clone the onpc-bootstrap repo
+
+.. code-block:: bash
     cd /opt
-    git clone git@github.com:opennext-io/onpc-bootstrap.git
-
-Copy everything under ./etc/openstack_deploy into /etc/openstack_deploy
-
-.. code-block:: bash
-
-    cd /opt/onpc-bootstrap
-    sudo cp -R ./etc/openstack_deploy/* /etc/openstack_deploy/
-
-Generate the password values
-
-.. code-block:: bash
-
-    sudo /opt/openstack-ansible/scripts/pw-token-gen.py --file /etc/openstack_deploy/user_onpc_secrets.yml
-
-Import the ansible role dependencies
-
-.. code-block:: bash
-
-    cd /opt/openstack-ansible
-    openstack-ansible ./tests/get-ansible-role-requirements.yml \
-        -e role_file=/opt/onpc-bootstrap/ansible-role-requirements.yml
-
-Regenerate the inventory
-
-.. code-block:: bash
-
-    export ANSIBLE_INVENTORY=/opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py
-    /opt/openstack-ansible/playbooks/inventory/dynamic_inventory.py --config /etc/openstack_deploy
-
-
-Ceph Installation notes
-
-Create the ceph-mon container(s)
-
-.. code-block:: bash
-
-    openstack-ansible /opt/openstack-ansible/playbooks/lxc-containers-create.yml \
-      -e container_group='ceph-mon'
-
-Invoke the Ceph installation playbook
-
-Then proceed with:
+    git clone https://github.com/opennext-io/onpc-bootstrap.git
 
    * The installation of openstack-ansible
    * The install of the monitoring stack (onpc-monitoring)

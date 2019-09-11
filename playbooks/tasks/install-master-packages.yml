@@ -23,13 +23,14 @@
     - "{{ ansible_os_family | lower }}.yml"
   tags: always
   
-- name: Remove master host known problem packages
+- name: Remove known problem packages
   package:
     name: "{{ master_packages_remove }}"
     state: absent
+  ignore_errors: true
   tags: remove-master-packages
 
-- name: Install master host packages (RedHat/CentOS)
+- name: Install master packages (RedHat/CentOS)
   yum:
     name: "{{ master_packages_install }}"
     state: present
@@ -37,7 +38,7 @@
   when: ansible_os_family == "RedHat"
   tags: install-master-packages
 
-- name: Install master host packages (Debian/Ubuntu)
+- name: Install master packages (Debian/Ubuntu)
   apt:
     name: "{{ master_packages_install }}"
     state: present
@@ -45,7 +46,10 @@
   when: ansible_os_family == "Debian"
   tags: install-master-packages
 
-- name: Install jinja2 pip package
+- name: "Install {{item}} pip package"
   pip:
-    name: jinja2
+    name: "{{ item }}"
     state: latest
+  with_items:
+    - jinja2
+    - netaddr

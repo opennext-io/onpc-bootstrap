@@ -56,6 +56,12 @@
     - name: Setup networking facts
       import_tasks: tasks/setup-networking-facts.yml
       tags: always
+    
+    - name: Ensure '/var/tmp/isos' exists
+      file:
+      path: "/var/tmp/isos"
+      state: directory
+      tags: always
 
   roles:
     - role: roles/cobbler

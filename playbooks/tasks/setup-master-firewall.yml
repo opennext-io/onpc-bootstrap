@@ -16,13 +16,23 @@
 
 # As per OSA documentation, firewalld on the deployment host should be disabled.
 # See https://docs.openstack.org/project-deploy-guide/openstack-ansible/rocky/deploymenthost.html
+
+- name: Disable Network Manager
+  systemd:
+    state: stopped
+    enabled: no
+    masked: yes
+    name: NetworkManager
+  ignore_errors: True
+
 - name: Disable firewalld (RedHat/CentOS)
-  service:
+  systemd:
     name: firewalld
-    enabled: false
-    masked: true
+    enabled: no
+    masked: yes
     state: stopped
   when: ansible_os_family == "RedHat"
+  ignore_errors: True
 
 - name: Set iptables facts (Debian)
   set_fact:

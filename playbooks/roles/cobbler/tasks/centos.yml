@@ -5,6 +5,7 @@
   shell: setenforce 0
   args:
     executable: /bin/bash
+  ignore_errors: true
 
 - name: set selinux in permissive mode permanently
   lineinfile: dest=/etc/selinux/config regexp="^SELINUX=" line="SELINUX=permissive"

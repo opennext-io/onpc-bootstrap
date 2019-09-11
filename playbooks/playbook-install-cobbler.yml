@@ -59,8 +59,8 @@
     
     - name: Ensure '/var/tmp/isos' exists
       file:
-      path: "/var/tmp/isos"
-      state: directory
+        path: "/var/tmp/isos"
+        state: directory
       tags: always
 
   roles:

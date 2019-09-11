@@ -23,11 +23,19 @@
     - "{{ ansible_os_family | lower }}.yml"
   tags: always
   
+- name: Upgrade the master mode packages
+  yum:
+    name: "*"
+    state: latest
+  when: ansible_os_family == "RedHat"
+  tags: upgrade-master-packages
+
 - name: Remove known problem packages
-  package:
+  yum:
     name: "{{ master_packages_remove }}"
     state: absent
   ignore_errors: true
+  when: ansible_os_family == "Debian"
   tags: remove-master-packages
 
 - name: Install master packages (RedHat/CentOS)
@@ -48,8 +56,8 @@
 
 - name: "Install {{item}} pip package"
   pip:
-    name: "{{ item }}"
+    name:
+      - jinja2
+      - netaddr
     state: latest
-  with_items:
-    - jinja2
-    - netaddr
+    

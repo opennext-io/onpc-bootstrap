@@ -23,14 +23,21 @@
     - "{{ ansible_os_family | lower }}.yml"
   tags: always
 
-- name: Remove OSA hosts known problem packages
+- name: Remove hosts known problem packages
   package:
     name: "{{ packages_remove }}"
     state: absent
   tags:
     - remove-host-packages
 
-- name: Install OSA hosts packages (RedHat/CentOS)
+- name: Upgrade the master mode packages
+  yum:
+    name: "*"
+    state: latest
+  when: ansible_os_family == "RedHat"
+  tags: upgrade-master-packages
+
+- name: Install hosts packages (RedHat/CentOS)
   yum:
     name: "{{ packages_install }}"
     state: present
@@ -38,7 +45,7 @@
   when: ansible_os_family == "RedHat"
   tags: install-host-packages
 
-- name: Install OSA hosts packages (Debian/Ubuntu)
+- name: Install hosts packages (Debian/Ubuntu)
   apt:
     name: "{{ packages_install }}"
     state: present

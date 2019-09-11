@@ -29,3 +29,4 @@
 
 - name: template /etc/cobbler/users.digest
   template: src=etc/cobbler/users.digest.j2 dest=/etc/cobbler/users.digest mode=644
+  notify: restart httpd

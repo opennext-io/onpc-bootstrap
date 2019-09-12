@@ -34,8 +34,22 @@
     
     - name: Install master packages
       import_tasks: tasks/install-master-packages.yml
+      tags:
+        - install-master-packages
+        - upgrade-master-packages
+        - remove-master-packages
       
     - name: Setup master firewall rules
       import_tasks: tasks/setup-master-firewall.yml
-
-      
+      tags: master-iptables-rules
+    
+    - name: Adding system tuning
+      sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        sysctl_set: "{{ item.set | default('yes') }}"
+        state: "{{ item.state | default('present') }}"
+        reload: yes
+      with_items:
+        - {key: 'net.ipv4.ip_forward', value: 1 }
+      tags: tune-master-system

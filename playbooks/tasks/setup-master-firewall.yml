@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# NetworkManager is incompatible with Linux bridging 
+# NetworkManager is incompatible with OpenStack in general
 - name: Disable Network Manager
   systemd:
     state: stopped
@@ -59,7 +59,7 @@
 
 - name: Set default (head) iptables rules
   iptables_raw:
-    name: default_rules
+    name: master_default_rules
     weight: 10
     keep_unmanaged: no
     rules: |
@@ -70,14 +70,16 @@
 
 - name: Set DNS iptables rules
   iptables_raw:
-    name: dns_accept
+    name: master_dns_rules
+    weight: 11
     keep_unmanaged: no
     rules: |
       -A INPUT -p udp -m udp --dport 53 -j ACCEPT
 
 - name: Set NTP iptables rules
   iptables_raw:
-    name: ntp_accept
+    name: ntp_rules
+    weight: 12
     keep_unmanaged: no
     rules: |
       -A INPUT -p udp -m udp --dport 123 -j ACCEPT

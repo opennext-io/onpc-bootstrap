@@ -107,7 +107,7 @@
   tags: drop-logging-variables
 
 - name: Drop the OpenNext ansible roles
-  shell: ../scripts/get-onpc-roles.sh
+  shell: ../scripts/get-ansible-roles.sh
   args:
     executable: /bin/bash
   environment: "{{ proxy_env | default('{}') }}"

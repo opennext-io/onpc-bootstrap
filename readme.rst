@@ -51,12 +51,13 @@ Clone the onpc-bootstrap repo
     cd /opt
     git clone https://github.com/opennext-io/onpc-bootstrap.git
 
-Install master node
+Setup master node
 -------------------
+
 .. code-block:: bash
     sudo bash
     cd /opt/onpc-bootstrap/playbooks
-    ansible-playbook playbook-install-master.yml
+    ansible-playbook playbook-setup-master.yml
 
 Install Cobbler on master node
 ------------------------------
@@ -496,7 +497,7 @@ This may take a relatively long time...!
 .. code-block:: bash
     sudo bash
     cd /opt/onpc-bootstrap/playbooks
-    ansible-playbook playbook-install-osa-env.yml  -i /etc/ansible/cobbler.py
+    ansible-playbook playbook-install-osa-env.yml -i /etc/ansible/cobbler.playbooks
 
 Provision the target via PXE netboot
 ------------------------------------
@@ -508,6 +509,8 @@ and system configuration at time of netboot.
 
 Setup the target hosts once they are provisionned
 -------------------------------------------------
+This may take a long time since all installed packages are upgraded.
+
 .. code-block:: bash
     sudo bash
     cd /opt/onpc-bootstrap/playbooks

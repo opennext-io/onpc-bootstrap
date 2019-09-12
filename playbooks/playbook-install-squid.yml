@@ -50,7 +50,6 @@
     - role: roles/squid
       squid_acl_localnet:
         - "{{ management_network }}"
-        - "{{ master_infra_network }}"
       squid_pri_domain_name: "{{ onpc_infra_domain }}"
       squid_transparent_proxy: "{{ proxy_is_transparent | default(True) }}"
       squid_http_port: "{{ proxy_server_port }}"

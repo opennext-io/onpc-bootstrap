@@ -32,8 +32,8 @@ packages_install:
   - chrony
 
 packages_remove:
-#  - centos-openstack-release-*
-#  - centos-release-ceph-jewel
-#  - centos-release-qemu-ev
-#  - centos-release-storage-common
-   - firewalld
+  - centos-openstack-release-*
+  - centos-release-ceph-jewel
+  - centos-release-qemu-ev
+  - centos-release-storage-common
+  - firewalld

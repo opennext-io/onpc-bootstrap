@@ -30,12 +30,12 @@
   tags:
     - remove-host-packages
 
-- name: Upgrade the master mode packages
+- name: Upgrade the host packages
   yum:
     name: "*"
     state: latest
   when: ansible_os_family == "RedHat"
-  tags: upgrade-master-packages
+  tags: upgrade-host-packages
 
 - name: Install hosts packages (RedHat/CentOS)
   yum:

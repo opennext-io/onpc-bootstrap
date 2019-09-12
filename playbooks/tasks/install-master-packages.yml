@@ -60,4 +60,6 @@
       - jinja2
       - netaddr
     state: latest
+  tags: install-master-packages
+
     

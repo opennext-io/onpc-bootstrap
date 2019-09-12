@@ -1,12 +1,19 @@
 ---
-- name: Set Squid proxy iptables rules
+- name: Set Squid accept iptables rules
   iptables_raw:
-    name: squid_accept
+    name: squid_accept_rules
+    weight: 30
     keep_unmanaged: no
-    weight: 60
+    rules: |
+      -A INPUT -i "{{ squid_http_interface }}" -s "{{ management_network }}" -p tcp  --dport 3128 -j ACCEPT
+      -A INPUT -i "{{ squid_http_interface }}" -s "{{ management_network }}" -p udp  --dport 3128 -j ACCEPT
+  
+- name: Set Squid redirect iptables rules
+  iptables_raw:
+    name: squid_redirect_rules
+    keep_unmanaged: no
+    weight: 31
     table: nat
     rules: |
-      -A PREROUTING -i "{{ squid_http_interface }}" -s "{{ management_network }}" -p tcp --dport 80 -j REDIRECT --t
-      -A INPUT -i "{{ squid_http_interface }}" -s "{{ management_network }}" -p tcp -m state --state NEW -m tcp --dport "{{ squid_http_port }}" -j ACCEPT
-      -A POSTROUTING -j MASQUERADE
-  tags: squid-iptables-rules 
+      -A PREROUTING -i "{{ squid_http_interface }}" -s "{{ management_network }}" -p tcp ! -d "{{ master_mgmt_addr }}" --dport 80 -j REDIRECT --to-port 3128
+      -A POSTROUTING -o "{{ master_infra_interface }}" -j MASQUERADE

@@ -45,11 +45,9 @@ fsid: {{ ceph_uuid_seed | default('ceph_uuid') | to_uuid }}
 ## ceph-ansible settings
 ## See https://github.com/ceph/ceph-ansible/tree/master/group_vars for
 ## additional configuration options availble.
-{%- raw %}
-monitor_address_block: "{{ cidr_networks.container }}"
-public_network: "{{ cidr_networks.container }}"
-cluster_network: "{{ cidr_networks.storage }}"
-{% endraw %}
+monitor_address_block: "{{ managememt_network }}"
+public_network: "{{ management_network }}"
+cluster_network: "{{ storage_network }}"
 osd_objectstore: bluestore
 osd_scenario: lvm
 lvm_volumes:

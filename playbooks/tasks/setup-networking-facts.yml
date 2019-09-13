@@ -86,7 +86,6 @@
   set_fact:
     dns_servers_addr:
       - "{{ master_infra_addr }}"
-      - "{{ master_mgmt_addr }}"
       
 - name: Set internal_vip_network facts
   set_fact:

@@ -51,19 +51,30 @@ Clone the onpc-bootstrap repo
     cd /opt
     git clone https://github.com/opennext-io/onpc-bootstrap.git
 
-Setup master node
--------------------
+Setup the Master server
+-----------------------
+Packages instalation and system tunings must be performed on the master node.
 
 .. code-block:: bash
     sudo bash
     cd /opt/onpc-bootstrap/playbooks
     ansible-playbook playbook-setup-master.yml
 
+Install Squid proxy server
+--------------------------
+Squid proxy server is required in environments with limited network connectivity whereby
+the Master server is used as a proxy cache to install the OpenStack packages from the Internet.
+
+.. code-block:: bash
+    sudo bash
+    cd /opt/onpc-bootstrap/playbooks
+    ansible-playbook playbook-install-squid.yml
+
 Install Cobbler on master node
 ------------------------------
-Prior to installing and configuring Cobbler, you may need to customise
-your deployement profile in 'onpc-site-config.yml' file.
-In addition to this, Ansible deployments will fail if the master can’t use
+Prior to installing and configuring Cobbler, you should customise and addapt
+your deployement profile from within the 'onpc-site-config.yml' file.
+Be aware that Ansible deployments will fail if the master can’t use
 Secure Shell (SSH) to connect to the containers.
 
 Configure the master (where Ansible is executed) to be on the same layer 2
@@ -85,6 +96,7 @@ the service.
 
 .. code-block:: bash
      systemctl restart httpd 
+
 
 Configure Cobbler inventory
 ---------------------------
@@ -115,7 +127,7 @@ This should return something like this:
     {
      "_meta": {
        "hostvars": {
-       [ snip....]
+       [ snip... ]
         "infra-01.opennext.local": {
             "cobbler": {
             "boot_files": {},
@@ -153,272 +165,7 @@ This should return something like this:
                 "static_routes": [],
                 "virt_bridge": ""
                 },
-                "bond1": {
-                "bonding_opts": "miimon=100 mode=1",
-                "bridge_opts": "",
-                "cnames": [],
-                "connected_mode": false,
-                "dhcp_tag": "",
-                "dns_name": "",
-                "if_gateway": "",
-                "interface_master": "br-vlan",
-                "interface_type": "bonded_bridge_slave",
-                "ip_address": "",
-                "ipv6_address": "",
-                "ipv6_default_gateway": "",
-                "ipv6_mtu": "",
-                "ipv6_prefix": "",
-                "ipv6_secondaries": [],
-                "ipv6_static_routes": [],
-                "mac_address": "",
-                "management": false,
-                "mtu": "",
-                "netmask": "",
-                "static": false,
-                "static_routes": [],
-                "virt_bridge": ""
-                },
-                "bond1.10": {
-                "bonding_opts": "",
-                "bridge_opts": "",
-                "cnames": [],
-                "connected_mode": false,
-                "dhcp_tag": "",
-                "dns_name": "",
-                "if_gateway": "",
-                "interface_master": "br-mgmt",
-                "interface_type": "bridge_slave",
-                "ip_address": "",
-                "ipv6_address": "",
-                "ipv6_default_gateway": "",
-                "ipv6_mtu": "",
-                "ipv6_prefix": "",
-                "ipv6_secondaries": [],
-                "ipv6_static_routes": [],
-                "mac_address": "",
-                "management": false,
-                "mtu": "",
-                "netmask": "",
-                "static": false,
-                "static_routes": [],
-                "virt_bridge": ""
-                },
-                "bond1.20": {
-                "bonding_opts": "",
-                "bridge_opts": "",
-                "cnames": [],
-                "connected_mode": false,
-                "dhcp_tag": "",
-                "dns_name": "",
-                "if_gateway": "",
-                "interface_master": "br-vxlan",
-                "interface_type": "bridge_slave",
-                "ip_address": "",
-                "ipv6_address": "",
-                "ipv6_default_gateway": "",
-                "ipv6_mtu": "",
-                "ipv6_prefix": "",
-                "ipv6_secondaries": [],
-                "ipv6_static_routes": [],
-                "mac_address": "",
-                "management": false,
-                "mtu": "1500",
-                "netmask": "",
-                "static": false,
-                "static_routes": [],
-                "virt_bridge": ""
-                },
-                "bond1.30": {
-                "bonding_opts": "",
-                "bridge_opts": "",
-                "cnames": [],
-                "connected_mode": false,
-                "dhcp_tag": "",
-                "dns_name": "",
-                "if_gateway": "",
-                "interface_master": "br-storage",
-                "interface_type": "bridge_slave",
-                "ip_address": "",
-                "ipv6_address": "",
-                "ipv6_default_gateway": "",
-                "ipv6_mtu": "",
-                "ipv6_prefix": "",
-                "ipv6_secondaries": [],
-                "ipv6_static_routes": [],
-                "mac_address": "",
-                "management": false,
-                "mtu": "",
-                "netmask": "",
-                "static": false,
-                "static_routes": [],
-                "virt_bridge": ""
-                },
-                "br-mgmt": {
-                "bonding_opts": "",
-                "bridge_opts": "STP=no",
-                "cnames": [],
-                "connected_mode": false,
-                "dhcp_tag": "",
-                "dns_name": "infra-01.opennext.local",
-                "if_gateway": "172.29.236.1",
-                "interface_master": "",
-                "interface_type": "bridge",
-                "ip_address": "172.29.236.56",
-                "ipv6_address": "",
-                "ipv6_default_gateway": "",
-                "ipv6_mtu": "",
-                "ipv6_prefix": "",
-                "ipv6_secondaries": [],
-                "ipv6_static_routes": [],
-                "mac_address": "",
-                "management": false,
-                "mtu": "",
-                "netmask": "255.255.252.0",
-                "static": true,
-                "static_routes": [],
-                "virt_bridge": ""
-                },
-                "br-storage": {
-                "bonding_opts": "",
-                "bridge_opts": "STP=no",
-                "cnames": [],
-                "connected_mode": false,
-                "dhcp_tag": "",
-                "dns_name": "",
-                "if_gateway": "",
-                "interface_master": "",
-                "interface_type": "bridge",
-                "ip_address": "172.29.244.56",
-                "ipv6_address": "",
-                "ipv6_default_gateway": "",
-                "ipv6_mtu": "",
-                "ipv6_prefix": "",
-                "ipv6_secondaries": [],
-                "ipv6_static_routes": [],
-                "mac_address": "",
-                "management": false,
-                "mtu": "",
-                "netmask": "255.255.252.0",
-                "static": true,
-                "static_routes": [],
-                "virt_bridge": ""
-                },
-                "br-vlan": {
-                "bonding_opts": "",
-                "bridge_opts": "STP=no",
-                "cnames": [],
-                "connected_mode": false,
-                "dhcp_tag": "",
-                "dns_name": "",
-                "if_gateway": "",
-                "interface_master": "",
-                "interface_type": "bridge",
-                "ip_address": "",
-                "ipv6_address": "",
-                "ipv6_default_gateway": "",
-                "ipv6_mtu": "",
-                "ipv6_prefix": "",
-                "ipv6_secondaries": [],
-                "ipv6_static_routes": [],
-                "mac_address": "",
-                "management": false,
-                "mtu": "",
-                "netmask": "",
-                "static": true,
-                "static_routes": [],
-                "virt_bridge": ""
-                },
-                "br-vxlan": {
-                "bonding_opts": "",
-                "bridge_opts": "STP=no",
-                "cnames": [],
-                "connected_mode": false,
-                "dhcp_tag": "",
-                "dns_name": "",
-                "if_gateway": "",
-                "interface_master": "",
-                "interface_type": "bridge",
-                "ip_address": "172.29.240.56",
-                "ipv6_address": "",
-                "ipv6_default_gateway": "",
-                "ipv6_mtu": "",
-                "ipv6_prefix": "",
-                "ipv6_secondaries": [],
-                "ipv6_static_routes": [],
-                "mac_address": "",
-                "management": false,
-                "mtu": "1500",
-                "netmask": "255.255.252.0",
-                "static": true,
-                "static_routes": [],
-                "virt_bridge": ""
-                },
-                "eno1": {
-                "bonding_opts": "",
-                "bridge_opts": "",
-                "cnames": [],
-                "connected_mode": false,
-                "dhcp_tag": "",
-                "dns_name": "",
-                "if_gateway": "",
-                "interface_master": "bond0",
-                "interface_type": "bond_slave",
-                "ip_address": "",
-                "ipv6_address": "",
-                "ipv6_default_gateway": "",
-                "ipv6_mtu": "",
-                "ipv6_prefix": "",
-                "ipv6_secondaries": [],
-                "ipv6_static_routes": [],
-                "mac_address": "ac:1f:6b:47:3f:c8",
-                "management": true,
-                "mtu": "",
-                "netmask": "",
-                "static": false,
-                "static_routes": [],
-                "virt_bridge": ""
-                },
-                "eno2": {
-                "bonding_opts": "",
-                "bridge_opts": "",
-                "cnames": [],
-                "connected_mode": false,
-                "dhcp_tag": "",
-                "dns_name": "",
-                "if_gateway": "",
-                "interface_master": "bond1",
-                "interface_type": "bond_slave",
-                "ip_address": "",
-                "ipv6_address": "",
-                "ipv6_default_gateway": "",
-                "ipv6_mtu": "",
-                "ipv6_prefix": "",
-                "ipv6_secondaries": [],
-                "ipv6_static_routes": [],
-                "mac_address": "ac:1f:6b:47:3f:c9",
-                "management": false,
-                "mtu": "",
-                "netmask": "",
-                "static": false,
-                "static_routes": [],
-                "virt_bridge": ""
-                }
-            },
-            "ipv6_autoconfiguration": false,
-            "ipv6_default_device": "",
-            "kernel_options": {},
-            "kernel_options_post": {},
-            "kickstart": "<<inherit>>",
-            "ks_meta": {},
-            "ldap_enabled": false,
-            "ldap_type": "authconfig",
-            "mgmt_classes": [
-                "controller",
-                "network",
-                "haproxy",
-                "image",
-                "infra"
-            ],
+            [ snip... ]   
             "mgmt_parameters": "<<inherit>>",
             "monit_enabled": false,
             "mtime": 1568194603.026112,
@@ -517,8 +264,42 @@ This may take a long time since all installed packages are upgraded.
     ansible-playbook playbook-setup-hosts.yml  -i /etc/ansible/cobbler.py
 
 Finally install OpenStack on the target nodes using the OpenStack-Ansible
-documentation 
+documentation.
+Be aware that in the case of a single infra/haproxy host deployment, keepalived
+is not installed. Therefore, the interval/external_lv_vip_address must be setup
+manually before proceding to the OpenStack install.
+
+The ifcfg-bond0 interface configuration should look like this.
+
+.. code-block:: bash
+
+    [root@infra-01 network-scripts]# cat ifcfg-bond0
+    DEVICE=bond0
+    NM_CONTROLLED=no
+    ONBOOT=yes
+    TYPE=Bond
+    BONDING_MASTER=yes
+    BONDING_OPTS="miimon=100 mode=1"
+    BOOTPROTO=none
+    IPADDR1=172.31.0.56
+    IPADDR2=172.31.0.100 <- The external LB VIP
+    NETMASK=255.255.255.0
+    DNS1=172.31.0.55
 
 
+The ifcfg-br-mgmt interface configuration should look like this.
 
-
+.. code-block:: bash
+    
+    [root@infra-01 network-scripts]# cat ifcfg-br-mgmt
+    DEVICE=br-mgmt
+    NM_CONTROLLED=no
+    ONBOOT=yes
+    TYPE=Bridge
+    STP=no
+    BOOTPROTO=none
+    IPADDR1=172.29.236.56
+    IPADDR2=172.29.236.100 <- the internal LB VIP
+    GATEWAY=172.29.236.1
+    NETMASK=255.255.252.0
+    DNS1=172.31.0.55

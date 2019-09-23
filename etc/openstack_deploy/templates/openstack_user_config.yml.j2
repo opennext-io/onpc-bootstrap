@@ -289,7 +289,17 @@ global_overrides:
     - network:
         container_bridge: "{{ external_interface }}"
         container_type: "veth"
+        container_interface: "eth12"
+        host_bind_override: "{{ bond1_interface }}"
+        type: "flat"
+        net_name: "flat"
+        group_binds:
+          - neutron_linuxbridge_agent
+    - network:
+        container_bridge: "{{ external_interface }}"
+        container_type: "veth"
         container_interface: "eth11"
+        host_bind_override: "{{ bond1_interface }}"
         type: "vlan"
         range: "1:1,100:200"
         net_name: "vlan"

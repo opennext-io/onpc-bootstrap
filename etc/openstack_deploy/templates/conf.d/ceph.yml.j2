@@ -14,25 +14,6 @@ ceph-osd_hosts:
 {% for h in ceph_hosts_dict %}
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
-    container_vars:
-      cinder_backends:
-        limit_container_types: cinder_volume
-        cinder_storage_availability_zone: {{ h.zone | default('nova') }}
-        cinder_default_availability_zone: "{{ onpc_cinder_default_az | default('nova') }}"
-        RBD:
-          volume_driver: cinder.volume.drivers.rbd.RBDDriver
-          volume_backend_name: rbddriver
-          rbd_pool: cinder_volumes
-          rbd_ceph_conf: /etc/ceph/ceph.conf
-          rbd_max_clone_depth: 5
-          rbd_flatten_volume_from_snapshot: false
-          rbd_store_chunk_size: 8
-          report_discard_supported: true
-          rados_connect_timeout: -1
-{%- raw %}
-          rbd_user: "{{ cinder_ceph_client }}"
-          rbd_secret_uuid: "{{ cinder_ceph_client_uuid }}"
-{% endraw %}
 {% endfor %}
 
 # The hosts that the Ceph RadosGW object gateways will be running on

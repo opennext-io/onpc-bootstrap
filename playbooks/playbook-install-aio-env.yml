@@ -20,7 +20,7 @@
   become: true
   become_user: root
   connection: local
-  environment: "{{ proxy_env | default({}) }}"
+  environment: "{{ deployment_environment_variables | default({}) }}"
   vars_files:
     - vars/main.yml
   vars:

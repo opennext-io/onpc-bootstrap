@@ -10,7 +10,7 @@
   hosts: utility_all[0]
   become: true
   become_user: root
-  environment: "{{ proxy_env | default({}) }}"
+  environment: "{{ deployment_environment_variables | default({}) }}"
 
   vars_files:
     - vars/main.yml

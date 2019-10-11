@@ -22,4 +22,4 @@
     force: yes
     recursive: no
     version: "{{ onpc_openstack_branch | default('latest') }}"
-  environment: "{{ proxy_env | default('{}') }}"
+  environment: "{{ deployment_environment_variables | default({}) }}"

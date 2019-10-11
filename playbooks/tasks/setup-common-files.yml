@@ -110,5 +110,5 @@
   shell: ../scripts/get-ansible-roles.sh
   args:
     executable: /bin/bash
-  environment: "{{ proxy_env | default('{}') }}"
+  environment: "{{ deployment_environment_variables | default({}) }}"
   tags: drop-ansible-roles

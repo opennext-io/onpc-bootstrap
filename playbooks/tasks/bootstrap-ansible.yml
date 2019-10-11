@@ -24,4 +24,4 @@
   args:
     chdir: /opt/openstack-ansible
   when: bootstrap.stat.exists == false
-  environment: "{{ proxy_env | default('{}') }}"
+  environment: "{{ deployment_environment_variables | default({}) }}"

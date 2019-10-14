@@ -91,8 +91,7 @@ Cobbler web UI is avalaible at https://<master-node>/cobbler_web
 
 Cobbler user name and password are defined in vars/cobbler.yml
 
-If the Web UI doesn't come up or returns an error, you may need to restart
-the service.
+If the Web UI doesn't come up or returns an error, you may need to restart the service.
 
 .. code-block:: bash
      systemctl restart httpd 

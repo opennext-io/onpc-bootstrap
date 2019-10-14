@@ -51,10 +51,6 @@
       import_tasks: tasks/import-onpc-repos.yml
       tags: import-onpc-repos
 
-    - name: Bootstrap ansible
-      import_tasks: tasks/bootstrap-ansible.yml
-      tags: bootstrap-ansible
-
     - name: Setup common configuration files
       import_tasks: tasks/setup-common-files.yml
       tags: setup-common-files
@@ -62,3 +58,11 @@
     - name: Setup OSA master files
       import_tasks: tasks/setup-osa-files.yml
       tags: setup-osa-files
+##
+# Note PP. Let's discard this here. 
+#   It's probably better to run bootstrap-ansible.sh
+#   separately as part of the OSA install process. 
+# 
+#    - name: Bootstrap ansible
+#      import_tasks: tasks/bootstrap-ansible.yml
+#      tags: bootstrap-ansible

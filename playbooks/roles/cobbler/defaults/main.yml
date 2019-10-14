@@ -6,6 +6,7 @@ cobbler_default_password: change@me
 cobbler_default_time_zone: "Asia/Shanghai"   # America/New_York
 cobbler_manage_dhcp: 1 # default
 cobbler_manage_dns: 0 # default
+cobbler_dns_manage_ipmi: 1
 
 cobbler_pxe_just_once: 1
 cobbler_server: 192.168.168.200

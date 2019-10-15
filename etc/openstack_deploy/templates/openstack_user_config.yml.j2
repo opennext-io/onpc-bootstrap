@@ -495,10 +495,10 @@ storage_hosts:
   {{ h.name }}:
     ip: {{ h.ip_v4 }}
     container_vars:
+      cinder_storage_availability_zone: {{ h.zone | default('nova') }}
+      cinder_default_availability_zone: "{{ onpc_cinder_default_az | default('nova') }}"
       cinder_backends:
         limit_container_types: cinder_volume
-        cinder_storage_availability_zone: {{ h.zone | default('nova') }}
-        cinder_default_availability_zone: "{{ onpc_cinder_default_az | default('nova') }}"
         rbd:
           volume_group: cinder-volumes
           volume_driver: cinder.volume.drivers.rbd.RBDDriver

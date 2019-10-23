@@ -488,7 +488,7 @@ storage_hosts:
             - high-iops
             - ultra-high-iops
 {% endfor %}
-{% else if ceph_hosts_dict is defined and ceph_hosts_dict | length > 0 %}
+{% elif ceph_hosts_dict is defined and ceph_hosts_dict | length > 0 %}
 # Cinder volume hosts with Ceph RBD backend
 storage_hosts:
 {% for h in ceph_hosts_dict %}

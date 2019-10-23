@@ -1,19 +1,27 @@
 ---
 # task file for installing cobbler-web
 
-- name: install cobbler-web
-  yum: name=cobbler-web state=present
-
-# Note (PP) See issue https://github.com/cobbler/cobbler/issues/1959
-- name: install compatible django version
+- name: upgrade pip
   pip:
-    name: django==1.9.13
+    name: pip
+    state: present
     extra_args: --upgrade
+  register: result
+  until: result is success
+  retries: 5
+  delay: 2
+
+- name: install django
+  pip:
+    name: django
     state: present
   register: result
   until: result is success
   retries: 5
   delay: 2
+
+- name: install cobbler-web
+  yum: name=cobbler-web state=present
 
 - name: copy /etc/cobbler/modules.conf
   copy: src=etc/cobbler/modules.conf dest=/etc/cobbler/modules.conf mode=644

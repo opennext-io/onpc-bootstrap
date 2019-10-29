@@ -23,6 +23,7 @@
 
   vars_files:
     - vars/main.yml
+    - vars/ceph.yml
 
   tasks:
     - name: Assert that the Ansible version meets requirements

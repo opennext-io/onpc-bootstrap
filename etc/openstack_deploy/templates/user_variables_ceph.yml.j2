@@ -51,12 +51,7 @@ cluster_network: "{{ storage_network }}"
 osd_objectstore: bluestore
 osd_scenario: lvm
 lvm_volumes:
-  - data: ceph_data_lv
-    data_vg: ceph_data_vg
-    db: ceph_db_lv
-    db_vg: ceph_db_vg
-    wal: ceph_wal_lv
-    wal_vg: ceph_wal_vg
+{{ ceph_lvm_volumes | to_nice_yaml(indent=2) -}}
 dmcrypt: false
 openstack_config: true
 cinder_ceph_client: cinder

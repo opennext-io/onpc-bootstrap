@@ -38,7 +38,7 @@ cobbler_distros:
 # cobbler_root_public_keys:
 #  - sh-rsa abcdef
 
-
+kickstart_keyboard: fr
 
 
 

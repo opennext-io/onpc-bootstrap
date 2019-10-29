@@ -1,10 +1,12 @@
+{% set netboot_profile = item.value %}
+{% set profile_name = item.key %}
 ## ONPC customized kickstart file, extra functions:
 ## 1. add static ip and hostname
 ## 2. add sudo users
 ## 3. change ssh config(change port)
 ## 4. Create OSA partitions
 
-# This kickstart file is used to install an infra host in OSA.
+# This kickstart file is used to install a {{ profile_name }} host in OSA.
 # It should only be used with EL > 5 and/or Fedora > 7.
 # For older versions please use the sample.ks kickstart file.
 # platform=x86, AMD64, or Intel EM64T
@@ -25,9 +27,9 @@ firewall --disabled
 # Run the Setup Agent on first boot
 firstboot --disable
 # System keyboard
-keyboard us
+keyboard {{ kickstart_keyboard }}
 # System language
-lang en_US.UTF-8 
+lang en_US.UTF-8
 # If any cobbler repo definitions were referenced in the kickstart profile,
 # include them here.
 $yum_repo_stanza
@@ -47,28 +49,26 @@ timezone --utc {{ cobbler_default_time_zone }}
 
 # Create default user account
 user --groups={{ onpc_default_group }} --name={{ onpc_default_user }} --password='{{ onpc_default_user_crypted_password }}' --iscrypted
-
 # Create custom user accounts
 {% if onpc_users_list is defined and onpc_users_list | length > 0 %}
 {% for user in onpc_users_list %}
 user --groups={{ user.group }} --name={{ user.name }} --password='{{ user.crypted_password }}' --iscrypted
 {% endfor %}
 {% endif %}
-
 # Partition clearing information
-clearpart --all --initlabel --drives=sda
+clearpart --all --initlabel --drives={{ netboot_profile['boot_drive'] }}
 # Clear the Master Boot Record
 zerombr
 # Disk partitioning
-{% if onpc_netboot_profiles is defined %}
-{%   if onpc_netboot_profiles['infra']['boot_arch'] == 'efi' %}
-part /boot/efi --fstype=efi --size=200 --ondrive=sda
+{% if netboot_profile is defined %}
+{%   if netboot_profile['boot_arch'] == 'efi' %}
+part /boot/efi --fstype=efi --size=200 --ondrive={{ netboot_profile['boot_drive'] }}
 {%   else %}
-part biosboot --fstype=biosboot --size=1 --ondrive=sda
-part /boot --fstype=ext4 --size=1024 --ondrive=sda
+part biosboot --fstype=biosboot --size=1 --ondrive={{ netboot_profile['boot_drive'] }}
+part /boot --fstype=ext4 --size=1024 --ondrive={{ netboot_profile['boot_drive'] }}
 {%   endif %}
-part swap --fstype=swap --recommended --ondrive=sda
-{% for val in onpc_netboot_profiles['infra']['partitions'] %}
+part swap --fstype=swap --recommended --ondrive={{ netboot_profile['boot_drive'] }}
+{% for val in netboot_profile['partitions'] %}
 {%   set args = [] %}
 {%   if val.type is defined and val.type in onpc_valid_partition_types %}
 {%     set _ = args.append(val.type) %}
@@ -133,6 +133,7 @@ iputils
 lsof
 lvm2
 bind-utils
+wget
 $SNIPPET('func_install_if_enabled')
 %end
 

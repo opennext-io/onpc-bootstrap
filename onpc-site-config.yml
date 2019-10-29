@@ -62,6 +62,7 @@ onpc_netboot_profiles:
     metadata: []
     # Boot architecture ('bios' or 'efi')
     boot_arch: bios
+    boot_drive: sda
     #
     # Standard partitions
     #
@@ -235,6 +236,7 @@ onpc_netboot_profiles:
     metadata: []
     # Boot architecture ('bios' or 'efi')
     boot_arch: bios
+    boot_drive: sda
     ##
     ## Standard partitions
     ##
@@ -423,6 +425,7 @@ onpc_netboot_profiles:
     metadata: []
     # Boot architecture ('bios' or 'efi')
     boot_arch: bios
+    boot_drive: sda
     partitions:
       #
       # System  volumes
@@ -616,6 +619,7 @@ onpc_netboot_profiles:
     metadata: []
     # Boot architecture ('bios' or 'efi')
     boot_arch: bios
+    boot_drive: sda
     ##
     ## Standard partitions
     ##
@@ -779,6 +783,7 @@ onpc_netboot_profiles:
     metadata: []
     # Boot architecture ('bios' or 'efi')
     boot_arch: bios
+    boot_drive: sda
     ##
     ## Standard partitions
     ##
@@ -954,7 +959,7 @@ onpc_netboot_profiles:
     roles: ['monitoring', 'logging']
     metadata: []
     boot_arch: bios
-
+    boot_drive: sda
     ##
     ## Standard partitions
     ##

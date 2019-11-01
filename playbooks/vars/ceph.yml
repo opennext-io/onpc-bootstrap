@@ -1,0 +1,7 @@
+ceph_lvm_volumes:
+  - data: ceph_data_lv
+    data_vg: ceph_data_vg
+    db: ceph_db_lv
+    db_vg: ceph_db_vg
+    wal: ceph_wal_lv
+    wal_vg: ceph_wal_vg

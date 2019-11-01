@@ -45,6 +45,7 @@ onpc_netboot_distros:
 ##
 primary_interface: eno1
 secondary_interface: eno2
+
 onpc_netboot_profiles:
   ##
   ## Infra profile host config

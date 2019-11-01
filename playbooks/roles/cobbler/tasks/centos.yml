@@ -85,22 +85,14 @@
   with_items: "{{ snippet_templates.get('files', []) | map(attribute='path') | list }}"
   tags: drop-snippet-files
 
-- name: Find the kickstart templates
-  find:
-    paths: "roles/cobbler/templates/var/lib/cobbler/kickstarts"
-    patterns: '^.*\.j2$'
-    use_regex: yes
-  register: kickstart_templates
-  tags: always
-
 - name: Drop the kickstart templates
   template:
-    src: "{{ item }}"
-    dest: "/var/lib/cobbler/kickstarts/{{ (item | basename).split('.')[:-1] | join('.') }}.ks"
+    src: "var/lib/cobbler/kickstarts/centos7-osa.j2"
+    dest: "/var/lib/cobbler/kickstarts/centos7-osa_{{ item.key }}-{{ item.value.boot_drive }}.ks"
     backup: yes
     group: root
     mode: 0644
-  with_items: "{{ kickstart_templates.get('files', []) | map(attribute='path') | list }}"
+  with_dict: "{{ onpc_netboot_profiles }}"
   tags: drop-kickstart-files
 
 # end add snippets and kickstarts

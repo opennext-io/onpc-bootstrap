@@ -184,6 +184,10 @@ cat >> $devfile << EOF
 BONDING_OPTS="$bonding_opts"
 EOF
             #end if
+            #if $iface_type == "bonded_bridge_slave" and $iface_master != ""
+echo "BRIDGE=$iface_master" >> $devfile
+echo "HOTPLUG=no" >> $devfile
+	        #end if
         #elif $iface_type in ("slave","bond_slave") and $iface_master != ""
 echo "SLAVE=yes" >> $devfile
 echo "MASTER=$iface_master" >> $devfile

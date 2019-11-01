@@ -194,7 +194,7 @@ cinder_cinder_conf_overrides:
 {% endif %}
 
 {% if 'ceph' in onpc_services_list %}
-cinder_default_volume_type: rbddriver
+cinder_default_volume_type: rbd
 {% else %}
 cinder_default_volume_type: LVM_iSCSI
 {% endif %}

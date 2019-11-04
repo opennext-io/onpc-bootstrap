@@ -147,8 +147,27 @@ bond1_interface: bond1
 management_network_interface: br-mgmt
 tunnel_network_interface: br-vxlan
 storage_network_interface: br-storage
-external_interface: br-vlan
 api_network_interface: "{{ bond0_interface }}"
+
+##
+## OpenStack provider network inferfaces
+##
+external_interface: br-vlan
+external_physical_interface: "{{ bond1_interface }}"
+external_network_openstack_name: flat
+# Only flat or vlan
+external_network_type: flat
+# Only use if external_network_type == vlan
+external_network_vlan: "1:100"
+
+# Optionnal
+provider_interface: ""
+provider_physical_interface: ""
+provider_network_openstack_name: provider
+# Only flat or vlan
+provider_network_type: flat
+# Only use if provider_network_type == vlan
+provider_network_vlan: "1:100"
 
 #management_vlan_interface: "{{ bond0_interface + '.' + management_vlan_id }}"
 management_vlan_interface: "{{ bond1_interface + '.' + management_vlan_id }}"

@@ -18,14 +18,14 @@ options {
 {% endif %}
 {% if cobbler_domain_name_servers is defined %}
 {% set servers = cobbler_domain_name_servers.split(',') %}
-{% set sel='{ ' %}
+{% set sel=['{ '] %}
 {% for server in servers %}
-{% set sel = sel ~ server ~ '; ' %}
+{% set _ = sel.extend(server ~ '; ') %}
 {% if loop.last %}
-{% set sel = sel ~ ' };' %}
-          forwarders      {{ sel }}
+{% set _ = sel.extend(' };') %}
 {% endif %}
 {% endfor %}
+          forwarders      {{ sel | join }}
 {% endif %}
           recursion yes;
 };

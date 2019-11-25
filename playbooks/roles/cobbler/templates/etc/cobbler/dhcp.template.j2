@@ -40,6 +40,8 @@ subnet {{ cobbler_subnet }} netmask {{ cobbler_netmask }} {
                   filename "grub/grub-x86.efi";
           } else if option pxe-system-type = 00:07 {
                   filename "grub/grub-x86_64.efi";
+          } else if option pxe-system-type = 00:09 {
+                  filename "grub/grub-x86_64.efi";
           } else {
                   filename "pxelinux.0";
           }
@@ -52,11 +54,15 @@ subnet {{ cobbler_subnet }} netmask {{ cobbler_netmask }} {
     ## default dhcp tag in cobbler, the group block can be deleted for a
     ## flat configuration
 # group for Cobbler DHCP tag: $dhcp_tag
-group {
+ggroup {
         #for mac in $dhcp_tags[$dhcp_tag].keys():
             #set iface = $dhcp_tags[$dhcp_tag][$mac]
     host $iface.name {
+        #if $iface.interface_type == "infiniband":
+        option dhcp-client-identifier = $mac;
+        #else
         hardware ethernet $mac;
+        #end if
         #if $iface.ip_address:
         fixed-address $iface.ip_address;
         #end if

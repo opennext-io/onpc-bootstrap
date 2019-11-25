@@ -19,7 +19,7 @@ cobbler_password: change@me
 cobbler_firewalld_enabled: False
 cobbler_iptables_enabled: True
 cobbler_default_password: change!me
-cobbler_domain_name_servers: "8.8.8.8, 8.8.4.4"
+cobbler_domain_name_servers: "213.246.33.144, i213.246.36.14, 8.8.8.8"
 cobbler_bootp_range_start: 200
 cobbler_bootp_range_end: 220
 cobbler_install_web: true

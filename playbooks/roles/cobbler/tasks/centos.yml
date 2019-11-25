@@ -36,7 +36,7 @@
         - bind
         - bind-utils
         - fence-agents
-        - cobbler
+        - cobbler-2.8.5
 
 - name: install related packages
   yum:

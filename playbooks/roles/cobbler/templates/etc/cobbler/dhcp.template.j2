@@ -19,13 +19,13 @@ set vendorclass = option vendor-class-identifier;
 option pxe-system-type code 93 = unsigned integer 16;
 
 subnet {{ cobbler_subnet }} netmask {{ cobbler_netmask }} {
-{% if cobbler_routers is defined %}
+{%- if cobbler_routers is defined %}
     option routers    {{ cobbler_routers }};
 {% endif %}
-{% if cobbler_domain_name_servers is defined %}
+{%- if cobbler_domain_name_servers is defined %}
     option domain-name-servers    {{ cobbler_domain_name_servers }};
 {% endif %}
-{% if cobbler_subnet_mask is defined %}
+{%- if cobbler_subnet_mask is defined %}
     option subnet-mask    {{ cobbler_subnet_mask }};
 {% endif %}
     range dynamic-bootp        {{ cobbler_dynamic_bootp_start }} {{ cobbler_dynamic_bootp_end }};

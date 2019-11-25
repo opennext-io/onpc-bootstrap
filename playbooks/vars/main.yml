@@ -21,9 +21,9 @@ onpc_lma_branch: master
 onpc_debug_enabled: False
 onpc_low_end_profile: False
 onpc_cpu_overcommit: 8.0
-onpc_openstack_domain: openstacklocal
-onpc_infra_domain: "{{ ansible_domain | default('openstack.local') }}"
-onpc_region_name: RegionOne
+onpc_openstack_domain: "openstacklocal"
+onpc_infra_domain: "openstack.local"
+onpc_region_name: "RegionOne"
 # Enable / disable multi-domain support in Horizon
 onpc_multidomain_support: false
 onpc_partitions_check: true

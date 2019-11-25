@@ -16,7 +16,7 @@ cobbler_netmask: 255.255.255.0
 cobbler_dynamic_bootp_start: 192.168.168.128
 cobbler_dynamic_bootp_end: 192.168.168.172
 cobbler_routers: 192.168.168.1
-cobbler_domain_name_servers: 192.168.168.1
+cobbler_domain_name_servers: "192.168.168.1"
 cobbler_subnet_mask: 255.255.255.0
 
 # cobbler web

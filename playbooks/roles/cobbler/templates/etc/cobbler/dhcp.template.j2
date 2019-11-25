@@ -19,33 +19,33 @@ set vendorclass = option vendor-class-identifier;
 option pxe-system-type code 93 = unsigned integer 16;
 
 subnet {{ cobbler_subnet }} netmask {{ cobbler_netmask }} {
-     {% if cobbler_routers is defined %}
-     option routers    {{ cobbler_routers }};
-     {% endif %}
-     {% if cobbler_domain_name_servers is defined %}
-     option domain-name-servers    {{ cobbler_domain_name_servers }};
-     {% endif %}
-     {% if cobbler_subnet_mask is defined %}
-     option subnet-mask    {{ cobbler_subnet_mask }};
-     {% endif %}
-     range dynamic-bootp        {{ cobbler_dynamic_bootp_start }} {{ cobbler_dynamic_bootp_end }};
-     default-lease-time         21600;
-     max-lease-time             43200;
-     next-server                $next_server;
-     class "pxeclients" {
-          match if substring (option vendor-class-identifier, 0, 9) = "PXEClient";
-          if option pxe-system-type = 00:02 {
-                  filename "ia64/elilo.efi";
-          } else if option pxe-system-type = 00:06 {
-                  filename "grub/grub-x86.efi";
-          } else if option pxe-system-type = 00:07 {
-                  filename "grub/grub-x86_64.efi";
-          } else if option pxe-system-type = 00:09 {
-                  filename "grub/grub-x86_64.efi";
-          } else {
-                  filename "pxelinux.0";
-          }
-     }
+{% if cobbler_routers is defined %}
+    option routers    {{ cobbler_routers }};
+{% endif %}
+{% if cobbler_domain_name_servers is defined %}
+    option domain-name-servers    {{ cobbler_domain_name_servers }};
+{% endif %}
+{% if cobbler_subnet_mask is defined %}
+    option subnet-mask    {{ cobbler_subnet_mask }};
+{% endif %}
+    range dynamic-bootp        {{ cobbler_dynamic_bootp_start }} {{ cobbler_dynamic_bootp_end }};
+    default-lease-time         21600;
+    max-lease-time             43200;
+    next-server                $next_server;
+    class "pxeclients" {
+        match if substring (option vendor-class-identifier, 0, 9) = "PXEClient";
+        if option pxe-system-type = 00:02 {
+                filename "ia64/elilo.efi";
+        } else if option pxe-system-type = 00:06 {
+                filename "grub/grub-x86.efi";
+        } else if option pxe-system-type = 00:07 {
+                filename "grub/grub-x86_64.efi";
+        } else if option pxe-system-type = 00:09 {
+                filename "grub/grub-x86_64.efi";
+        } else {
+                filename "pxelinux.0";
+        }
+    }
 }
 
 #for dhcp_tag in $dhcp_tags.keys():
@@ -54,10 +54,10 @@ subnet {{ cobbler_subnet }} netmask {{ cobbler_netmask }} {
     ## default dhcp tag in cobbler, the group block can be deleted for a
     ## flat configuration
 # group for Cobbler DHCP tag: $dhcp_tag
-ggroup {
+group {
         #for mac in $dhcp_tags[$dhcp_tag].keys():
-            #set iface = $dhcp_tags[$dhcp_tag][$mac]
-    host $iface.name {
+        #set iface = $dhcp_tags[$dhcp_tag][$mac]
+        host $iface.name {
         #if $iface.interface_type == "infiniband":
         option dhcp-client-identifier = $mac;
         #else

@@ -22,18 +22,17 @@
     - vars/main.yml
   
   tasks:
-    - include: playbook-install-master.yml
-    - include: playbook-install-cobbler.yml
-      when: "'cobbler' in onpc_services_list"
-    - include: playbook-setup-inventory.yml
-      when: "'cobbler' in onpc_services_list"
-    - include: playbook-install-squid.yml
+    - include: playbook-install-master.yml -e "@../onpc-site-config.yml"
+    - include: playbook-install-cobbler.yml -e "@../onpc-site-config.yml" 
+    - include: playbook-install-squid.ym-e "@../onpc-site-config.yml"
       when:
         - onpc_proxy_mode is defined
         - (onpc_proxy_mode == 'transparent') or (onpc_proxy_mode == 'permanent')
           or (onpc_proxy_mode == 'transient')
     - include: playbook-install-nfs.yml
       when: "'nfs' in onpc_services_list"
-    - include: playbook-setup-environment.yml
-    - include: playbook-install-osa-hosts.yml
-    
+    - include: playbook-register-distros.yml -e "@../onpc-site-config.yml"
+    - include: playbook-register-profiles.yml -e "@../onpc-site-config.yml"
+    - include: playbook-register-systems.yml -e "@../onpc-site-config.yml"
+    - include: playbook-install-osa-env.yml -e "@../onpc-site-config.yml"
+    - include: playbook_setup_hosts.yml -i /etc/ansible/cobbler.py -e "@../onpc-site-config.yml" 

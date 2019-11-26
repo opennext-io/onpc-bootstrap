@@ -56,7 +56,7 @@ haproxy_extra_services:
           rule: "path_sub -i query"
         write_queries:
           rule: "path_sub -i write"
-{%- if influxdb_relay_enabled is defined and influxdb_relay_enabled | bool %}
+{% if influxdb_relay_enabled is defined and influxdb_relay_enabled | bool %}
           backend_name: "influxdb_relay"
 {% endif %}
 {% if influxdb_relay_enabled is defined and influxdb_relay_enabled | bool %}

@@ -113,27 +113,27 @@
       {%- endif %}
       {{- sel | list }}
 
-- name: Set default network and image hosts lists facts
+- name: Set default network_hosts_lists and image_host_list facts
   set_fact:
     network_hosts_list: "{{ (network_hosts_list | length == 0) | ternary(controller_hosts_list, network_hosts_list) }}"
     image_hosts_list: "{{ (image_hosts_list | length == 0) | ternary(controller_hosts_list, image_hosts_list) }}"
 
-- name: Set default haproxy hosts lists fact
+- name: Set haproxy_hosts_list fact
   set_fact:
     haproxy_hosts_list: "{{ (haproxy_hosts_list | length == 0) | ternary(controller_hosts_list, haproxy_hosts_list) }}"
   when: "'haproxy' in onpc_services_list"
 
-- name: Set default rsyslog hosts lists fact
+- name: Set rsyslog_hosts_list fact
   set_fact:
     rsyslog_hosts_list: "{{ (rsyslog_hosts_list | length == 0) | ternary(controller_hosts_list, rsyslog_hosts_list) }}"
   when: "'rsyslog' in onpc_services_list"
 
-- name: Set default nfs hosts lists facts
+- name: Set default nfs_hosts_list facts
   set_fact:
     nfs_hosts_list: "{{ (nfs_hosts_list | length == 0) | ternary(controller_hosts_list, nfs_hosts_list) }}"
   when: "'nfs' in onpc_services_list"
 
-- name: Set first controller host fact
+- name: Set first_haproxy_hostname fact
   set_fact:
     first_controller_hostname: "{{ controller_hosts_list | sort | first }}"
 
@@ -141,6 +141,11 @@
   set_fact:
     first_haproxy_hostname: "{{ haproxy_hosts_list | sort | first }}"
   when: "'haproxy' in onpc_services_list"
+
+- name: Set influxdb_relay_enabled fact
+  set_fact:
+    influxdb_relay_enabled: true
+  when: monitoring_hosts_list | length > 1
 
 - name: Set hosts dictionaries facts
   set_fact:

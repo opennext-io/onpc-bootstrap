@@ -56,7 +56,10 @@ haproxy_extra_services:
           rule: "path_sub -i query"
         write_queries:
           rule: "path_sub -i write"
+{%- if influxdb_relay_enabled is defined and influxdb_relay_enabled | bool %}
           backend_name: "influxdb_relay"
+{% endif %}
+{% if influxdb_relay_enabled is defined and influxdb_relay_enabled | bool %}
   - service:
       haproxy_service_name: influxdb_relay
       haproxy_ssl: False
@@ -76,6 +79,7 @@ haproxy_extra_services:
         read_queries:
           rule: "path_sub -i query"
           backend_name: "influxdb"
+{% endif %}
   - service:
       haproxy_service_name: grafana
 {%- raw %}    
@@ -90,7 +94,7 @@ haproxy_extra_services:
       haproxy_backend_options:
         - "httpchk GET /"
       haproxy_backend_reqrep: '^([^\ ]*\ /)grafana[/]?(.*) \1\2'
-# No need for Redis load-balacing anymore because Redis is proxied by Sentinel
+# Note PP: No need for Redis load-balacing anymore because Redis is proxied by Sentinel
 # and Sensu uses an array of Sentinel endpoints as defined in redis_sentinels
 #  - service:
 #      haproxy_service_name: redis

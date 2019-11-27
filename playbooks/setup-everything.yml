@@ -34,5 +34,5 @@
     - include: playbook-register-distros.yml -e "@../onpc-site-config.yml"
     - include: playbook-register-profiles.yml -e "@../onpc-site-config.yml"
     - include: playbook-register-systems.yml -e "@../onpc-site-config.yml"
-    - include: playbook-install-osa-env.yml -e "@../onpc-site-config.yml"
+    - include: playbook-install-osa-env.yml -i /etc/ansible/cobbler.py -e "@../onpc-site-config.yml"  
     - include: playbook_setup_hosts.yml -i /etc/ansible/cobbler.py -e "@../onpc-site-config.yml" 

@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-- name: "Get {{ item }} Repo"
+- name: "Get ONPC repos"
   git:
     repo: "https://github.com/opennext-io/{{ item }}"
     dest: "/opt/{{ item }}"

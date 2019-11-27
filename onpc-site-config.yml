@@ -119,21 +119,21 @@ onpc_netboot_profiles:
       - partition_name: pv.02
         type: part
         size: 32000
-        maxsize: 64000
+        maxsize: 128000
         drive: sda
       - partition_name: osa_vg
         type: volgroup
         pvname: pv.02
       - partition_name: osa_lv
         type: logvol
-        percent: 20
+        percent: 80
         fstype: xfs
         mountpoint: /openstack
         vgname: osa_vg
         grow: true
       - partition_name: osa_log_lv
         type: logvol
-        percent: 80
+        percent: 20
         fstype: xfs
         mountpoint: /openstack/log
         vgname: osa_vg
@@ -298,14 +298,14 @@ onpc_netboot_profiles:
         pvname: pv.02
       - partition_name: osa_lv
         type: logvol
-        percent: 20
+        percent: 80
         fstype: xfs
         mountpoint: /openstack
         vgname: osa_vg
         grow: true
       - partition_name: osa_log_lv
         type: logvol
-        percent: 80
+        percent: 20
         fstype: xfs
         mountpoint: /openstack/log
         vgname: osa_vg
@@ -484,14 +484,14 @@ onpc_netboot_profiles:
         pvname: pv.02
       - partition_name: osa_lv
         type: logvol
-        percent: 20
+        percent: 80
         fstype: xfs
         mountpoint: /openstack
         vgname: osa_vg
         grow: true
       - partition_name: osa_log_lv
         type: logvol
-        percent: 80
+        percent: 20
         fstype: xfs
         mountpoint: /openstack/log
         vgname: osa_vg
@@ -681,14 +681,14 @@ onpc_netboot_profiles:
         pvname: pv.02
       - partition_name: osa_lv
         type: logvol
-        percent: 20
+        percent: 80
         fstype: xfs
         mountpoint: /openstack
         vgname: osa_vg
         grow: true
       - partition_name: osa_log_lv
         type: logvol
-        percent: 80
+        percent: 20
         fstype: xfs
         mountpoint: /openstack/log
         vgname: osa_vg
@@ -845,14 +845,14 @@ onpc_netboot_profiles:
         pvname: pv.02
       - partition_name: osa_lv
         type: logvol
-        percent: 20
+        percent: 80
         fstype: xfs
         mountpoint: /openstack
         vgname: osa_vg
         grow: true
       - partition_name: osa_log_lv
         type: logvol
-        percent: 80
+        percent: 20
         fstype: xfs
         mountpoint: /openstack/log
         vgname: osa_vg
@@ -1013,22 +1013,22 @@ onpc_netboot_profiles:
       #
       - partition_name: pv.02
         type: part
-        size: 32000
-        max_size: 128000
+        size: 64000
+        max_size: 256000
         drive: sda
       - partition_name: osa_vg
         type: volgroup
         pvname: pv.02
       - partition_name: osa_lv
         type: logvol
-        percent: 20
+        percent: 80
         fstype: xfs
         mountpoint: /openstack
         vgname: osa_vg
         grow: true
       - partition_name: osa_log_lv
         type: logvol
-        percent: 80
+        percent: 20
         fstype: xfs
         mountpoint: /openstack/log
         vgname: osa_vg

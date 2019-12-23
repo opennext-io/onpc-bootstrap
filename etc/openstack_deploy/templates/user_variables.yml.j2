@@ -2,7 +2,7 @@
 ---
 # Copyright 2014, Rackspace US, Inc.
 # Copyright (c) 2019, Patrick Petit <patrick.michel.petit@gmail.com>
- 
+
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ repo_build_pip_extra_indexes:
 # In OpenStack, if you are taking advantage of the multiple domain
 # functionality, you have full control via command-line tools.
 # However, if you want to be able to use the OpenStack dashboard with
-# multiple domains, you will need to enable Horizon's multidomain support. 
+# multiple domains, you will need to enable Horizon's multidomain support.
 horizon_keystone_multidomain_support: "{{ onpc_multidomain_support }}"
 
 ## RabbitMQ Overrides
@@ -175,7 +175,7 @@ nova_libvirt_images_rbd_pool: vms
 
 # If you wish to change the dhcp_domain configured for both nova and neutron
 dhcp_domain: "{{ onpc_openstack_domain }}"
-nova_cpu_allocation_ratio: "{{ onpc_cpu_overcommit | default(8.0) }}" 
+nova_cpu_allocation_ratio: "{{ onpc_cpu_overcommit | default(8.0) }}"
 nova_nova_conf_overrides:
   DEFAULT:
 {%- raw %}

@@ -346,7 +346,9 @@ os-infra_hosts: *infrastructure_hosts
 # List of target hosts on which to deploy the package repository. Recommend
 # minimum three target hosts for this service. Typically contains the same
 # target hosts as the 'shared-infra_hosts' level.
+{% if onpc_repo_server_enabled is defined and onpc_repo_server_enabled %}
 repo-infra_hosts: *infrastructure_hosts
+{% endif %}
 
 # Level: identity_hosts (required)
 # List of target hosts on which to deploy the keystone service. Recommend

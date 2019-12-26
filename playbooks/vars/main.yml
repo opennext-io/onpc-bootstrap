@@ -296,3 +296,6 @@ onpc_proxy_mode: transparent
 onpc_sensu_alerts:
   handlers:
     - default
+
+# Disable the installation of repo_server
+onpc_repo_server_enabled: false

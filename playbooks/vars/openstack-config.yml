@@ -19,39 +19,37 @@ vm_flavors:
   - name: m1.mini
     ram: 1024
     vcpus: 2
-    disk: 3
-    swap: 0
+    disk: 10
+    swap: 512
     ephemeral: 0
   - name: m1.small
     ram: 2048
     vcpus: 3
-    disk: 12
-    swap: 4
+    disk: 20
+    swap: 1024
     ephemeral: 4
   - name: m1.medium
     ram: 4096
     vcpus: 6
     disk: 60
-    swap: 4
+    swap: 2048
     ephemeral: 20
   - name: m1.large
     ram: 8192
     vcpus: 12
-    disk: 300
-    swap: 4
+    disk: 60
+    swap: 4096
     ephemeral: 150
   - name: m1.xlarge
     ram: 16384
     vcpus: 24
     disk: 600
-    swap: 4
-    ephemeral: 256
+    swap: 8192
   - name: m1.heavy
     ram: 32768
     vcpus: 48
-    disk: 1200
-    swap: 4
-    ephemeral: 256
+    disk: 60
+    swap: 8192
 
 # Create shared networks and subnets:
 provider_net_name: PROVIDER_NETWORK
@@ -122,19 +120,25 @@ images:
     url: http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-x86_64-disk.img
   - name: Ubuntu 18.04 LTS
     format: qcow2
-    url: http://uec-images.ubuntu.com/releases/18.04/release/ubuntu-18.04-server-cloudimg-amd64.img
+    url: https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img
   - name: Ubuntu 16.04 LTS
     format: qcow2
-    url: http://uec-images.ubuntu.com/releases/16.04/release/ubuntu-16.04-server-cloudimg-amd64-disk1.img
-  - name: Fedora 27
+    url: https://cloud-images.ubuntu.com/xenial/current/xenial-server-cloudimg-amd64-disk1.img
+  - name: Fedora 31
     format: qcow2
-    url: http://dfw.mirror.rackspace.com/fedora/releases/27/CloudImages/x86_64/images/Fedora-Cloud-Base-27-1.6.x86_64.qcow2
+    url: https://download.fedoraproject.org/pub/fedora/linux/releases/31/Cloud/x86_64/images/Fedora-Cloud-Base-31-1.9.x86_64.qcow2
   - name: CentOS 7
     format: qcow2
     url: http://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
+  - name: OpenSuse Leap 15.2
+    format: qcow2
+    url: https://download.opensuse.org/repositories/Cloud:/Images:/Leap_15.2/images/openSUSE-Leap-15.2-OpenStack.x86_64.qcow2
   - name: OpenSuse Leap 42.3
     format: qcow2
-    url: http://download.opensuse.org/repositories/Cloud:/Images:/Leap_42.3/images/openSUSE-Leap-42.3-OpenStack.x86_64.qcow2
+    url: https://download.opensuse.org/repositories/Cloud:/Images:/Leap_42.3/images/openSUSE-Leap-42.3-OpenStack.x86_64.qcow2
   - name: Debian 9 Latest
     format: qcow2
-    url: http://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
+    url: https://cdimage.debian.org/cdimage/openstack/current-9/debian-9-openstack-amd64.qcow2
+  - name: Debian 10 Latest
+    format: qcow2
+    url: https://cdimage.debian.org/cdimage/openstack/current-10/debian-10-openstack-amd64.qcow2

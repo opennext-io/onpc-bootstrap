@@ -262,3 +262,33 @@ deployment_environment_variables:
 ## SSH connection wait time
 # Increase delay for the ssh connection check if desired.
 ssh_delay: "{{ onpc_ssh_delay | default(5) }}"
+
+nova_nova_conf_overrides:
+  DEFAULT:
+    use_syslog: True
+    syslog_log_facility: LOG_LOCAL7
+
+cinder_cinder_conf_overrides:
+  DEFAULT:
+    use_syslog: True
+    syslog_log_facility: LOG_LOCAL7
+
+glance_glance_api_conf_overrides:
+  DEFAULT:
+    use_syslog: True
+    syslog_log_facility: LOG_LOCAL7
+
+glance_glance_registry_conf_overrides:
+  DEFAULT:
+    use_syslog: True
+    syslog_log_facility: LOG_LOCAL7
+
+neutron_neutron_conf_overrides:
+  DEFAULT:
+    use_syslog: True
+    syslog_log_facility: LOG_LOCAL7
+
+heat_heat_conf_overrides:
+  DEFAULT:
+    use_syslog: True
+    syslog_log_facility: LOG_LOCAL7

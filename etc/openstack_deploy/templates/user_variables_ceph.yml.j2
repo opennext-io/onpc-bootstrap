@@ -55,3 +55,12 @@ lvm_volumes:
 dmcrypt: false
 openstack_config: true
 cinder_ceph_client: cinder
+
+# Ceph conf overrides
+ceph_conf_overrides:
+  global:
+    log_to_syslog: true
+    err_to_syslog: true
+    mon_cluster_log_to_syslog: true
+    syslog_facility: local7
+    mon_cluster_log_to_syslog_facility: local7

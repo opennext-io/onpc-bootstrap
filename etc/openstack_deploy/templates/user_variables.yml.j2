@@ -176,22 +176,6 @@ nova_libvirt_images_rbd_pool: vms
 # If you wish to change the dhcp_domain configured for both nova and neutron
 dhcp_domain: "{{ onpc_openstack_domain }}"
 nova_cpu_allocation_ratio: "{{ onpc_cpu_overcommit | default(8.0) }}"
-nova_nova_conf_overrides:
-  DEFAULT:
-{%- raw %}
-    cpu_allocation_ratio: "{{ nova_cpu_allocation_ratio }}"
-{% endraw %}
-    block_device_allocate_retries: 60
-    block_device_allocate_retries_interval: 5
-    block_device_creation_timeout: 300
-
-cinder_cinder_conf_overrides:
-  DEFAULT:
-    image_volume_cache_enabled: true
-{% if 'ceph' in onpc_services_list %}
-  ceph:
-    image_volume_cache_enabled: true
-{% endif %}
 
 {% if 'ceph' in onpc_services_list %}
 cinder_default_volume_type: rbd
@@ -263,8 +247,16 @@ deployment_environment_variables:
 # Increase delay for the ssh connection check if desired.
 ssh_delay: "{{ onpc_ssh_delay | default(5) }}"
 
+# Conf Overrides
+
 nova_nova_conf_overrides:
   DEFAULT:
+{%- raw %}
+    cpu_allocation_ratio: "{{ nova_cpu_allocation_ratio }}"
+{% endraw %}
+    block_device_allocate_retries: 60
+    block_device_allocate_retries_interval: 5
+    block_device_creation_timeout: 300
     use_syslog: True
     syslog_log_facility: LOG_LOCAL7
 
@@ -272,6 +264,12 @@ cinder_cinder_conf_overrides:
   DEFAULT:
     use_syslog: True
     syslog_log_facility: LOG_LOCAL7
+    image_volume_cache_enabled: true
+{% if 'ceph' in onpc_services_list %}
+  ceph:
+    image_volume_cache_enabled: true
+{% endif %}
+
 
 glance_glance_api_conf_overrides:
   DEFAULT:
